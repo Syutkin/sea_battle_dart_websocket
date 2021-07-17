@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'models/cell.dart';
 import 'models/player.dart';
 
 void main(List<String> arguments) {
@@ -14,9 +15,6 @@ void main(List<String> arguments) {
 
   player1.placeShips();
   player2.placeShips();
-
-  //   player1.playerField.fillWithShips();
-  //   player2.playerField.fillWithShips();
 
   var _currentPlayer = player1;
 
@@ -50,11 +48,10 @@ void main(List<String> arguments) {
     var y = currentPlayer().playerField.readCoordinate('y');
 
     var shotResult = anotherPlayer().playerField.doShot(x, y);
-    if (shotResult == 32) {
-      currentPlayer().battleField.doShot(x, y, 42);
+    print('shotResult: ${shotResult.toString()}');
+    currentPlayer().battleField.doShot(x, y, shotResult);
+    if (shotResult is EmptyCell) {
       _currentPlayer = anotherPlayer();
-    } else {
-      currentPlayer().battleField.doShot(x, y, shotResult);
     }
   }
   stdout.writeln('Игрок ${_currentPlayer.name} победил!');
