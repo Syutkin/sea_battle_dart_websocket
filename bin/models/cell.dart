@@ -1,3 +1,5 @@
+import 'package:ansicolor/ansicolor.dart';
+
 import 'ship.dart';
 
 class Cell {}
@@ -19,7 +21,8 @@ class ShipInCell extends Cell {
 
   @override
   String toString() {
-    return String.fromCharCode(_ship);
+    var pen = AnsiPen()..yellow();
+    return pen(String.fromCharCode(_ship));
   }
 }
 
@@ -27,6 +30,7 @@ class MissCell extends Cell {
   static const _shot = 42; // *
   @override
   String toString() {
-    return String.fromCharCode(_shot);
+    var pen = AnsiPen()..blue();
+    return pen(String.fromCharCode(_shot));
   }
 }

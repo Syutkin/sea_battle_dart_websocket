@@ -1,12 +1,17 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:ansicolor/ansicolor.dart';
+
 import 'ship.dart';
 import 'cell.dart';
+import 'shot.dart';
 
 class Field {
   final _length;
   final List<List<Cell>> _field;
+
+  final letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
 
   int get length => _length;
 
@@ -17,8 +22,10 @@ class Field {
   void printField() {
     var i = 1;
     // stdout.writeln('   А Б В Г Д Е Ж З И К ');
+    // stdout.writeln(
+    //     '  \u{2502}1\u{2502}2\u{2502}3\u{2502}4\u{2502}5\u{2502}6\u{2502}7\u{2502}8\u{2502}9\u{2502}0\u{2502}');
     stdout.writeln(
-        '  \u{2502}1\u{2502}2\u{2502}3\u{2502}4\u{2502}5\u{2502}6\u{2502}7\u{2502}8\u{2502}9\u{2502}0\u{2502}');
+        '  \u{2502}A\u{2502}B\u{2502}C\u{2502}D\u{2502}E\u{2502}F\u{2502}G\u{2502}H\u{2502}I\u{2502}J\u{2502}');
     stdout.writeln(
         '\u{2500}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{2524}');
     for (var row in _field) {
@@ -38,18 +45,32 @@ class Field {
     }
   }
 
-  int readCoordinate(String coordinate) {
-    int? coord;
+  Shot readCoordinate() {
+    int? x;
+    int? y;
 
     do {
-      stdout.writeln('Введите $coordinate координату: ');
-      coord = int.tryParse(stdin.readLineSync() ?? '');
-      if (coord != null && (coord > length || coord < 1)) {
-        coord = null;
-      }
-    } while (coord == null);
+      x = null;
+      y = null;
 
-    return coord - 1;
+      String? input =
+          (stdin.readLineSync() ?? '').trim().toUpperCase().replaceAll(' ', '');
+
+      if (letters.contains(input[0])) {
+        x = letters.indexOf(input[0]);
+      }
+
+      y = int.tryParse(input.substring(1));
+      if (y != null && y > 0 && y < _length - 1) {
+        y--;
+      }
+
+      if (x == null || y == null) {
+        stdout.writeln('Неверные координаты, сделайте выстрел заново: ');
+      }
+    } while (x == null || y == null);
+
+    return Shot(x: x, y: y);
   }
 
   void _markCellsAroundShip(Ship ship) {
@@ -143,10 +164,10 @@ class PlayerField extends Field {
 
   bool _placeShip(int size, [int x = -1, int y = -1, int orientation = -1]) {
     if (x < 0) {
-      x = readCoordinate('x');
+      x = readCoordinate().x;
     }
     if (y < 0) {
-      y = readCoordinate('y');
+      y = readCoordinate().y;
     }
 
     if (size > 1) {
@@ -247,7 +268,6 @@ class PlayerField extends Field {
     if (result is ShipInCell) {
       if (ships[result.ship.number].Shot(x_coord: x, y_coord: y)) {
         //ship is alive
-        // print('ship is alive');
         _markCellsAroundHit(x, y);
       } else {
         //ship is dead
@@ -266,11 +286,14 @@ class BattleField extends Field {
   void doShot(int x, int y, Cell shotResult) {
     if (shotResult is ShipInCell) {
       _field[y][x] = shotResult;
+      var pen = AnsiPen()..red();
       if (shotResult.ship.isAlive) {
         //ship is alive
+        stdout.writeln(pen('Попадание! Корабль ранен'));
         _markCellsAroundHit(x, y);
       } else {
         //ship dead
+        stdout.writeln(pen('Попадание! Корабль убит'));
         _markCellsAroundShip(shotResult.ship);
       }
     } else if (shotResult is EmptyCell) {
