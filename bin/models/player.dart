@@ -23,7 +23,7 @@ class Player {
     stdout.writeln('$_name расставляет флот');
     int? method;
     do {
-      stdout.writeln('Как расставить корабли: 1 - вручную; 2 - автоматически');
+      stdout.write('Как расставить корабли: 1 - вручную; 2 - автоматически: ');
       method = int.tryParse(stdin.readLineSync() ?? '');
     } while (!(method == 1 || method == 2));
 

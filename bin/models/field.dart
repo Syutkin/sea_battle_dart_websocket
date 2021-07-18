@@ -5,7 +5,7 @@ import 'package:ansicolor/ansicolor.dart';
 
 import 'ship.dart';
 import 'cell.dart';
-import 'shot.dart';
+import 'coordinates.dart';
 
 class Field {
   final _length;
@@ -21,9 +21,12 @@ class Field {
 
   void printField() {
     var i = 1;
+
+    stdout.writeln();
     // stdout.writeln('   А Б В Г Д Е Ж З И К ');
     // stdout.writeln(
     //     '  \u{2502}1\u{2502}2\u{2502}3\u{2502}4\u{2502}5\u{2502}6\u{2502}7\u{2502}8\u{2502}9\u{2502}0\u{2502}');
+
     stdout.writeln(
         '  \u{2502}A\u{2502}B\u{2502}C\u{2502}D\u{2502}E\u{2502}F\u{2502}G\u{2502}H\u{2502}I\u{2502}J\u{2502}');
     stdout.writeln(
@@ -45,16 +48,14 @@ class Field {
     }
   }
 
-  Shot readCoordinate() {
+  Coordinates readCoordinate() {
     int? x;
     int? y;
 
-    final exp_a1 = RegExp(r'^([A-J])([0-9]{1,2})$');
-    final exp_1a = RegExp(r'^([0-9]{1,2})([A-J])$');
+    final exp_a1 = RegExp(r'^([A-J])([1-9]|10)$');
+    final exp_1a = RegExp(r'^([1-9]|10)([A-J])$');
 
-    var correctInput = false;
-
-    do {
+    while (x == null || y == null) {
       x = null;
       y = null;
 
@@ -74,14 +75,11 @@ class Field {
           y = int.parse(match.group(1)!) - 1;
         }
       }
-      if (x == null || y == null || x < 0 || y < 0 || y >= _length) {
-        stdout.writeln('Неверные координаты, сделайте выстрел заново: ');
-      } else {
-        correctInput = true;
+      if (x == null || y == null) {
+        stdout.write('Неверные координаты, задайте заново: ');
       }
-    } while (!correctInput);
-
-    return Shot(x: x!, y: y!);
+    }
+    return Coordinates(x: x, y: y);
   }
 
   void _markCellsAroundShip(Ship ship) {
@@ -134,7 +132,7 @@ class PlayerField extends Field {
     int? orientation;
 
     do {
-      stdout.writeln(
+      stdout.write(
           'Введите направление: 1 - горизонтально; 2 - вертикально ?: ');
       orientation = int.tryParse(stdin.readLineSync() ?? '');
       if (orientation != null && orientation != 1 && orientation != 2) {
@@ -174,11 +172,11 @@ class PlayerField extends Field {
   }
 
   bool _placeShip(int size, [int x = -1, int y = -1, int orientation = -1]) {
-    if (x < 0) {
-      x = readCoordinate().x;
-    }
-    if (y < 0) {
-      y = readCoordinate().y;
+    if (x < 0 || y < 0) {
+      stdout.write('Введите координату начала корабля: ');
+      var coordinate = readCoordinate();
+      x = coordinate.x;
+      y = coordinate.y;
     }
 
     if (size > 1) {
@@ -297,7 +295,7 @@ class BattleField extends Field {
   void doShot(int x, int y, Cell shotResult) {
     if (shotResult is ShipInCell) {
       _field[y][x] = shotResult;
-      var pen = AnsiPen()..red();
+      final pen = AnsiPen()..red();
       if (shotResult.ship.isAlive) {
         //ship is alive
         stdout.writeln(pen('Попадание! Корабль ранен'));
@@ -309,6 +307,8 @@ class BattleField extends Field {
       }
     } else if (shotResult is EmptyCell) {
       _field[y][x] = MissCell();
+      final pen = AnsiPen()..blue();
+      stdout.writeln(pen('Промах'));
     }
   }
 }

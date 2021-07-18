@@ -9,10 +9,10 @@ import 'models/player.dart';
 void main(List<String> arguments) {
   const FILED_LENGTH = 10;
 
-  stdout.writeln('Введите имя первого игрока: ');
+  stdout.write('Введите имя первого игрока: ');
   var player1 = Player(stdin.readLineSync() ?? '', FILED_LENGTH);
 
-  stdout.writeln('Введите имя второго игрока: ');
+  stdout.write('Введите имя второго игрока: ');
   var player2 = Player(stdin.readLineSync() ?? '', FILED_LENGTH);
 
   player1.placeShips();
@@ -53,7 +53,7 @@ void main(List<String> arguments) {
 
   while (player1.isAlive && player2.isAlive) {
     currentPlayer().battleField.printField();
-    stdout.writeln('Игрок ${currentPlayer().name} делает выстрел: ');
+    stdout.write('Игрок ${currentPlayer().name} делает выстрел: ');
 
     // var x = currentPlayer().playerField.readCoordinate('x');
     // var y = currentPlayer().playerField.readCoordinate('y');
