@@ -49,6 +49,11 @@ class Field {
     int? x;
     int? y;
 
+    final exp_a1 = RegExp(r'^([A-J])([0-9]{1,2})$');
+    final exp_1a = RegExp(r'^([0-9]{1,2})([A-J])$');
+
+    var correctInput = false;
+
     do {
       x = null;
       y = null;
@@ -56,21 +61,27 @@ class Field {
       String? input =
           (stdin.readLineSync() ?? '').trim().toUpperCase().replaceAll(' ', '');
 
-      if (letters.contains(input[0])) {
-        x = letters.indexOf(input[0]);
-      }
+      var match = exp_a1.firstMatch(input);
 
-      y = int.tryParse(input.substring(1));
-      if (y != null && y > 0 && y < _length - 1) {
-        y--;
-      }
+      if (match != null) {
+        x = letters.indexOf(match.group(1)!);
 
-      if (x == null || y == null) {
+        y = int.parse(match.group(2)!) - 1;
+      } else {
+        match = exp_1a.firstMatch(input);
+        if (match != null) {
+          x = letters.indexOf(match.group(2)!);
+          y = int.parse(match.group(1)!) - 1;
+        }
+      }
+      if (x == null || y == null || x < 0 || y < 0 || y >= _length) {
         stdout.writeln('Неверные координаты, сделайте выстрел заново: ');
+      } else {
+        correctInput = true;
       }
-    } while (x == null || y == null);
+    } while (!correctInput);
 
-    return Shot(x: x, y: y);
+    return Shot(x: x!, y: y!);
   }
 
   void _markCellsAroundShip(Ship ship) {
