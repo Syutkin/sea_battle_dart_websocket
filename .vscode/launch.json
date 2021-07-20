@@ -5,10 +5,11 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "sea_battle",
+            "name": "sea_battle (debug console)",
             "request": "launch",
             "type": "dart",
-            "console": "externalTerminal"
+            "program": "bin/sea_battle.dart",
+            "console": "debugConsole"
         }
     ]
 }
