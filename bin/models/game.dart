@@ -53,8 +53,6 @@ class Game {
       currentPlayer().battleField.printField();
       stdout.write('Игрок ${currentPlayer().name} делает выстрел: ');
 
-      // var x = currentPlayer().playerField.readCoordinate('x');
-      // var y = currentPlayer().playerField.readCoordinate('y');
       var shot = currentPlayer().playerField.readCoordinate();
 
       var shotResult = anotherPlayer().playerField.doShot(shot.x, shot.y);

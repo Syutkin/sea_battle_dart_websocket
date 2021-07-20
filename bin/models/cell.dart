@@ -19,9 +19,17 @@ class ShipInCell extends Cell {
 
   Ship ship;
 
+  bool alive = true;
+  bool wasAlive = true;
+
   @override
   String toString() {
-    var pen = AnsiPen()..yellow();
+    var pen = AnsiPen();
+    if (alive) {
+      pen.yellow();
+    } else {
+      pen.red();
+    }
     return pen(String.fromCharCode(_ship));
   }
 }

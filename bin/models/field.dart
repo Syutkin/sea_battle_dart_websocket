@@ -132,8 +132,8 @@ class PlayerField extends Field {
     int? orientation;
 
     do {
-      stdout.write(
-          'Введите направление: 1 - горизонтально; 2 - вертикально ?: ');
+      stdout
+          .write('Введите направление: 1 - горизонтально; 2 - вертикально ?: ');
       orientation = int.tryParse(stdin.readLineSync() ?? '');
       if (orientation != null && orientation != 1 && orientation != 2) {
         orientation = null;
@@ -275,12 +275,17 @@ class PlayerField extends Field {
   Cell doShot(int x, int y) {
     var result = _field[y][x];
     if (result is ShipInCell) {
-      if (ships[result.ship.number].Shot(x_coord: x, y_coord: y)) {
-        //ship is alive
-        _markCellsAroundHit(x, y);
+      if (result.alive) {
+        result.alive = false;
+        if (ships[result.ship.number].Shot(x_coord: x, y_coord: y)) {
+          //ship is alive
+          _markCellsAroundHit(x, y);
+        } else {
+          //ship is dead
+          _markCellsAroundShip(ships[result.ship.number]);
+        }
       } else {
-        //ship is dead
-        _markCellsAroundShip(ships[result.ship.number]);
+        result.wasAlive = false;
       }
     } else {
       _field[y][x] = MissCell();
@@ -293,7 +298,7 @@ class BattleField extends Field {
   BattleField(int length) : super(length);
 
   void doShot(int x, int y, Cell shotResult) {
-    if (shotResult is ShipInCell) {
+    if (shotResult is ShipInCell && shotResult.wasAlive) {
       _field[y][x] = shotResult;
       final pen = AnsiPen()..red();
       if (shotResult.ship.isAlive) {
