@@ -7,7 +7,7 @@ import 'ship.dart';
 import 'cell.dart';
 import 'coordinates.dart';
 
-class Field {
+abstract class Field {
   final _length;
   final List<List<Cell>> _field;
 
@@ -15,7 +15,7 @@ class Field {
 
   int get length => _length;
 
-  Field(int length)
+  Field([int length = 10])
       : _length = length,
         _field = List.generate(length, (i) => List.filled(length, EmptyCell()));
 
@@ -124,7 +124,7 @@ class Field {
 }
 
 class PlayerField extends Field {
-  PlayerField(int length) : super(length);
+  PlayerField() : super();
 
   List<Ship> ships = [];
 
@@ -295,7 +295,7 @@ class PlayerField extends Field {
 }
 
 class BattleField extends Field {
-  BattleField(int length) : super(length);
+  BattleField() : super();
 
   void doShot(int x, int y, Cell shotResult) {
     if (shotResult is ShipInCell && shotResult.wasAlive) {

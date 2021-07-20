@@ -15,13 +15,13 @@ class Game {
   void playGame() {
     player1.placeShips();
 
-    for (var i = 0; i < 50; i++) {
+    for (var i = 0; i < 100; i++) {
       stdout.writeln('');
     }
 
     player2.placeShips();
 
-    for (var i = 0; i < 50; i++) {
+    for (var i = 0; i < 100; i++) {
       stdout.writeln('');
     }
 

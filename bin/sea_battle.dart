@@ -1,38 +1,38 @@
-import 'dart:io';
-
-import 'models/game.dart';
-import 'models/player.dart';
+import 'models/server.dart';
 
 void main(List<String> arguments) {
-  const FILED_LENGTH = 10;
+  var server = Server.bind();
 
-  var playGame = true;
+  // const FILED_LENGTH = 10;
 
-  while (playGame) {
-    stdout.write('Введите имя первого игрока: ');
-    var player1 = Player(stdin.readLineSync() ?? '', FILED_LENGTH);
+  // var playGame = true;
 
-    stdout.write('Введите имя второго игрока: ');
-    var player2 = Player(stdin.readLineSync() ?? '', FILED_LENGTH);
+  // while (playGame) {
+  //   stdout.write('Введите имя первого игрока: ');
+  //   var player1 = Player(stdin.readLineSync() ?? '', FILED_LENGTH);
 
-    var game = Game(player1, player2);
+  //   stdout.write('Введите имя второго игрока: ');
+  //   var player2 = Player(stdin.readLineSync() ?? '', FILED_LENGTH);
 
-    game.playGame();
+  //   var game = Game(player1, player2);
 
-    int? continueGame;
+  //   game.playGame();
 
-    do {
-      stdout.write('Начать новую игру: 1 - да; 2 - нет: ');
-      continueGame =
-          int.tryParse((stdin.readLineSync() ?? '').trim().replaceAll(' ', ''));
+  //   int? continueGame;
 
-      if (continueGame == 2) {
-        playGame = false;
-      }
+  //   do {
+  //     stdout.write('Начать новую игру: 1 - да; 2 - нет: ');
+  //     continueGame =
+  //         int.tryParse((stdin.readLineSync() ?? '').trim().replaceAll(' ', ''));
 
-      if (continueGame != 2 && continueGame != 1) {
-        stdout.writeln('Непонятный ответ');
-      }
-    } while (continueGame != 2 && continueGame != 1);
-  }
+  //     if (continueGame == 2) {
+  //       playGame = false;
+  //     }
+
+  //     if (continueGame != 2 && continueGame != 1) {
+  //       stdout.writeln('Непонятный ответ');
+  //     }
+  //   } while (continueGame != 2 && continueGame != 1);
+  // }
+
 }
