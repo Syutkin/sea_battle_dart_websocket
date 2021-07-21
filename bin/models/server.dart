@@ -62,42 +62,91 @@ class Server {
 
   /// Add player to awaiting queue
   void addPlayerToQueue(Player newPlayer) {
-    players.putIfAbsent(newPlayer.connectionName, () => newPlayer);
+    awaitingPlayers.putIfAbsent(newPlayer.connectionName, () => newPlayer);
+    // ToDo: start game when we found two players
+    if (awaitingPlayers.length >= 2) {
+      // startGame(awaitingPlayers[0], awaitingPlayers[1]);
+
+      // removePlayerFromQueue(awaitingPlayers[1]!);
+      // removePlayerFromQueue(awaitingPlayers[0]!);
+    }
   }
 
+  void checkPlayersInQueue() {
+    var keys = [];
+    players.forEach((key, value) {
+      if (value.state is PlayerInQueue) {
+        keys.add(key);
+      }
+    });
+    if (keys.length > 1) {
+      players[keys[0]]?.setState(PlayerInGame());
+      players[keys[1]]?.setState(PlayerInGame());
+      startGame(players[keys[0]]!, players[keys[1]]!);
+    }
+  }
+
+  void startGame(Player player1, Player player2) {
+    //ToDO: actually start game
+    print('game started');
+  }
+
+  /// Remove player from awaiting queue
+  // void removePlayerFromQueue(Player newPlayer) {
+  //   if (awaitingPlayers.containsKey(newPlayer.connectionName)) {
+  //     awaitingPlayers.remove(newPlayer.connectionName);
+  //   }
+  // }
+
   void _parseMessage(Player player, String message) {
+    print(player.state);
     if (player.state is PlayerConnecting) {
       player.name = message;
       print('${player.connectionName} new name: $message');
       send(player, 'Добро пожаловать в морской бой, ${player.name}');
-      player.state = PlayerInMenu();
-      send(player, Menu.menu);
+      player.setState(PlayerInMenu());
+      send(player, Menu.mainMenu);
     } else if (player.state is PlayerInMenu) {
       var response = int.tryParse(message);
       switch (response) {
-        case 1:
-          // find game
+        case 1: // find game
           // ToDo
+          // addPlayerToQueue(player);
+          player.setState(PlayerInQueue());
+          checkPlayersInQueue();
+          send(player, Menu.inQueue);
           break;
-        case 2:
-          send(player, 'Игроки на сервере:');
+        case 2: // players online
+          send(player, 'Игроков на сервере: ${players.length}');
           players.forEach((key, value) {
             if (value.name != null) {
               send(player, '${value.name}: ${value.state}');
             }
           });
-          // players online
+          send(player, Menu.mainMenu);
           break;
-        case 3:
-          // server info
+        case 3: // server info
           // ToDo
           send(player, 'Информация о сервере: TBD');
+          send(player, Menu.mainMenu);
           break;
         default:
           send(player, 'Неверный ввод');
+          send(player, Menu.mainMenu);
       }
-      send(player, Menu.menu);
+      // send(player, Menu.menu);
     } else if (player.state is PlayerInQueue) {
+      var response = int.tryParse(message);
+      switch (response) {
+        case 1:
+          player.setState(PlayerInMenu());
+          send(player, Menu.mainMenu);
+          // removePlayerFromQueue(player);
+          break;
+        default:
+          send(player, 'Неверный ввод');
+          send(player, Menu.inQueue);
+      }
       //ToDo
       print('player in queue');
     } else if (player.state is PlayerInGame) {
@@ -119,6 +168,7 @@ class Server {
 
       webSocket.stream.listen((message) {
         print('message from $connectionName: $message');
+        message = message.toString().trim();
         _parseMessage(player, message);
       }).onDone(() {
         closeConnection(connectionName);

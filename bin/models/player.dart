@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:bloc/bloc.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 import 'field.dart';
@@ -6,14 +7,14 @@ import 'player_state.dart';
 
 typedef DisconnectHandler = void Function(String connectionName);
 
-class Player {
+class Player extends Cubit<PlayerState> {
   String? name;
   final PlayerField playerField;
   final BattleField battleField;
   final String connectionName;
   final WebSocketChannel webSocket;
 
-  PlayerState state = PlayerConnecting();
+  // PlayerState state = PlayerConnecting();
 
   // late DisconnectHandler _onDisconnect;
 
@@ -25,9 +26,12 @@ class Player {
     return playerField.isShipsExists;
   }
 
+  void setState(PlayerState state) => emit(state);
+
   Player({required this.connectionName, required this.webSocket})
       : playerField = PlayerField(),
-        battleField = BattleField();
+        battleField = BattleField(),
+        super(PlayerConnecting());
 
   // void _parseMessage(String message) {
   //   print('message from $connectionName: $message');
@@ -55,8 +59,6 @@ class Player {
   //   }
   // }
 
-
-
   /// Send message to player
   // void send(String message) {
   //   webSocket.sink.add(message);
@@ -77,5 +79,4 @@ class Player {
       playerField.fillWithShips(true);
     }
   }
-
 }
