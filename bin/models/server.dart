@@ -24,7 +24,9 @@ class Server {
   Map<String, Player> awaitingPlayers = <String, Player>{};
 
   /// Currently ongoing games
-  List<Game> activeGames = [];
+  Map<String, Game> activeGames = <String, Game>{};
+
+  int gameCount = 1;
 
   /// Send message to player
   void sendByConnectionName(String connectionName, String message) {
@@ -46,7 +48,6 @@ class Server {
   /// Sending welcome message to new client
   void sendWelcome(Player player) {
     final message = 'Введите Ваше имя:';
-
     send(player, message);
   }
 
@@ -60,19 +61,8 @@ class Server {
     }
   }
 
-  /// Add player to awaiting queue
-  void addPlayerToQueue(Player newPlayer) {
-    awaitingPlayers.putIfAbsent(newPlayer.connectionName, () => newPlayer);
-    // ToDo: start game when we found two players
-    if (awaitingPlayers.length >= 2) {
-      // startGame(awaitingPlayers[0], awaitingPlayers[1]);
-
-      // removePlayerFromQueue(awaitingPlayers[1]!);
-      // removePlayerFromQueue(awaitingPlayers[0]!);
-    }
-  }
-
-  void checkPlayersInQueue() {
+  /// Start new game if users in queue more than one
+  bool startNewGame() {
     var keys = [];
     players.forEach((key, value) {
       if (value.state is PlayerInQueue) {
@@ -82,24 +72,23 @@ class Server {
     if (keys.length > 1) {
       players[keys[0]]?.setState(PlayerInGame());
       players[keys[1]]?.setState(PlayerInGame());
-      startGame(players[keys[0]]!, players[keys[1]]!);
+      var gameName = 'game_$gameCount';
+      gameCount++;
+
+      var game = Game(players[keys[0]]!, players[keys[1]]!);
+
+      activeGames.putIfAbsent(gameName, () => game);
+
+      print('game started');
+      game.playGame();
+      return true;
+    } else {
+      return false;
     }
   }
 
-  void startGame(Player player1, Player player2) {
-    //ToDO: actually start game
-    print('game started');
-  }
-
-  /// Remove player from awaiting queue
-  // void removePlayerFromQueue(Player newPlayer) {
-  //   if (awaitingPlayers.containsKey(newPlayer.connectionName)) {
-  //     awaitingPlayers.remove(newPlayer.connectionName);
-  //   }
-  // }
-
+  /// Parse message from user
   void _parseMessage(Player player, String message) {
-    print(player.state);
     if (player.state is PlayerConnecting) {
       player.name = message;
       print('${player.connectionName} new name: $message');
@@ -110,19 +99,21 @@ class Server {
       var response = int.tryParse(message);
       switch (response) {
         case 1: // find game
-          // ToDo
-          // addPlayerToQueue(player);
           player.setState(PlayerInQueue());
-          checkPlayersInQueue();
-          send(player, Menu.inQueue);
+          // startNewGame();
+          if (!startNewGame()) {
+            send(player, Menu.inQueue);
+          }
           break;
         case 2: // players online
-          send(player, 'Игроков на сервере: ${players.length}');
+          send(player,
+              'Игроков на сервере: ${players.length}, текущих игр: ${activeGames.length}');
           players.forEach((key, value) {
             if (value.name != null) {
               send(player, '${value.name}: ${value.state}');
             }
           });
+
           send(player, Menu.mainMenu);
           break;
         case 3: // server info

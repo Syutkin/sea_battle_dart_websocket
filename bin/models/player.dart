@@ -5,22 +5,12 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 import 'field.dart';
 import 'player_state.dart';
 
-typedef DisconnectHandler = void Function(String connectionName);
-
 class Player extends Cubit<PlayerState> {
   String? name;
   final PlayerField playerField;
   final BattleField battleField;
   final String connectionName;
   final WebSocketChannel webSocket;
-
-  // PlayerState state = PlayerConnecting();
-
-  // late DisconnectHandler _onDisconnect;
-
-  // void onDisconnect(DisconnectHandler disconnect) {
-  //   _onDisconnect = disconnect;
-  // }
 
   bool get isAlive {
     return playerField.isShipsExists;
@@ -33,36 +23,10 @@ class Player extends Cubit<PlayerState> {
         battleField = BattleField(),
         super(PlayerConnecting());
 
-  // void _parseMessage(String message) {
-  //   print('message from $connectionName: $message');
-  //   if (state is PlayerConnecting) {
-  //     name = message;
-  //     print('$connectionName new name: $message');
-  //     state = PlayerInMenu();
-  //     send('Добро пожаловать в морской бой');
-  //   }
-
-  //   if (state is PlayerInMenu) {
-  //     var response = int.tryParse(message);
-  //     switch (response) {
-  //       case 1:
-  //         break;
-  //       case 2:
-  //         break;
-
-  //       case 3:
-  //         break;
-
-  //       default:
-  //         send('Непонятно, повторите ввод');
-  //     }
-  //   }
-  // }
-
   /// Send message to player
-  // void send(String message) {
-  //   webSocket.sink.add(message);
-  // }
+  void send(String message) {
+    webSocket.sink.add(message);
+  }
 
   void placeShips() {
     playerField.printField();

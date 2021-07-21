@@ -48,6 +48,35 @@ abstract class Field {
     }
   }
 
+  String getField() {
+    var field = <String>[];
+    var i = 1;
+
+    field.add(
+        '  \u{2502}A\u{2502}B\u{2502}C\u{2502}D\u{2502}E\u{2502}F\u{2502}G\u{2502}H\u{2502}I\u{2502}J\u{2502}');
+    field.add(
+        '\u{2500}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{2524}');
+    for (var row in _field) {
+      String line;
+      line = '${i.toString().padLeft(2, ' ')}\u{2502}';
+      // field.add('${i.toString().padLeft(2, ' ')}\u{2502}');
+      i++;
+      for (var cell in row) {
+        // field.add('$cell\u{2502}');
+        line += '$cell\u{2502}';
+      }
+      field.add(line);
+      if (_length - i >= 0) {
+        field.add(
+            '\u{2500}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{2524}');
+      } else {
+        field.add(
+            '\u{2500}\u{2500}\u{2534}\u{2500}\u{2534}\u{2500}\u{2534}\u{2500}\u{2534}\u{2500}\u{2534}\u{2500}\u{2534}\u{2500}\u{2534}\u{2500}\u{2534}\u{2500}\u{2534}\u{2500}\u{2534}\u{2500}\u{2518}');
+      }
+    }
+    return field.join('\r\n');
+  }
+
   Coordinates readCoordinate() {
     int? x;
     int? y;
