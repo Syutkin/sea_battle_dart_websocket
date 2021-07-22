@@ -8,45 +8,44 @@ import 'cell.dart';
 import 'coordinates.dart';
 
 abstract class Field {
-  final _length;
+  // final _length;
   final List<List<Cell>> _field;
 
-  final letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
-
-  int get length => _length;
+  int get length => Coordinates.letters.length;
 
   Field([int length = 10])
-      : _length = length,
+      :
+        //  _length = length,
         _field = List.generate(length, (i) => List.filled(length, EmptyCell()));
 
-  void printField() {
-    var i = 1;
+  // void printField() {
+  //   var i = 1;
 
-    stdout.writeln();
-    // stdout.writeln('   А Б В Г Д Е Ж З И К ');
-    // stdout.writeln(
-    //     '  \u{2502}1\u{2502}2\u{2502}3\u{2502}4\u{2502}5\u{2502}6\u{2502}7\u{2502}8\u{2502}9\u{2502}0\u{2502}');
+  //   stdout.writeln();
+  //   // stdout.writeln('   А Б В Г Д Е Ж З И К ');
+  //   // stdout.writeln(
+  //   //     '  \u{2502}1\u{2502}2\u{2502}3\u{2502}4\u{2502}5\u{2502}6\u{2502}7\u{2502}8\u{2502}9\u{2502}0\u{2502}');
 
-    stdout.writeln(
-        '  \u{2502}A\u{2502}B\u{2502}C\u{2502}D\u{2502}E\u{2502}F\u{2502}G\u{2502}H\u{2502}I\u{2502}J\u{2502}');
-    stdout.writeln(
-        '\u{2500}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{2524}');
-    for (var row in _field) {
-      stdout.write('${i.toString().padLeft(2, ' ')}\u{2502}');
-      i++;
-      for (var cell in row) {
-        stdout.write('$cell\u{2502}');
-      }
-      stdout.writeln('');
-      if (_length - i >= 0) {
-        stdout.writeln(
-            '\u{2500}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{2524}');
-      } else {
-        stdout.writeln(
-            '\u{2500}\u{2500}\u{2534}\u{2500}\u{2534}\u{2500}\u{2534}\u{2500}\u{2534}\u{2500}\u{2534}\u{2500}\u{2534}\u{2500}\u{2534}\u{2500}\u{2534}\u{2500}\u{2534}\u{2500}\u{2534}\u{2500}\u{2518}');
-      }
-    }
-  }
+  //   stdout.writeln(
+  //       '  \u{2502}A\u{2502}B\u{2502}C\u{2502}D\u{2502}E\u{2502}F\u{2502}G\u{2502}H\u{2502}I\u{2502}J\u{2502}');
+  //   stdout.writeln(
+  //       '\u{2500}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{2524}');
+  //   for (var row in _field) {
+  //     stdout.write('${i.toString().padLeft(2, ' ')}\u{2502}');
+  //     i++;
+  //     for (var cell in row) {
+  //       stdout.write('$cell\u{2502}');
+  //     }
+  //     stdout.writeln('');
+  //     if (_length - i >= 0) {
+  //       stdout.writeln(
+  //           '\u{2500}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{2524}');
+  //     } else {
+  //       stdout.writeln(
+  //           '\u{2500}\u{2500}\u{2534}\u{2500}\u{2534}\u{2500}\u{2534}\u{2500}\u{2534}\u{2500}\u{2534}\u{2500}\u{2534}\u{2500}\u{2534}\u{2500}\u{2534}\u{2500}\u{2534}\u{2500}\u{2534}\u{2500}\u{2518}');
+  //     }
+  //   }
+  // }
 
   String getField() {
     var field = <String>[];
@@ -66,7 +65,7 @@ abstract class Field {
         line += '$cell\u{2502}';
       }
       field.add(line);
-      if (_length - i >= 0) {
+      if (length - i >= 0) {
         field.add(
             '\u{2500}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{2524}');
       } else {
@@ -77,39 +76,39 @@ abstract class Field {
     return field.join('\r\n');
   }
 
-  Coordinates readCoordinate() {
-    int? x;
-    int? y;
+  // Coordinates readCoordinate() {
+  //   int? x;
+  //   int? y;
 
-    final exp_a1 = RegExp(r'^([A-J])([1-9]|10)$');
-    final exp_1a = RegExp(r'^([1-9]|10)([A-J])$');
+  //   final exp_a1 = RegExp(r'^([A-J])([1-9]|10)$');
+  //   final exp_1a = RegExp(r'^([1-9]|10)([A-J])$');
 
-    while (x == null || y == null) {
-      x = null;
-      y = null;
+  //   while (x == null || y == null) {
+  //     x = null;
+  //     y = null;
 
-      String? input =
-          (stdin.readLineSync() ?? '').trim().toUpperCase().replaceAll(' ', '');
+  //     String? input =
+  //         (stdin.readLineSync() ?? '').trim().toUpperCase().replaceAll(' ', '');
 
-      var match = exp_a1.firstMatch(input);
+  //     var match = exp_a1.firstMatch(input);
 
-      if (match != null) {
-        x = letters.indexOf(match.group(1)!);
+  //     if (match != null) {
+  //       x = letters.indexOf(match.group(1)!);
 
-        y = int.parse(match.group(2)!) - 1;
-      } else {
-        match = exp_1a.firstMatch(input);
-        if (match != null) {
-          x = letters.indexOf(match.group(2)!);
-          y = int.parse(match.group(1)!) - 1;
-        }
-      }
-      if (x == null || y == null) {
-        stdout.write('Неверные координаты, задайте заново: ');
-      }
-    }
-    return Coordinates(x: x, y: y);
-  }
+  //       y = int.parse(match.group(2)!) - 1;
+  //     } else {
+  //       match = exp_1a.firstMatch(input);
+  //       if (match != null) {
+  //         x = letters.indexOf(match.group(2)!);
+  //         y = int.parse(match.group(1)!) - 1;
+  //       }
+  //     }
+  //     if (x == null || y == null) {
+  //       stdout.write('Неверные координаты, задайте заново: ');
+  //     }
+  //   }
+  //   return Coordinates(x: x, y: y);
+  // }
 
   void _markCellsAroundShip(Ship ship) {
     var x1 = 0;
@@ -172,6 +171,11 @@ class PlayerField extends Field {
     return orientation;
   }
 
+  bool addShip(Ship ship) {
+    // ToDo: implement function to add ships to field
+    return true;
+  }
+
   void fillWithShips({bool random = false}) {
     // i - счётчик количества палуб у корабля
     // начинаем расстановку с корабля, которого 4 палубы, а заканчиваем кораблями с одной палубой
@@ -183,7 +187,7 @@ class PlayerField extends Field {
             stdout.writeln(
                 'Расставляем $i-палубный корабль. Осталось расставить: ${5 - i - k + 1}');
           } while (!_placeShip(i));
-          printField();
+          // printField();
         } else {
           var rng = Random();
           int x;
@@ -194,7 +198,7 @@ class PlayerField extends Field {
             y = rng.nextInt(10);
             orientation = rng.nextInt(2) + 1;
           } while (!_placeShip(i, x, y, orientation));
-          printField();
+          // printField();
         }
       }
     }
@@ -203,9 +207,9 @@ class PlayerField extends Field {
   bool _placeShip(int size, [int x = -1, int y = -1, int orientation = -1]) {
     if (x < 0 || y < 0) {
       stdout.write('Введите координату начала корабля: ');
-      var coordinate = readCoordinate();
-      x = coordinate.x;
-      y = coordinate.y;
+      // var coordinate = readCoordinate();
+      // x = coordinate.x;
+      // y = coordinate.y;
     }
 
     if (size > 1) {

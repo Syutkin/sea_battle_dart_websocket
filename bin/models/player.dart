@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:bloc/bloc.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
@@ -29,21 +28,5 @@ class Player extends Cubit<PlayerState> {
   /// Send message to player
   void send(String message) {
     webSocket.sink.add(message);
-  }
-
-  void placeShips() {
-    playerField.printField();
-    stdout.writeln('$name расставляет флот');
-    int? method;
-    do {
-      stdout.write('Как расставить корабли: 1 - вручную; 2 - автоматически: ');
-      method = int.tryParse(stdin.readLineSync() ?? '');
-    } while (!(method == 1 || method == 2));
-
-    if (method == 1) {
-      playerField.fillWithShips();
-    } else {
-      playerField.fillWithShips(random: true);
-    }
   }
 }

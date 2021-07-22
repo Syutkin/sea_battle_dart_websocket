@@ -5,6 +5,7 @@ import 'package:ansicolor/ansicolor.dart';
 import 'package:bloc/bloc.dart';
 
 import 'cell.dart';
+import 'coordinates.dart';
 import 'game_state.dart';
 import 'player.dart';
 import 'player_state.dart';
@@ -16,17 +17,47 @@ class Game extends Cubit<GameState> {
 
   Game(this.player1, this.player2) : super(GamePlacingShips());
 
+  void placeShipHandler(Player player, String message) {
+    if (player.state is PlayerSelectShipStart) {
+      var coordinates = Coordinates.tryParse(message);
+      if (coordinates != null) {
+        player.setState(PlayerSelectShipOrientation());
+        player.send(Menu.shipOrientation);
+        //ToDo: actually set ship
+      } else {
+        player.send(Menu.wrongCoordinates);
+      }
+    }
+    if (player.state is PlayerSelectShipOrientation) {
+      var response = int.tryParse(message);
+      switch (response) {
+        case 1:
+          //ToDo
+          // Horizontal
+          break;
+        case 2:
+          //ToDo
+          // Vertical
+          break;
+        default:
+          player.send('Неверный ввод');
+          player.send(Menu.shipOrientation);
+      }
+    }
+  }
+
   void playerInputHandler(Player player) {
     player.playerInput.stream.listen((message) {
       if (player.state is PlayerSelectingShipsPlacement) {
         var response = int.tryParse(message);
         switch (response) {
           case 1:
-            player.setState(PlayerPlacingShips());
-            // player.playerField.fillWithShips();
+            player.setState(PlayerSelectShipStart());
+            player.send(Menu.shipStartpoint);
             break;
           case 2:
             player.setState(PlayerPlacingShips());
+            // ToDo: automatic placement
             // player.playerField.fillWithShips(random: true);
             break;
           default:
@@ -35,7 +66,7 @@ class Game extends Cubit<GameState> {
         }
       }
       if (player.state is PlayerPlacingShips) {
-        print(player.state);
+        placeShipHandler(player, message);
       }
       if (player.state is PlayerDoShot) {}
       if (player.state is PlayerAwaiting) {}

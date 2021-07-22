@@ -37,6 +37,20 @@ class PlayerPlacingShips extends PlayerInGame {
   }
 }
 
+class PlayerSelectShipStart extends PlayerPlacingShips {
+  @override
+  String toString() {
+    return 'Выбирает начало корабля';
+  }
+}
+
+class PlayerSelectShipOrientation extends PlayerPlacingShips {
+  @override
+  String toString() {
+    return 'Выбирает направление корабля';
+  }
+}
+
 class PlayerDoShot extends PlayerInGame {
   @override
   String toString() {
