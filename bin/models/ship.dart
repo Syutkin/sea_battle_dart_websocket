@@ -1,27 +1,31 @@
+import 'coordinates.dart';
+
 class Ship {
-  final ShipSize shipSize;
+  final ShipSize _shipSize;
   final List<bool> _hitPoints;
-  final int x;
-  final int y;
-  final Orientation orientation;
-  final int number;
+  int? _x;
+  int? _y;
+  bool isPlaced = false;
+  Orientation orientation;
+  // final int number;
   Ship({
-    required this.shipSize,
-    required this.x,
-    required this.y,
-    required this.number,
+    required ShipSize shipSize,
+    // required this.number,
     this.orientation = Orientation.horizontal,
-  }) : _hitPoints = List.filled(shipSize.integer, true);
+  }) : _hitPoints = List.filled(shipSize.integer, true),
+  _shipSize = shipSize;
 
   int get hitPoints {
     var result = 0;
-    for (var i = 0; i < shipSize.integer; i++) {
+    for (var i = 0; i < _shipSize.integer; i++) {
       if (_hitPoints[i]) {
         result++;
       }
     }
     return result;
   }
+
+  ShipSize get size => _shipSize;
 
   bool get isAlive {
     if (hitPoints > 0) {
@@ -31,14 +35,24 @@ class Ship {
     }
   }
 
+  void setCoordinates(Coordinates coordinates) {
+    _x = coordinates.x;
+    _y = coordinates.y;
+  }
+
+  int? get x => _x;
+  int? get y => _y;
+
   bool Shot({required int x_coord, required int y_coord}) {
-    switch (orientation) {
-      case Orientation.horizontal:
-        _hitPoints[x_coord - x] = false;
-        break;
-      case Orientation.vertical:
-        _hitPoints[y_coord - y] = false;
-        break;
+    if (isPlaced) {
+      switch (orientation) {
+        case Orientation.horizontal:
+          _hitPoints[x_coord - _x!] = false;
+          break;
+        case Orientation.vertical:
+          _hitPoints[y_coord - _y!] = false;
+          break;
+      }
     }
     return isAlive;
   }
@@ -90,7 +104,7 @@ extension IntSize on ShipSize {
     }
   }
 
-  String get name {
+  String get string {
     switch (this) {
       case ShipSize.Battleship:
         return 'Battleship';
@@ -101,20 +115,5 @@ extension IntSize on ShipSize {
       case ShipSize.Boat:
         return 'Boat';
     }
-  }
-}
-
-ShipSize type(int size) {
-  switch (size) {
-    case 4:
-      return ShipSize.Battleship;
-    case 3:
-      return ShipSize.Cruiser;
-    case 2:
-      return ShipSize.Destroyer;
-    case 1:
-      return ShipSize.Boat;
-    default:
-      return ShipSize.Boat;
   }
 }

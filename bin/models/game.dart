@@ -1,14 +1,12 @@
-import 'dart:io';
 import 'dart:math';
 
-import 'package:ansicolor/ansicolor.dart';
 import 'package:bloc/bloc.dart';
 
-import 'cell.dart';
 import 'coordinates.dart';
 import 'game_state.dart';
 import 'player.dart';
 import 'player_state.dart';
+import 'ship.dart';
 import 'strings.dart';
 
 class Game extends Cubit<GameState> {
@@ -18,31 +16,34 @@ class Game extends Cubit<GameState> {
   Game(this.player1, this.player2) : super(GamePlacingShips());
 
   void placeShipHandler(Player player, String message) {
-    if (player.state is PlayerSelectShipStart) {
-      var coordinates = Coordinates.tryParse(message);
-      if (coordinates != null) {
-        player.setState(PlayerSelectShipOrientation());
-        player.send(Menu.shipOrientation);
-        //ToDo: actually set ship
-      } else {
-        player.send(Menu.wrongCoordinates);
+    var ship = player.playerField.nextShip;
+    if (ship != null) {
+      if (player.state is PlayerSelectShipStart) {
+        var coordinates = Coordinates.tryParse(message);
+        if (coordinates != null) {
+          ship.setCoordinates(coordinates);
+          player.setState(PlayerSelectShipOrientation());
+        } else {
+          player.send(Messages.wrongCoordinates);
+        }
+      } else if (player.state is PlayerSelectShipOrientation) {
+        var response = int.tryParse(message);
+        switch (response) {
+          case 1:
+          case 2:
+            //ToDo
+            ship.orientation = orientationFromInt(response!);
+            if (!player.playerField.tryPlaceShip(ship)) {
+              player.send(Messages.cannotPlaceShip);
+            }
+            player.setState(PlayerSelectShipStart());
+            break;
+          default:
+            player.send(Messages.incorrectInput);
+        }
       }
-    }
-    if (player.state is PlayerSelectShipOrientation) {
-      var response = int.tryParse(message);
-      switch (response) {
-        case 1:
-          //ToDo
-          // Horizontal
-          break;
-        case 2:
-          //ToDo
-          // Vertical
-          break;
-        default:
-          player.send('Неверный ввод');
-          player.send(Menu.shipOrientation);
-      }
+    } else {
+      // ToDo: all ship placed
     }
   }
 
@@ -52,8 +53,12 @@ class Game extends Cubit<GameState> {
         var response = int.tryParse(message);
         switch (response) {
           case 1:
-            player.setState(PlayerSelectShipStart());
-            player.send(Menu.shipStartpoint);
+            if (player.playerField.nextShip != null) {
+              player.setState(PlayerSelectShipStart());
+            } else {
+              assert(player.playerField.nextShip == null,
+                  'All ships placed, but state didn\'t properly changed');
+            }
             break;
           case 2:
             player.setState(PlayerPlacingShips());
@@ -61,27 +66,21 @@ class Game extends Cubit<GameState> {
             // player.playerField.fillWithShips(random: true);
             break;
           default:
-            player.send('Неверный ввод');
-            player.send(Menu.howtoPlaceShips);
+            player.send(Messages.incorrectInput);
         }
-      }
-      if (player.state is PlayerPlacingShips) {
+      } else if (player.state is PlayerPlacingShips) {
         placeShipHandler(player, message);
-      }
-      if (player.state is PlayerDoShot) {}
-      if (player.state is PlayerAwaiting) {}
+      } else if (player.state is PlayerDoShot) {
+      } else if (player.state is PlayerAwaiting) {}
     });
   }
 
-  void playGame() {
+  Future<void> playGame() async {
     player1.setState(PlayerSelectingShipsPlacement());
     player2.setState(PlayerSelectingShipsPlacement());
 
     playerInputHandler(player1);
     playerInputHandler(player2);
-
-    player1.send(Menu.howtoPlaceShips);
-    player2.send(Menu.howtoPlaceShips);
 
     // player1.send(player1.playerField.getField());
     // player2.send(player2.playerField.getField());
@@ -125,20 +124,20 @@ class Game extends Cubit<GameState> {
       _currentPlayer = anotherPlayer();
     }
 
-    while (player1.isAlive && player2.isAlive) {
-      //   currentPlayer().battleField.printField();
-      //   stdout.write('Игрок ${currentPlayer().name} делает выстрел: ');
+    // while (player1.isAlive && player2.isAlive) {
+    //   currentPlayer().battleField.printField();
+    //   stdout.write('Игрок ${currentPlayer().name} делает выстрел: ');
 
-      //   var shot = currentPlayer().playerField.readCoordinate();
+    //   var shot = currentPlayer().playerField.readCoordinate();
 
-      //   var shotResult = anotherPlayer().playerField.doShot(shot.x, shot.y);
-      //   currentPlayer().battleField.doShot(shot.x, shot.y, shotResult);
-      //   if (shotResult is EmptyCell) {
-      //     _currentPlayer = anotherPlayer();
-      //   }
-      // }
-      // var pen = AnsiPen()..cyan();
-      // stdout.writeln(pen('Игрок ${_currentPlayer.name} победил!'));
-    }
+    //   var shotResult = anotherPlayer().playerField.doShot(shot.x, shot.y);
+    //   currentPlayer().battleField.doShot(shot.x, shot.y, shotResult);
+    //   if (shotResult is EmptyCell) {
+    //     _currentPlayer = anotherPlayer();
+    //   }
+    // }
+    // var pen = AnsiPen()..cyan();
+    // stdout.writeln(pen('Игрок ${_currentPlayer.name} победил!'));
+    // }
   }
 }

@@ -1,7 +1,8 @@
 import 'models/server.dart';
 
 void main(List<String> arguments) {
-  var server = Server.bind();
+  Server.bind();
+  // var server = Server.bind();
 
   // const FILED_LENGTH = 10;
 

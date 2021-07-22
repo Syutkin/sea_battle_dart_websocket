@@ -2,7 +2,7 @@ import 'package:ansicolor/ansicolor.dart';
 
 import 'ship.dart';
 
-class Cell {}
+abstract class Cell {}
 
 class EmptyCell extends Cell {
   static const _empty = 32; // пробел

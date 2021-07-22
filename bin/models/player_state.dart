@@ -26,7 +26,7 @@ class PlayerInGame extends PlayerState {
 class PlayerSelectingShipsPlacement extends PlayerInGame {
   @override
   String toString() {
-    return 'Выбирает расстанову кораблей';
+    return 'Выбирает расстановку кораблей';
   }
 }
 
@@ -38,6 +38,7 @@ class PlayerPlacingShips extends PlayerInGame {
 }
 
 class PlayerSelectShipStart extends PlayerPlacingShips {
+
   @override
   String toString() {
     return 'Выбирает начало корабля';

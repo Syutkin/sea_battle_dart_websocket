@@ -62,7 +62,7 @@ class Server {
   }
 
   /// Start new game if users in queue more than one
-  bool startNewGame() {
+  Future<bool> startNewGame() async {
     var keys = [];
     players.forEach((key, value) {
       if (value.state is PlayerInQueue) {
@@ -79,7 +79,8 @@ class Server {
 
       activeGames.putIfAbsent(gameName, () => game);
 
-      print('game started');
+      // print('game started');
+      // ignore: unawaited_futures
       game.playGame();
       return true;
     } else {
@@ -88,22 +89,21 @@ class Server {
   }
 
   /// Parse message from user
-  void _parseMessage(Player player, String message) {
+  void _parseMessage(Player player, String message) async {
     if (player.state is PlayerConnecting) {
       player.name = message;
       print('${player.connectionName} new name: $message');
       send(player, 'Добро пожаловать в морской бой, ${player.name}');
       player.setState(PlayerInMenu());
-      send(player, Menu.mainMenu);
     } else if (player.state is PlayerInMenu) {
       var response = int.tryParse(message);
       switch (response) {
         case 1: // find game
           player.setState(PlayerInQueue());
-          // startNewGame();
-          if (!startNewGame()) {
-            send(player, Menu.inQueue);
-          }
+          await startNewGame();
+          // if (!(await startNewGame())) {
+          //   send(player, Menu.inQueue);
+          // }
           break;
         case 2: // players online
           send(player,
@@ -113,17 +113,16 @@ class Server {
               send(player, '${value.name}: ${value.state}');
             }
           });
-
-          send(player, Menu.mainMenu);
+          player.setState(PlayerInMenu());
           break;
         case 3: // server info
           // ToDo
           send(player, 'Информация о сервере: TBD');
-          send(player, Menu.mainMenu);
+          player.setState(PlayerInMenu());
           break;
         default:
-          send(player, 'Неверный ввод');
-          send(player, Menu.mainMenu);
+          player.send(Messages.incorrectInput);
+          player.setState(PlayerInMenu());
       }
       // send(player, Menu.menu);
     } else if (player.state is PlayerInQueue) {
@@ -131,18 +130,15 @@ class Server {
       switch (response) {
         case 1:
           player.setState(PlayerInMenu());
-          send(player, Menu.mainMenu);
-          // removePlayerFromQueue(player);
           break;
         default:
-          send(player, 'Неверный ввод');
-          send(player, Menu.inQueue);
+          player.send(Messages.incorrectInput);
+          player.setState(PlayerInQueue());
       }
       //ToDo
-      print('player in queue');
+      // print('player in queue');
     } else if (player.state is PlayerInGame) {
       player.playerInput.sink.add(message);
-      print('player in game');
     }
   }
 
