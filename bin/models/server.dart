@@ -141,7 +141,7 @@ class Server {
       //ToDo
       print('player in queue');
     } else if (player.state is PlayerInGame) {
-      //ToDo
+      player.playerInput.sink.add(message);
       print('player in game');
     }
   }

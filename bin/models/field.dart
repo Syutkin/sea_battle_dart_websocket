@@ -172,7 +172,7 @@ class PlayerField extends Field {
     return orientation;
   }
 
-  void fillWithShips([bool random = false]) {
+  void fillWithShips({bool random = false}) {
     // i - счётчик количества палуб у корабля
     // начинаем расстановку с корабля, которого 4 палубы, а заканчиваем кораблями с одной палубой
     for (var i = 4; i >= 1; i--) {

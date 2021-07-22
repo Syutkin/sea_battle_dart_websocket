@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:bloc/bloc.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -11,6 +12,8 @@ class Player extends Cubit<PlayerState> {
   final BattleField battleField;
   final String connectionName;
   final WebSocketChannel webSocket;
+
+  var playerInput = StreamController<String>();
 
   bool get isAlive {
     return playerField.isShipsExists;
@@ -40,7 +43,7 @@ class Player extends Cubit<PlayerState> {
     if (method == 1) {
       playerField.fillWithShips();
     } else {
-      playerField.fillWithShips(true);
+      playerField.fillWithShips(random: true);
     }
   }
 }
