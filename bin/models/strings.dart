@@ -19,6 +19,8 @@ class Menu {
 
   static const String shipOrientation =
       'Введите направление: 1 - горизонтально; 2 - вертикально ';
+
+  static const String doShot = 'Введите координаты выстрела';
 }
 
 class Messages {
@@ -29,4 +31,10 @@ class Messages {
   static const String cannotPlaceShip = 'Не удалось разместить корабль';
 
   static const String wrongCoordinates = 'Неверные координаты, задайте заново';
+
+  static const String awaitingPlayer = 'Ожидание другого игрока';
+
+  static const String winner = 'Вы победили!';
+
+  static const String looser = 'Поражение!';
 }

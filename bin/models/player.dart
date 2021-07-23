@@ -15,12 +15,16 @@ class Player extends Cubit<PlayerState> {
 
   var playerInput = StreamController<String>();
 
+  Player({required this.connectionName, required this.webSocket})
+      : playerField = PlayerField(),
+        battleField = BattleField(),
+        super(PlayerConnecting());
+
   bool get isAlive {
     return playerField.isShipsExists;
   }
 
   void setState(PlayerState state) {
-    print('$name: $state');
     if (state is PlayerInMenu) {
       send(Menu.mainMenu);
     }
@@ -41,19 +45,29 @@ class Player extends Cubit<PlayerState> {
     if (state is PlayerSelectShipOrientation) {
       send(Menu.shipOrientation);
     }
-    if (state is PlayerDoShot) {}
-    if (state is PlayerAwaiting) {}
-
+    if (state is PlayerDoShot) {
+      send(fields());
+      send(Menu.doShot);
+    }
+    if (state is PlayerAwaiting) {
+      send(fields());
+      send(Messages.awaitingPlayer);
+    }
     emit(state);
   }
-
-  Player({required this.connectionName, required this.webSocket})
-      : playerField = PlayerField(),
-        battleField = BattleField(),
-        super(PlayerConnecting());
 
   /// Send message to player
   void send(String message) {
     webSocket.sink.add(message);
+  }
+
+  String fields() {
+    var field = <String>[];
+    var playerFieldList = playerField.toList();
+    var battleFieldList = battleField.toList();
+    for (var i = 0; i < playerFieldList.length; i++) {
+      field.add(battleFieldList[i] + '     ' + playerFieldList[i]);
+    }
+    return field.join('\r\n');
   }
 }

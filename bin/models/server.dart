@@ -3,6 +3,7 @@ import 'package:shelf_web_socket/shelf_web_socket.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 import 'game.dart';
+import 'game_state.dart';
 import 'player.dart';
 import 'player_state.dart';
 import 'strings.dart';
@@ -77,14 +78,27 @@ class Server {
 
       var game = Game(players[keys[0]]!, players[keys[1]]!);
 
+      game.stream.listen((state) {
+        if (state is GameEnded) {
+          endGame(gameName);
+        }
+      });
+
       activeGames.putIfAbsent(gameName, () => game);
 
-      // print('game started');
       // ignore: unawaited_futures
       game.playGame();
+
       return true;
     } else {
       return false;
+    }
+  }
+
+  Future<void> endGame(String gameName) async {
+    if (activeGames.containsKey(gameName)) {
+      await activeGames[gameName]?.close();
+      activeGames.remove(gameName);
     }
   }
 
@@ -101,9 +115,6 @@ class Server {
         case 1: // find game
           player.setState(PlayerInQueue());
           await startNewGame();
-          // if (!(await startNewGame())) {
-          //   send(player, Menu.inQueue);
-          // }
           break;
         case 2: // players online
           send(player,

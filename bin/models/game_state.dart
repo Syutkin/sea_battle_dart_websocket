@@ -13,3 +13,10 @@ class GameInProgress extends GameState {
     return 'Игра в процессе';
   }
 }
+
+class GameEnded extends GameState {
+  @override
+  String toString() {
+    return 'Игра окончена';
+  }
+}

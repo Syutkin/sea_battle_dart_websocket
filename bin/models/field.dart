@@ -1,6 +1,7 @@
 import 'dart:io';
-
+import 'dart:math';
 import 'package:ansicolor/ansicolor.dart';
+import 'package:collection/collection.dart';
 
 import 'ship.dart';
 import 'cell.dart';
@@ -16,6 +17,10 @@ abstract class Field {
 
   @override
   String toString() {
+    return toList().join('\r\n');
+  }
+
+  List<String> toList() {
     // String getField() {
     var field = <String>[];
     var i = 1;
@@ -40,7 +45,7 @@ abstract class Field {
             '\u{2500}\u{2500}\u{2534}\u{2500}\u{2534}\u{2500}\u{2534}\u{2500}\u{2534}\u{2500}\u{2534}\u{2500}\u{2534}\u{2500}\u{2534}\u{2500}\u{2534}\u{2500}\u{2534}\u{2500}\u{2534}\u{2500}\u{2518}');
       }
     }
-    return field.join('\r\n');
+    return field;
   }
 
   void _markCellsAroundShip(Ship ship) {
@@ -100,32 +105,13 @@ class PlayerField extends Field {
     Ship(shipSize: ShipSize.Boat),
   ];
 
-  // int _readOrientation() {
-  //   int? orientation;
-
-  //   do {
-  //     stdout
-  //         .write('Введите направление: 1 - горизонтально; 2 - вертикально ?: ');
-  //     orientation = int.tryParse(stdin.readLineSync() ?? '');
-  //     if (orientation != null && orientation != 1 && orientation != 2) {
-  //       orientation = null;
-  //     }
-  //   } while (orientation == null);
-
-  //   return orientation;
-  // }
-
   int countShips(ShipSize size) {
-    return ships
-        .where((ship) => (ship.size == size && !ship.isPlaced))
-        .length;
+    return ships.where((ship) => (ship.size == size && !ship.isPlaced)).length;
   }
 
   bool tryPlaceShip(Ship ship) {
-    // ToDo: implement function to add ships to field
     if (_isShipCanBePlaced(ship)) {
       if (ship.orientation == Orientation.horizontal) {
-        // ships.add(ship);
         // заполняем столько клеток по горизонтали, сколько палуб у корабля
         for (var q = 0; q < ship.size.integer; q++) {
           _field[ship.y!][ship.x! + q] = ShipInCell(ship);
@@ -146,86 +132,8 @@ class PlayerField extends Field {
   }
 
   Ship? get nextShip {
-    return ships.firstWhere((ship) => !ship.isPlaced);
+    return ships.firstWhereOrNull((ship) => !ship.isPlaced);
   }
-
-  // void fillWithShips({bool random = false}) {
-  //   // i - счётчик количества палуб у корабля
-  //   // начинаем расстановку с корабля, которого 4 палубы, а заканчиваем кораблями с одной палубой
-  //   for (var i = 4; i >= 1; i--) {
-  //     // см. подробнее о коде под этой вставкой
-  //     for (var k = 1; k <= 5 - i; k++) {
-  //       if (!random) {
-  //         do {
-  //           stdout.writeln(
-  //               'Расставляем $i-палубный корабль. Осталось расставить: ${5 - i - k + 1}');
-  //         } while (!_placeShip(i));
-  //         // printField();
-  //       } else {
-  //         var rng = Random();
-  //         int x;
-  //         int y;
-  //         int orientation;
-  //         do {
-  //           x = rng.nextInt(10);
-  //           y = rng.nextInt(10);
-  //           orientation = rng.nextInt(2) + 1;
-  //         } while (!_placeShip(i, x, y, orientation));
-  //         // printField();
-  //       }
-  //     }
-  //   }
-  // }
-
-  // bool _placeShip(int size, [int x = -1, int y = -1, int orientation = -1]) {
-  //   if (x < 0 || y < 0) {
-  //     stdout.write('Введите координату начала корабля: ');
-  //     // var coordinate = readCoordinate();
-  //     // x = coordinate.x;
-  //     // y = coordinate.y;
-  //   }
-
-  //   if (size > 1) {
-  //     if (orientation < 0) {
-  //       orientation = _readOrientation();
-  //     }
-  //     var ship = Ship(
-  //       shipSize: shipSizeFromInt(size),
-  //       x: x,
-  //       y: y,
-  //       orientation: orientationFromInt(orientation),
-  //       number: ships.length,
-  //     );
-  //     if (_isShipCanBePlaced(ship)) {
-  //       if (ship.orientation == Orientation.horizontal) {
-  //         ships.add(ship);
-  //         // заполняем столько клеток по горизонтали, сколько палуб у корабля
-  //         for (var q = 0; q < size; q++) {
-  //           _field[y][x + q] = ShipInCell(ship);
-  //         }
-  //         return true;
-  //       }
-
-  //       if (ship.orientation == Orientation.vertical) {
-  //         ships.add(ship);
-  //         // заполняем столько клеток по вертикали, сколько палуб у корабля
-  //         for (var m = 0; m < size; m++) {
-  //           _field[y + m][x] = ShipInCell(ship);
-  //         }
-  //         return true;
-  //       }
-  //     }
-  //   } else {
-  //     var ship = Ship(
-  //         shipSize: shipSizeFromInt(size), x: x, y: y, number: ships.length);
-  //     if (_isShipCanBePlaced(ship)) {
-  //       ships.add(ship);
-  //       _field[y][x] = ShipInCell(ship);
-  //       return true;
-  //     }
-  //   }
-  //   return false;
-  // }
 
   bool _isShipCanBePlaced(Ship ship) {
     if (ship.x != null && ship.y != null) {
@@ -281,6 +189,20 @@ class PlayerField extends Field {
     return false;
   }
 
+  void randomFillWithShips() {
+    for (var ship in ships) {
+      var rng = Random();
+      int orientation;
+      Coordinates coordinates;
+      do {
+        orientation = rng.nextInt(2) + 1;
+        coordinates = Coordinates(x: rng.nextInt(10), y: rng.nextInt(10));
+        ship.setCoordinates(coordinates);
+        ship.orientation = orientationFromInt(orientation);
+      } while (!tryPlaceShip(ship));
+    }
+  }
+
   // Cell doShot(int x, int y) {
   //   var result = _field[y][x];
   //   if (result is ShipInCell) {
@@ -302,32 +224,53 @@ class PlayerField extends Field {
   //   return result;
   // }
 
-  Cell doShot(int x, int y) {
-    //ToDo
-    return EmptyCell();
+  Cell doShot(Coordinates coordinates) {
+    var result = _field[coordinates.y][coordinates.x];
+    if (result is ShipInCell) {
+      if (result.ship.isAlive) {
+        result.alive = false;
+        if (result.ship.Shot(
+          x_coord: coordinates.x,
+          y_coord: coordinates.y,
+        )) {
+          //ship is alive
+          _markCellsAroundHit(coordinates.x, coordinates.y);
+        } else {
+          //ship is dead
+          _markCellsAroundShip(result.ship);
+        }
+      } else {
+        result.wasAlive = false;
+      }
+    } else {
+      _field[coordinates.y][coordinates.x] = MissCell();
+    }
+    return result;
   }
 }
 
 class BattleField extends Field {
   BattleField() : super();
 
-  void doShot(int x, int y, Cell shotResult) {
+  String? doShot(Coordinates coordinates, Cell shotResult) {
+    String? result;
     if (shotResult is ShipInCell && shotResult.wasAlive) {
-      _field[y][x] = shotResult;
+      _field[coordinates.y][coordinates.x] = shotResult;
       final pen = AnsiPen()..red();
       if (shotResult.ship.isAlive) {
         //ship is alive
-        stdout.writeln(pen('Попадание! Корабль ранен'));
-        _markCellsAroundHit(x, y);
+        _markCellsAroundHit(coordinates.x, coordinates.y);
+        result = pen('Попадание! Корабль ранен');
       } else {
         //ship dead
-        stdout.writeln(pen('Попадание! Корабль убит'));
         _markCellsAroundShip(shotResult.ship);
+        result = pen('Попадание! Корабль убит');
       }
     } else if (shotResult is EmptyCell) {
-      _field[y][x] = MissCell();
+      _field[coordinates.y][coordinates.x] = MissCell();
       final pen = AnsiPen()..blue();
-      stdout.writeln(pen('Промах'));
+      result = pen('Промах');
     }
+    return result;
   }
 }

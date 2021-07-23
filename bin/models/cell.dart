@@ -27,10 +27,12 @@ class ShipInCell extends Cell {
     var pen = AnsiPen();
     if (alive) {
       pen.yellow();
+      return pen(String.fromCharCode(_ship));
     } else {
       pen.red();
+      return pen('x');
     }
-    return pen(String.fromCharCode(_ship));
+    // return pen(String.fromCharCode(_ship));
   }
 }
 
