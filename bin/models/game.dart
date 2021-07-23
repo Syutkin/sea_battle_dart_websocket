@@ -17,10 +17,7 @@ class Game extends Cubit<GameState> {
 
   Player _currentPlayer;
 
-  StreamSubscription? player1InputHandler;
-  StreamSubscription? player2InputHandler;
-  StreamSubscription? player1StateHandler;
-  StreamSubscription? player2StateHandler;
+  final _streamSubscriptions = <StreamSubscription>[];
 
   Player currentPlayer() {
     if (_currentPlayer == player1) {
@@ -89,8 +86,8 @@ class Game extends Cubit<GameState> {
     }
   }
 
-  StreamSubscription playerInputHandler(Player player) {
-    return player.playerInput.stream.listen((message) {
+  void playerInputHandler(Player player) {
+    _streamSubscriptions.add(player.playerInput.stream.listen((message) {
       if (player.state is PlayerSelectingShipsPlacement) {
         var response = int.tryParse(message);
         switch (response) {
@@ -117,16 +114,28 @@ class Game extends Cubit<GameState> {
         if (coordinates != null) {
           var shotResult =
               anotherPlayer(player).playerField.doShot(coordinates);
-          var text = player.battleField.doShot(coordinates, shotResult);
-          if (shotResult is EmptyCell) {
-            anotherPlayer(player).send('${player.name} делает выстрел на $coordinates. Мимо!}');
+          player.battleField.doShot(coordinates, shotResult);
+          if (shotResult is ShipInCell && shotResult.wasAlive) {
+            // final pen = AnsiPen()..red();
+            if (shotResult.ship.isAlive) {
+              //ship is alive
+              anotherPlayer(player).send(
+                  '${player.name} делает выстрел на $coordinates. Попадание! Корабль ранен');
+            } else {
+              //ship dead
+              anotherPlayer(player).send(
+                  '${player.name} делает выстрел на $coordinates. Попадание! Корабль убит');
+            }
+            anotherPlayer(player).setState(PlayerAwaiting());
+            player.setState(PlayerDoShot());
+          } else if (shotResult is EmptyCell) {
+            // final pen = AnsiPen()..blue();
+            anotherPlayer(player)
+                .send('${player.name} делает выстрел на $coordinates. Мимо');
             player.setState(PlayerAwaiting());
             anotherPlayer(player).setState(PlayerDoShot());
           } else {
-            if (text != null) {
-              player.send(text);
-              anotherPlayer(player).send(text);
-            }
+            //ToDo: shot to occupied field, shoot again
             anotherPlayer(player).setState(PlayerAwaiting());
             player.setState(PlayerDoShot());
           }
@@ -134,11 +143,11 @@ class Game extends Cubit<GameState> {
           player.send(Messages.wrongCoordinates);
         }
       } else if (player.state is PlayerAwaiting) {}
-    });
+    }));
   }
 
-  StreamSubscription playerStateHandler(Player player) {
-    return player.stream.listen((state) {
+  void playerStateHandler(Player player) {
+    _streamSubscriptions.add(player.stream.listen((state) {
       if (state is PlayerAwaiting) {
         if (anotherPlayer(player).state is PlayerAwaiting) {
           currentPlayer().setState(PlayerDoShot());
@@ -153,7 +162,7 @@ class Game extends Cubit<GameState> {
           emit(GameEnded());
         }
       }
-    });
+    }));
   }
 
   Future<void> playGame() async {
@@ -169,18 +178,17 @@ class Game extends Cubit<GameState> {
     player1.setState(PlayerSelectingShipsPlacement());
     player2.setState(PlayerSelectingShipsPlacement());
 
-    player1InputHandler = playerInputHandler(player1);
-    player2InputHandler = playerInputHandler(player2);
-    player1StateHandler = playerStateHandler(player1);
-    player2StateHandler = playerStateHandler(player2);
+    playerInputHandler(player1);
+    playerInputHandler(player2);
+    playerStateHandler(player1);
+    playerStateHandler(player2);
   }
 
   @override
   Future<void> close() async {
-    await player1InputHandler?.cancel();
-    await player2InputHandler?.cancel();
-    await player1StateHandler?.cancel();
-    await player2StateHandler?.cancel();
+    _streamSubscriptions.forEach((element) {
+      element.cancel();
+    });
     return super.close();
   }
 }

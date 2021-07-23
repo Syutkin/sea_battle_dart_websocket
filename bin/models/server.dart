@@ -89,6 +89,9 @@ class Server {
       // ignore: unawaited_futures
       game.playGame();
 
+      print('Game $gameName started: '
+          '${players[keys[0]]?.name} vs ${players[keys[1]]?.name}');
+
       return true;
     } else {
       return false;
@@ -96,6 +99,7 @@ class Server {
   }
 
   Future<void> endGame(String gameName) async {
+    print('Game $gameName ended');
     if (activeGames.containsKey(gameName)) {
       await activeGames[gameName]?.close();
       activeGames.remove(gameName);
@@ -165,17 +169,18 @@ class Server {
       var player = Player(connectionName: connectionName, webSocket: webSocket);
 
       webSocket.stream.listen((message) {
-        print('message from $connectionName: $message');
+        // print(
+        //     'message from ${players[connectionName]?.name ?? connectionName}: $message');
         message = message.toString().trim();
         _parseMessage(player, message);
       }).onDone(() {
         closeConnection(connectionName);
-        print('User $connectionName disconnected');
+        print('Player $connectionName disconnected');
       });
 
       players.putIfAbsent(connectionName, () => player);
 
-      print('User $connectionName connected');
+      print('Player $connectionName connected');
 
       sendWelcome(player);
     });

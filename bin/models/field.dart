@@ -241,25 +241,18 @@ class PlayerField extends Field {
 class BattleField extends Field {
   BattleField() : super();
 
-  String? doShot(Coordinates coordinates, Cell shotResult) {
-    String? result;
+  void doShot(Coordinates coordinates, Cell shotResult) {
     if (shotResult is ShipInCell && shotResult.wasAlive) {
       _field[coordinates.y][coordinates.x] = shotResult;
-      final pen = AnsiPen()..red();
       if (shotResult.ship.isAlive) {
         //ship is alive
         _markCellsAroundHit(coordinates.x, coordinates.y);
-        result = pen('Попадание! Корабль ранен');
       } else {
         //ship dead
         _markCellsAroundShip(shotResult.ship);
-        result = pen('Попадание! Корабль убит');
       }
     } else if (shotResult is EmptyCell) {
       _field[coordinates.y][coordinates.x] = MissCell();
-      final pen = AnsiPen()..blue();
-      result = pen('Промах');
     }
-    return result;
   }
 }

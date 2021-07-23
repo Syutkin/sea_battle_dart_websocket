@@ -36,6 +36,6 @@ class Coordinates {
 
   @override
   String toString() {
-    return '${letters[x]}y';
+    return '${letters[x]}${y+1}';
   }
 }
