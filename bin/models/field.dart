@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:math';
 import 'package:ansicolor/ansicolor.dart';
 import 'package:collection/collection.dart';
@@ -15,16 +14,23 @@ abstract class Field {
   Field([int length = 10])
       : _field = List.generate(length, (i) => List.filled(length, EmptyCell()));
 
+  void initField() {
+    for (var i = 0; i < _field.length; i++) {
+      for (var k = 0; k < _field.length; k++) {
+        _field[k][i] = EmptyCell();
+      }
+    }
+  }
+
   @override
   String toString() {
     return toList().join('\r\n');
   }
 
   List<String> toList() {
-    // String getField() {
     var field = <String>[];
     var i = 1;
-
+    field.add('');
     field.add(
         '  \u{2502}A\u{2502}B\u{2502}C\u{2502}D\u{2502}E\u{2502}F\u{2502}G\u{2502}H\u{2502}I\u{2502}J\u{2502}');
     field.add(
@@ -92,18 +98,22 @@ abstract class Field {
 class PlayerField extends Field {
   PlayerField() : super();
 
-  List<Ship> ships = [
-    Ship(shipSize: ShipSize.Battleship),
-    Ship(shipSize: ShipSize.Cruiser),
-    Ship(shipSize: ShipSize.Cruiser),
-    Ship(shipSize: ShipSize.Destroyer),
-    Ship(shipSize: ShipSize.Destroyer),
-    Ship(shipSize: ShipSize.Destroyer),
-    Ship(shipSize: ShipSize.Boat),
-    Ship(shipSize: ShipSize.Boat),
-    Ship(shipSize: ShipSize.Boat),
-    Ship(shipSize: ShipSize.Boat),
-  ];
+  List<Ship> ships = <Ship>[];
+
+  void initShips() {
+    ships = [
+      Ship(shipSize: ShipSize.Battleship),
+      Ship(shipSize: ShipSize.Cruiser),
+      Ship(shipSize: ShipSize.Cruiser),
+      Ship(shipSize: ShipSize.Destroyer),
+      Ship(shipSize: ShipSize.Destroyer),
+      Ship(shipSize: ShipSize.Destroyer),
+      Ship(shipSize: ShipSize.Boat),
+      Ship(shipSize: ShipSize.Boat),
+      Ship(shipSize: ShipSize.Boat),
+      Ship(shipSize: ShipSize.Boat),
+    ];
+  }
 
   int countShips(ShipSize size) {
     return ships.where((ship) => (ship.size == size && !ship.isPlaced)).length;
@@ -202,27 +212,6 @@ class PlayerField extends Field {
       } while (!tryPlaceShip(ship));
     }
   }
-
-  // Cell doShot(int x, int y) {
-  //   var result = _field[y][x];
-  //   if (result is ShipInCell) {
-  //     if (result.alive) {
-  //       result.alive = false;
-  //       if (ships[result.ship.number].Shot(x_coord: x, y_coord: y)) {
-  //         //ship is alive
-  //         _markCellsAroundHit(x, y);
-  //       } else {
-  //         //ship is dead
-  //         _markCellsAroundShip(ships[result.ship.number]);
-  //       }
-  //     } else {
-  //       result.wasAlive = false;
-  //     }
-  //   } else {
-  //     _field[y][x] = MissCell();
-  //   }
-  //   return result;
-  // }
 
   Cell doShot(Coordinates coordinates) {
     var result = _field[coordinates.y][coordinates.x];

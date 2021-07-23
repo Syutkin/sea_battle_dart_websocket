@@ -13,7 +13,7 @@ class Player extends Cubit<PlayerState> {
   final String connectionName;
   final WebSocketChannel webSocket;
 
-  var playerInput = StreamController<String>();
+  StreamController<String> playerInput = StreamController<String>.broadcast();
 
   Player({required this.connectionName, required this.webSocket})
       : playerField = PlayerField(),
@@ -22,6 +22,12 @@ class Player extends Cubit<PlayerState> {
 
   bool get isAlive {
     return playerField.isShipsExists;
+  }
+
+  void init() {
+    playerField.initShips();
+    playerField.initField();
+    battleField.initField();
   }
 
   void setState(PlayerState state) {

@@ -12,8 +12,8 @@ class Ship {
     required ShipSize shipSize,
     // required this.number,
     this.orientation = Orientation.horizontal,
-  }) : _hitPoints = List.filled(shipSize.integer, true),
-  _shipSize = shipSize;
+  })  : _hitPoints = List.filled(shipSize.integer, true),
+        _shipSize = shipSize;
 
   int get hitPoints {
     var result = 0;
@@ -58,6 +58,11 @@ class Ship {
   }
 
   List<bool> get status => _hitPoints;
+
+  @override
+  String toString() {
+    return _shipSize.string;
+  }
 }
 
 enum Orientation { horizontal, vertical }

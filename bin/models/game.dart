@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:bloc/bloc.dart';
@@ -15,6 +16,11 @@ class Game extends Cubit<GameState> {
   Player player2;
 
   Player _currentPlayer;
+
+  StreamSubscription? player1InputHandler;
+  StreamSubscription? player2InputHandler;
+  StreamSubscription? player1StateHandler;
+  StreamSubscription? player2StateHandler;
 
   Player currentPlayer() {
     if (_currentPlayer == player1) {
@@ -83,8 +89,8 @@ class Game extends Cubit<GameState> {
     }
   }
 
-  void playerInputHandler(Player player) {
-    player.playerInput.stream.listen((message) {
+  StreamSubscription playerInputHandler(Player player) {
+    return player.playerInput.stream.listen((message) {
       if (player.state is PlayerSelectingShipsPlacement) {
         var response = int.tryParse(message);
         switch (response) {
@@ -132,8 +138,8 @@ class Game extends Cubit<GameState> {
     });
   }
 
-  void playerStateHandler(Player player) {
-    player.stream.listen((state) {
+  StreamSubscription playerStateHandler(Player player) {
+    return player.stream.listen((state) {
       if (state is PlayerAwaiting) {
         if (anotherPlayer(player).state is PlayerAwaiting) {
           currentPlayer().setState(PlayerDoShot());
@@ -152,6 +158,9 @@ class Game extends Cubit<GameState> {
   }
 
   Future<void> playGame() async {
+    player1.init();
+    player2.init();
+
     var rng = Random();
 
     if (rng.nextInt(2) == 1) {
@@ -161,9 +170,19 @@ class Game extends Cubit<GameState> {
     player1.setState(PlayerSelectingShipsPlacement());
     player2.setState(PlayerSelectingShipsPlacement());
 
-    playerInputHandler(player1);
-    playerInputHandler(player2);
-    playerStateHandler(player1);
-    playerStateHandler(player2);
+    player1InputHandler = playerInputHandler(player1);
+    player2InputHandler = playerInputHandler(player2);
+    player1StateHandler = playerStateHandler(player1);
+    player2StateHandler = playerStateHandler(player2);
+  }
+
+  @override
+  Future<void> close() async {
+    await player1InputHandler?.cancel();
+    await player2InputHandler?.cancel();
+    await player1StateHandler?.cancel();
+    await player2StateHandler?.cancel();
+    print('Game close');
+    return super.close();
   }
 }
