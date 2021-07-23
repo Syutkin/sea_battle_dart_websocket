@@ -8,6 +8,7 @@ environment:
 
 dependencies: 
   ansicolor: ^2.0.1
+  args: ^2.2.0
   bloc: ^7.0.0
   shelf_web_socket: ^1.0.1
 

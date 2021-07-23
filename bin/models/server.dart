@@ -156,7 +156,7 @@ class Server {
   /// Server constructor
   /// param [address]
   /// param [port]
-  Server.bind([this.address = '127.0.0.1', this.port = 9224]) {
+  Server.bind(this.address, this.port) {
     var connectionHandler = webSocketHandler((WebSocketChannel webSocket,
         {pingInterval = const Duration(seconds: 5)}) {
       var connectionName = 'user_$userCount';
