@@ -45,9 +45,8 @@ class Game extends Cubit<GameState> {
   void placeShip(Player player, Ship ship) {
     if (player.playerField.tryPlaceShip(ship)) {
       if (player.playerField.nextShip == null) {
-        player.setState(PlayerAwaiting());
-        //ToDo
         //all ship placed
+        player.setState(PlayerAwaiting());
       } else {
         player.setState(PlayerSelectShipStart());
       }
@@ -85,7 +84,8 @@ class Game extends Cubit<GameState> {
         }
       }
     } else {
-      // ToDo: all ship placed
+      assert(
+          ship == null, 'All ships placed, but state didn\'t properly changed');
     }
   }
 
@@ -103,7 +103,6 @@ class Game extends Cubit<GameState> {
             }
             break;
           case 2:
-            // ToDo: automatic placement
             player.setState(PlayerPlacingShips());
             player.playerField.randomFillWithShips();
             player.setState(PlayerAwaiting());
@@ -116,11 +115,11 @@ class Game extends Cubit<GameState> {
       } else if (player.state is PlayerDoShot) {
         var coordinates = Coordinates.tryParse(message);
         if (coordinates != null) {
-          //ToDo: do shot
           var shotResult =
               anotherPlayer(player).playerField.doShot(coordinates);
           var text = player.battleField.doShot(coordinates, shotResult);
           if (shotResult is EmptyCell) {
+            anotherPlayer(player).send('${player.name} делает выстрел на $coordinates. Мимо!}');
             player.setState(PlayerAwaiting());
             anotherPlayer(player).setState(PlayerDoShot());
           } else {
@@ -182,7 +181,6 @@ class Game extends Cubit<GameState> {
     await player2InputHandler?.cancel();
     await player1StateHandler?.cancel();
     await player2StateHandler?.cancel();
-    print('Game close');
     return super.close();
   }
 }

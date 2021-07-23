@@ -33,4 +33,9 @@ class Coordinates {
     }
     return Coordinates(x: x, y: y);
   }
+
+  @override
+  String toString() {
+    return '${letters[x]}y';
+  }
 }
