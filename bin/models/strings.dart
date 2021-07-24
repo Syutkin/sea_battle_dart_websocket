@@ -1,3 +1,4 @@
+import 'coordinates.dart';
 import 'ship.dart';
 
 class Menu {
@@ -32,9 +33,21 @@ class Messages {
 
   static const String wrongCoordinates = 'Неверные координаты, задайте заново';
 
+  static const String shootAgain = 'Поле уже прострелено, повторите выстрел';
+
   static const String awaitingPlayer = 'Ожидание другого игрока';
 
   static const String winner = 'Вы победили!';
 
   static const String looser = 'Поражение!';
+
+  static const String miss = 'Мимо';
+
+  static const String hit = 'Попадание! Корабль ранен';
+
+  static const String sunk = 'Попадание! Корабль убит';
+
+  static String doShot(String playerName, Coordinates coordinates) {
+    return '$playerName делает выстрел на $coordinates';
+  }
 }

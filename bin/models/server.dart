@@ -1,3 +1,4 @@
+import 'package:ansicolor/ansicolor.dart';
 import 'package:shelf/shelf_io.dart' as shelf_io;
 import 'package:shelf_web_socket/shelf_web_socket.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -38,10 +39,16 @@ class Server {
     player.webSocket.sink.add(message);
   }
 
-  void sendMessageToAll(String message) {
+  void sendMessageToAll(String message, [PlayerState? playerState]) {
     if (players.isNotEmpty) {
       for (var user in players.keys) {
-        sendByConnectionName(user, message);
+        if (playerState == null) {
+          sendByConnectionName(user, message);
+        } else {
+          if (players[user]?.state == playerState) {
+            sendByConnectionName(user, message);
+          }
+        }
       }
     }
   }
@@ -112,6 +119,7 @@ class Server {
       player.name = message;
       print('${player.connectionName} new name: $message');
       send(player, 'Добро пожаловать в морской бой, ${player.name}');
+      sendMessageToAll('${player.name} заходит на сервер', PlayerInMenu());
       player.setState(PlayerInMenu());
     } else if (player.state is PlayerInMenu) {
       var response = int.tryParse(message);
@@ -150,8 +158,6 @@ class Server {
           player.send(Messages.incorrectInput);
           player.setState(PlayerInQueue());
       }
-      //ToDo
-      // print('player in queue');
     } else if (player.state is PlayerInGame) {
       player.playerInput.sink.add(message);
     }
@@ -169,8 +175,6 @@ class Server {
       var player = Player(connectionName: connectionName, webSocket: webSocket);
 
       webSocket.stream.listen((message) {
-        // print(
-        //     'message from ${players[connectionName]?.name ?? connectionName}: $message');
         message = message.toString().trim();
         _parseMessage(player, message);
       }).onDone(() {

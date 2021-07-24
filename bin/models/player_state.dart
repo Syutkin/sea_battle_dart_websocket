@@ -1,4 +1,9 @@
-abstract class PlayerState {}
+import 'package:equatable/equatable.dart';
+
+abstract class PlayerState extends Equatable {
+  @override
+  List<Object?> get props => [];
+}
 
 class PlayerConnecting extends PlayerState {}
 
@@ -38,7 +43,6 @@ class PlayerPlacingShips extends PlayerInGame {
 }
 
 class PlayerSelectShipStart extends PlayerPlacingShips {
-
   @override
   String toString() {
     return 'Выбирает начало корабля';

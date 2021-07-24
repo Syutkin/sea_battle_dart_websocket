@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:ansicolor/ansicolor.dart';
 import 'package:bloc/bloc.dart';
 
 import 'cell.dart';
@@ -81,8 +82,8 @@ class Game extends Cubit<GameState> {
         }
       }
     } else {
-      assert(
-          ship == null, 'All ships placed, but state didn\'t properly changed');
+      assert(ship == null,
+          'All ships were placed, but state didn\'t properly changed');
     }
   }
 
@@ -96,7 +97,7 @@ class Game extends Cubit<GameState> {
               player.setState(PlayerSelectShipStart());
             } else {
               assert(player.playerField.nextShip == null,
-                  'All ships placed, but state didn\'t properly changed');
+                  'All ships were placed, but state didn\'t properly changed');
             }
             break;
           case 2:
@@ -116,28 +117,30 @@ class Game extends Cubit<GameState> {
               anotherPlayer(player).playerField.doShot(coordinates);
           player.battleField.doShot(coordinates, shotResult);
           if (shotResult is ShipInCell && shotResult.wasAlive) {
-            // final pen = AnsiPen()..red();
+            final pen = AnsiPen()..red();
             if (shotResult.ship.isAlive) {
               //ship is alive
-              anotherPlayer(player).send(
-                  '${player.name} делает выстрел на $coordinates. Попадание! Корабль ранен');
+              anotherPlayer(player)
+                  .send(Messages.doShot('${player.name}', coordinates));
+              anotherPlayer(player).send(pen(Messages.hit));
             } else {
               //ship dead
-              anotherPlayer(player).send(
-                  '${player.name} делает выстрел на $coordinates. Попадание! Корабль убит');
+              anotherPlayer(player)
+                  .send(Messages.doShot('${player.name}', coordinates));
+              anotherPlayer(player).send(pen(Messages.sunk));
             }
             anotherPlayer(player).setState(PlayerAwaiting());
             player.setState(PlayerDoShot());
           } else if (shotResult is EmptyCell) {
-            // final pen = AnsiPen()..blue();
+            final pen = AnsiPen()..blue();
             anotherPlayer(player)
-                .send('${player.name} делает выстрел на $coordinates. Мимо');
+                .send(Messages.doShot('${player.name}', coordinates));
+            anotherPlayer(player).send(pen(Messages.miss));
             player.setState(PlayerAwaiting());
             anotherPlayer(player).setState(PlayerDoShot());
           } else {
-            //ToDo: shot to occupied field, shoot again
-            anotherPlayer(player).setState(PlayerAwaiting());
-            player.setState(PlayerDoShot());
+            // shot to occupied field, shoot again
+            player.send(Messages.shootAgain);
           }
         } else {
           player.send(Messages.wrongCoordinates);
