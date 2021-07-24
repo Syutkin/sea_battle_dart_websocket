@@ -132,26 +132,35 @@ class Game extends Cubit<GameState> {
       if (coordinates != null) {
         var shotResult = anotherPlayer(player).playerField.doShot(coordinates);
         player.battleField.doShot(coordinates, shotResult);
+
         if (shotResult is ShipInCell && shotResult.wasAlive) {
           final pen = AnsiPen()..red();
           if (shotResult.ship.isAlive) {
             //ship is alive
+            player.send(Messages.playerDoShot(coordinates));
             anotherPlayer(player)
-                .send(Messages.doShot('\r\n${player.name}', coordinates));
+                .send(Messages.enemyDoShot('\r\n${player.name}', coordinates));
+            player.send(pen(Messages.hit));
             anotherPlayer(player).send(pen(Messages.hit));
           } else {
             //ship dead
+            player.send(Messages.playerDoShot(coordinates));
             anotherPlayer(player)
-                .send(Messages.doShot('\r\n${player.name}', coordinates));
+                .send(Messages.enemyDoShot('\r\n${player.name}', coordinates));
+            player.send(pen(Messages.sunk));
             anotherPlayer(player).send(pen(Messages.sunk));
           }
           anotherPlayer(player).setState(PlayerAwaiting());
           player.setState(PlayerDoShot());
         } else if (shotResult is EmptyCell) {
           final pen = AnsiPen()..blue();
+
+          player.send(Messages.playerDoShot(coordinates));
           anotherPlayer(player)
-              .send(Messages.doShot('\r\n${player.name}', coordinates));
+              .send(Messages.enemyDoShot('\r\n${player.name}', coordinates));
+          player.send(pen(Messages.miss));
           anotherPlayer(player).send(pen(Messages.miss));
+
           player.setState(PlayerAwaiting());
           anotherPlayer(player).setState(PlayerDoShot());
         } else {

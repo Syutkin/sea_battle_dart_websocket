@@ -47,7 +47,11 @@ class Messages {
 
   static const String sunk = 'Попадание! Корабль убит';
 
-  static String doShot(String playerName, Coordinates coordinates) {
+  static String enemyDoShot(String playerName, Coordinates coordinates) {
     return '$playerName делает выстрел на $coordinates';
+  }
+
+    static String playerDoShot(Coordinates coordinates) {
+    return 'Вы делаете выстрел на $coordinates';
   }
 }
