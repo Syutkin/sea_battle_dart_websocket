@@ -60,7 +60,7 @@ class Server {
           if (playerState == null) {
             sendByConnectionName(user, message);
           } else {
-            if (players[user]?.state == playerState) {
+            if (players[user]?.state.toString() == playerState.toString()) {
               sendByConnectionName(user, message);
             }
           }
@@ -144,7 +144,8 @@ class Server {
       message = message.replaceFirst(playerName, '').trimLeft();
       if (message.isNotEmpty) {
         final pen = AnsiPen()..magenta();
-        if (sendByPlayerName(playerName, pen('${player.name} пишет вам: $message'))) {
+        if (sendByPlayerName(
+            playerName, pen('${player.name} пишет вам: $message'))) {
           player.send('${ansiEscape}1A${ansiEscape}K${ansiEscape}1A');
           player.send(pen('Игроку ${player.name}: $message'));
         } else {

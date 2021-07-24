@@ -1,11 +1,11 @@
-import 'package:equatable/equatable.dart';
+abstract class PlayerState {}
 
-abstract class PlayerState extends Equatable {
+class PlayerConnecting extends PlayerState {
   @override
-  List<Object?> get props => [];
+  String toString() {
+    return 'Подключение';
+  }
 }
-
-class PlayerConnecting extends PlayerState {}
 
 class PlayerInMenu extends PlayerState {
   @override
