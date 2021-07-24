@@ -219,6 +219,7 @@ class Server {
         message = message.toString().trim();
         _parseMessage(player, message);
       }).onDone(() {
+        player.emit(PlayerDisconnected());
         closeConnection(connectionName);
         print('Player $connectionName disconnected');
       });

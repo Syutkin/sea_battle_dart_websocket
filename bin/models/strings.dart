@@ -37,7 +37,7 @@ class Messages {
 
   static const String awaitingPlayer = 'Ожидание другого игрока';
 
-  static const String winner = 'Вы победили!';
+  static const String winner = 'Победа!';
 
   static const String looser = 'Поражение!';
 
@@ -51,7 +51,10 @@ class Messages {
     return '$playerName делает выстрел на $coordinates';
   }
 
-    static String playerDoShot(Coordinates coordinates) {
+  static String playerDoShot(Coordinates coordinates) {
     return 'Вы делаете выстрел на $coordinates';
   }
+
+  static const String opponentDisconnected =
+      'Соединение с противником потеряно';
 }

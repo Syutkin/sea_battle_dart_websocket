@@ -7,6 +7,13 @@ class PlayerConnecting extends PlayerState {
   }
 }
 
+class PlayerDisconnected extends PlayerState {
+  @override
+  String toString() {
+    return 'Отключён';
+  }
+}
+
 class PlayerInMenu extends PlayerState {
   @override
   String toString() {

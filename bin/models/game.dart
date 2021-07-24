@@ -75,13 +75,20 @@ class Game extends Cubit<GameState> {
         }
       } else if (state is PlayerDoShot) {
         if (!anotherPlayer(player).isAlive) {
-          player.send(Messages.winner);
+          final pen = AnsiPen()..red();
+          player.send(pen(Messages.winner));
           player.setState(PlayerInMenu());
           anotherPlayer(player).send(Messages.looser);
           anotherPlayer(player).setState(PlayerInMenu());
           // end game
           emit(GameEnded());
         }
+      } else if (state is PlayerDisconnected) {
+        anotherPlayer(player).send(Messages.opponentDisconnected);
+        final pen = AnsiPen()..red();
+        anotherPlayer(player).send(pen(Messages.winner));
+        anotherPlayer(player).setState(PlayerInMenu());
+        emit(GameEnded());
       }
     }));
   }
