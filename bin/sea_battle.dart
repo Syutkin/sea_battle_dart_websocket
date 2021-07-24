@@ -1,3 +1,4 @@
+import 'package:ansicolor/ansicolor.dart';
 import 'package:args/args.dart';
 
 import 'models/server.dart';
@@ -11,6 +12,8 @@ void main(List<String> arguments) {
   var argResults = parser.parse(arguments);
 
   var uri = Uri.tryParse(argResults[urlParamName]) ?? Uri.parse(defaultUrl);
+
+  ansiColorDisabled = false;
 
   Server.bind(uri.host, uri.port);
 }

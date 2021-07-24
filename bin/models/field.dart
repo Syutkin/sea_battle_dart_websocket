@@ -1,5 +1,4 @@
 import 'dart:math';
-import 'package:ansicolor/ansicolor.dart';
 import 'package:collection/collection.dart';
 
 import 'ship.dart';
@@ -7,6 +6,7 @@ import 'cell.dart';
 import 'coordinates.dart';
 
 abstract class Field {
+
   final List<List<Cell>> _field;
 
   int get length => Coordinates.letters.length;

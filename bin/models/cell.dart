@@ -24,7 +24,8 @@ class ShipInCell extends Cell {
 
   @override
   String toString() {
-    var pen = AnsiPen();
+    
+    final pen = AnsiPen();
     if (alive) {
       pen.yellow();
       return pen(String.fromCharCode(_ship));

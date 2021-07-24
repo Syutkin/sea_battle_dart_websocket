@@ -121,12 +121,12 @@ class Game extends Cubit<GameState> {
             if (shotResult.ship.isAlive) {
               //ship is alive
               anotherPlayer(player)
-                  .send(Messages.doShot('${player.name}', coordinates));
+                  .send(Messages.doShot('\r\n${player.name}', coordinates));
               anotherPlayer(player).send(pen(Messages.hit));
             } else {
               //ship dead
               anotherPlayer(player)
-                  .send(Messages.doShot('${player.name}', coordinates));
+                  .send(Messages.doShot('\r\n${player.name}', coordinates));
               anotherPlayer(player).send(pen(Messages.sunk));
             }
             anotherPlayer(player).setState(PlayerAwaiting());
@@ -134,7 +134,7 @@ class Game extends Cubit<GameState> {
           } else if (shotResult is EmptyCell) {
             final pen = AnsiPen()..blue();
             anotherPlayer(player)
-                .send(Messages.doShot('${player.name}', coordinates));
+                .send(Messages.doShot('\r\n${player.name}', coordinates));
             anotherPlayer(player).send(pen(Messages.miss));
             player.setState(PlayerAwaiting());
             anotherPlayer(player).setState(PlayerDoShot());
