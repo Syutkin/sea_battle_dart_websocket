@@ -1,3 +1,4 @@
+import 'package:ansicolor/ansicolor.dart';
 import 'package:shelf/shelf_io.dart' as shelf_io;
 import 'package:shelf_web_socket/shelf_web_socket.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -31,7 +32,21 @@ class Server {
 
   /// Send message to player
   void sendByConnectionName(String connectionName, String message) {
-    players[connectionName]?.webSocket.sink.add(message);
+    if (message.isNotEmpty) {
+      players[connectionName]?.webSocket.sink.add(message);
+    }
+  }
+
+  bool sendByPlayerName(String playerName, String message) {
+    if (players.isNotEmpty) {
+      for (var user in players.keys) {
+        if (players[user]?.name == playerName) {
+          sendByConnectionName(user, message);
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   void send(Player player, String message) {
@@ -39,13 +54,15 @@ class Server {
   }
 
   void sendMessageToAll(String message, [PlayerState? playerState]) {
-    if (players.isNotEmpty) {
-      for (var user in players.keys) {
-        if (playerState == null) {
-          sendByConnectionName(user, message);
-        } else {
-          if (players[user]?.state == playerState) {
+    if (message.isNotEmpty) {
+      if (players.isNotEmpty) {
+        for (var user in players.keys) {
+          if (playerState == null) {
             sendByConnectionName(user, message);
+          } else {
+            if (players[user]?.state == playerState) {
+              sendByConnectionName(user, message);
+            }
           }
         }
       }
@@ -113,7 +130,31 @@ class Server {
   }
 
   /// Parse message from user
-  void _parseMessage(Player player, String message) async {
+  void _parseMessage(Player player, String message) {
+    if (message.startsWith('/pm ')) {
+      _pmChat(player, message.replaceFirst('/pm ', ''));
+    } else {
+      _commonCommandsParser(player, message);
+    }
+  }
+
+  void _pmChat(Player player, String message) {
+    if (message.isNotEmpty) {
+      var playerName = message.split(' ')[0];
+      message = message.replaceFirst(playerName, '').trimLeft();
+      if (message.isNotEmpty) {
+        final pen = AnsiPen()..magenta();
+        if (sendByPlayerName(playerName, pen('${player.name} пишет вам: $message'))) {
+          player.send('${ansiEscape}1A${ansiEscape}K${ansiEscape}1A');
+          player.send(pen('Игроку ${player.name}: $message'));
+        } else {
+          player.send(pen('Игрок $playerName не найден'));
+        }
+      }
+    }
+  }
+
+  void _commonCommandsParser(Player player, String message) {
     if (player.state is PlayerConnecting) {
       player.name = message;
       print('${player.connectionName} new name: $message');
@@ -125,7 +166,7 @@ class Server {
       switch (response) {
         case 1: // find game
           player.setState(PlayerInQueue());
-          await startNewGame();
+          startNewGame();
           break;
         case 2: // players online
           send(player,
