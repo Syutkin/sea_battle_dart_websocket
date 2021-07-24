@@ -8,7 +8,7 @@
             "name": "sea_battle (debug console)",
             "request": "launch",
             "type": "dart",
-            "program": "bin/sea_battle.dart",
+            "program": "bin/main.dart",
             "console": "debugConsole"
         }
     ]

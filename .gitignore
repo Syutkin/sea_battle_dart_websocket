@@ -36,3 +36,7 @@ doc/api/
 
 # Local History for Visual Studio Code
 .history/
+
+# Some random stuff
+compile.sh
+bin/sea_battle_server
