@@ -4,16 +4,57 @@ import 'package:args/args.dart';
 import 'models/server.dart';
 
 void main(List<String> arguments) {
+  const version = '1.0.0';
+
   const urlParamName = 'url';
   const defaultUrl = 'ws://127.0.0.1:9224';
+  const helpParamName = 'help';
+  const versionParamName = 'version';
 
-  final parser = ArgParser()..addOption(urlParamName, defaultsTo: defaultUrl);
+  // for ansi color output
+  ansiColorDisabled = false;
+
+  final parser = ArgParser();
+
+  parser.addSeparator('Sea Battle server $version.\n\n'
+      'Usage: sea_battle_server [--version] [--help] [--url=<url>]\n\n'
+      'Global options:');
+
+  parser.addFlag(
+    helpParamName,
+    abbr: 'h',
+    help: 'show this screen and exit',
+    negatable: false,
+  );
+
+  parser.addFlag(
+    versionParamName,
+    abbr: 'v',
+    help: 'show version and exit',
+    negatable: false,
+  );
+
+  parser.addOption(
+    urlParamName,
+    abbr: 'u',
+    defaultsTo: defaultUrl,
+    valueHelp: urlParamName,
+    help: 'start and bind server to protocol://ip:port\n'
+        'where protocol can be ws or wss',
+  );
 
   var argResults = parser.parse(arguments);
 
+  if (argResults[helpParamName]) {
+    print(parser.usage);
+    return;
+  }
+
+  if (argResults[versionParamName]) {
+    print('Sea Battle server: version $version');
+    return;
+  }
+
   var uri = Uri.tryParse(argResults[urlParamName]) ?? Uri.parse(defaultUrl);
-
-  ansiColorDisabled = false;
-
   Server.bind(uri.host, uri.port);
 }

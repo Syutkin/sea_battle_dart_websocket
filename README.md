@@ -1,4 +1,7 @@
-A simple command-line application.
+### Морской бой
+Сервер морского боя на websocket. Для игры достаточно подключится консольным клиентом.
 
-Created from templates made available by Stagehand under a BSD-style
-[license](https://github.com/dart-lang/stagehand/blob/master/LICENSE).
+#### Внутриигровые команды
+* /pm <name> - приватное сообщение игроку <name>
+* /chat - чат в текущей игре
+* /stat - статистика по доступным для просрела полям в текущей игре
