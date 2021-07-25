@@ -133,8 +133,19 @@ class Server {
   void _parseMessage(Player player, String message) {
     if (message.startsWith('/pm ')) {
       _pmChat(player, message.replaceFirst('/pm ', ''));
+    } else if (message == '/stat') {
+      _showGameStat(player);
     } else {
       _commonCommandsParser(player, message);
+    }
+  }
+
+  void _showGameStat(Player player) {
+    if (player.state is PlayerInGame &&
+        player.state is! PlayerSelectingShipsPlacement) {
+      player.send(
+          'Доступных клеток для выстрела: ${player.battleField.countAvailableCells}, '
+          'у противника: ${player.playerField.countAvailableCells}');
     }
   }
 

@@ -19,14 +19,14 @@ class ShipInCell extends Cell {
 
   Ship ship;
 
-  bool alive = true;
+  bool isAlive = true;
   bool wasAlive = true;
 
   @override
   String toString() {
     
     final pen = AnsiPen();
-    if (alive) {
+    if (isAlive) {
       pen.yellow();
       return pen(String.fromCharCode(_ship));
     } else {

@@ -6,7 +6,6 @@ import 'cell.dart';
 import 'coordinates.dart';
 
 abstract class Field {
-
   final List<List<Cell>> _field;
 
   int get length => Coordinates.letters.length;
@@ -92,6 +91,21 @@ abstract class Field {
         }
       }
     }
+  }
+
+  int get countAvailableCells {
+    var count = 0;
+    _field.forEach((row) {
+      row.forEach((cell) {
+        if (cell is EmptyCell) {
+          count++;
+        } else if (cell is ShipInCell && cell.isAlive) {
+          count++;
+        }
+      });
+    });
+    print(count);
+    return count;
   }
 }
 
@@ -217,7 +231,7 @@ class PlayerField extends Field {
     var result = _field[coordinates.y][coordinates.x];
     if (result is ShipInCell) {
       if (result.ship.isAlive) {
-        result.alive = false;
+        result.isAlive = false;
         if (result.ship.Shot(
           x_coord: coordinates.x,
           y_coord: coordinates.y,
