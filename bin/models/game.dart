@@ -73,7 +73,10 @@ class Game extends Cubit<GameState> {
         if (anotherPlayer(player).state is PlayerAwaiting) {
           currentPlayer().setState(PlayerDoShot());
         }
-      } else if (state is PlayerDoShot) {
+        return;
+      }
+
+      if (state is PlayerDoShot) {
         if (!anotherPlayer(player).isAlive) {
           final pen = AnsiPen()..red();
           player.send(pen(Messages.winner));
@@ -83,12 +86,16 @@ class Game extends Cubit<GameState> {
           // end game
           emit(GameEnded());
         }
-      } else if (state is PlayerDisconnected) {
+        return;
+      }
+
+      if (state is PlayerDisconnected) {
         anotherPlayer(player).send(Messages.opponentDisconnected);
         final pen = AnsiPen()..red();
         anotherPlayer(player).send(pen(Messages.winner));
         anotherPlayer(player).setState(PlayerInMenu());
         emit(GameEnded());
+        return;
       }
     }));
   }
@@ -97,9 +104,10 @@ class Game extends Cubit<GameState> {
     _streamSubscriptions.add(player.playerInput.stream.listen((message) {
       if (message.startsWith('/chat ')) {
         _gameChat(player, message.replaceFirst('/chat ', ''));
-      } else {
-        _commonCommandsParser(player, message);
+        return;
       }
+
+      _commonCommandsParser(player, message);
     }));
   }
 
@@ -125,9 +133,10 @@ class Game extends Cubit<GameState> {
           }
           break;
         case 2:
-          player.setState(PlayerPlacingShips());
-          player.playerField.randomFillWithShips();
-          player.setState(PlayerAwaiting());
+          // player.setState(PlayerPlacingShips());
+          // player.playerField.randomFillWithShips();
+          // player.setState(PlayerAwaiting());
+          _automaticPlaceShips(player);
           break;
         default:
           player.send(Messages.incorrectInput);
@@ -206,6 +215,13 @@ class Game extends Cubit<GameState> {
   void _placeShipHandler(Player player, String message) {
     var ship = player.playerField.nextShip;
     if (ship != null) {
+      var automaticPlace = int.tryParse(message);
+
+      if (automaticPlace == 9) {
+        _automaticPlaceShips(player);
+        return;
+      }
+
       if (player.state is PlayerSelectShipStart) {
         var coordinates = Coordinates.tryParse(message);
         if (coordinates != null) {
@@ -218,7 +234,10 @@ class Game extends Cubit<GameState> {
         } else {
           player.send(Messages.wrongCoordinates);
         }
-      } else if (player.state is PlayerSelectShipOrientation) {
+        return;
+      }
+
+      if (player.state is PlayerSelectShipOrientation) {
         var response = int.tryParse(message);
         switch (response) {
           case 1:
@@ -229,10 +248,17 @@ class Game extends Cubit<GameState> {
           default:
             player.send(Messages.incorrectInput);
         }
+        return;
       }
     } else {
       assert(ship == null,
           'All ships were placed, but state didn\'t properly changed');
     }
+  }
+
+  void _automaticPlaceShips(Player player) {
+    player.setState(PlayerPlacingShips());
+    player.playerField.randomFillWithShips();
+    player.setState(PlayerAwaiting());
   }
 }

@@ -215,15 +215,17 @@ class PlayerField extends Field {
 
   void randomFillWithShips() {
     for (var ship in ships) {
-      var rng = Random();
-      int orientation;
-      Coordinates coordinates;
-      do {
-        orientation = rng.nextInt(2) + 1;
-        coordinates = Coordinates(x: rng.nextInt(10), y: rng.nextInt(10));
-        ship.setCoordinates(coordinates);
-        ship.orientation = orientationFromInt(orientation);
-      } while (!tryPlaceShip(ship));
+      if (!ship.isPlaced) {
+        var rng = Random();
+        int orientation;
+        Coordinates coordinates;
+        do {
+          orientation = rng.nextInt(2) + 1;
+          coordinates = Coordinates(x: rng.nextInt(10), y: rng.nextInt(10));
+          ship.setCoordinates(coordinates);
+          ship.orientation = orientationFromInt(orientation);
+        } while (!tryPlaceShip(ship));
+      }
     }
   }
 

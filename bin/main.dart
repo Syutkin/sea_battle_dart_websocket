@@ -4,7 +4,7 @@ import 'package:args/args.dart';
 import 'models/server.dart';
 
 void main(List<String> arguments) {
-  const version = '1.0.0';
+  const version = '1.0.1';
 
   const urlParamName = 'url';
   const defaultUrl = 'ws://127.0.0.1:9224';
