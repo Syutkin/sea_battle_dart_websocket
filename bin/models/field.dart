@@ -79,11 +79,11 @@ abstract class Field {
     }
   }
 
-  void _markCellsAroundHit(int x, int y) {
+  void _markCellsAroundHit(Coordinates coordinates) {
     for (var i = -1; i < 2; i += 2) {
       for (var k = -1; k < 2; k += 2) {
-        var x1 = x + i;
-        var y1 = y + k;
+        var x1 = coordinates.x + i;
+        var y1 = coordinates.y + k;
         if (x1 >= 0 && x1 < 10) {
           if (y1 >= 0 && y1 < 10) {
             _field[y1][x1] = MissCell();
@@ -232,12 +232,9 @@ class PlayerField extends Field {
     if (result is ShipInCell) {
       if (result.ship.isAlive) {
         result.isAlive = false;
-        if (result.ship.Shot(
-          x_coord: coordinates.x,
-          y_coord: coordinates.y,
-        )) {
+        if (result.ship.Shot(coordinates)) {
           //ship is alive
-          _markCellsAroundHit(coordinates.x, coordinates.y);
+          _markCellsAroundHit(coordinates);
         } else {
           //ship is dead
           _markCellsAroundShip(result.ship);
@@ -260,7 +257,7 @@ class BattleField extends Field {
       _field[coordinates.y][coordinates.x] = shotResult;
       if (shotResult.ship.isAlive) {
         //ship is alive
-        _markCellsAroundHit(coordinates.x, coordinates.y);
+        _markCellsAroundHit(coordinates);
       } else {
         //ship dead
         _markCellsAroundShip(shotResult.ship);

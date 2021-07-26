@@ -3,11 +3,15 @@ import 'coordinates.dart';
 class Ship {
   final ShipSize _shipSize;
   final List<bool> _hitPoints;
+
   int? _x;
   int? _y;
   bool isPlaced = false;
   Orientation orientation;
-  // final int number;
+
+  int? get x => _x;
+  int? get y => _y;
+
   Ship({
     required ShipSize shipSize,
     // required this.number,
@@ -40,17 +44,14 @@ class Ship {
     _y = coordinates.y;
   }
 
-  int? get x => _x;
-  int? get y => _y;
-
-  bool Shot({required int x_coord, required int y_coord}) {
+  bool Shot(Coordinates coordinates) {
     if (isPlaced) {
       switch (orientation) {
         case Orientation.horizontal:
-          _hitPoints[x_coord - _x!] = false;
+          _hitPoints[coordinates.x - x!] = false;
           break;
         case Orientation.vertical:
-          _hitPoints[y_coord - _y!] = false;
+          _hitPoints[coordinates.y - y!] = false;
           break;
       }
     }
