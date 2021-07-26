@@ -133,9 +133,6 @@ class Game extends Cubit<GameState> {
           }
           break;
         case 2:
-          // player.setState(PlayerPlacingShips());
-          // player.playerField.randomFillWithShips();
-          // player.setState(PlayerAwaiting());
           _automaticPlaceShips(player);
           break;
         default:
@@ -202,7 +199,7 @@ class Game extends Cubit<GameState> {
     if (player.playerField.tryPlaceShip(ship)) {
       if (player.playerField.nextShip == null) {
         //all ship placed
-        player.setState(PlayerAwaiting());
+        player.setState(PlayerPlacingShipsConfimation());
       } else {
         player.setState(PlayerSelectShipStart());
       }
@@ -251,14 +248,28 @@ class Game extends Cubit<GameState> {
         return;
       }
     } else {
-      assert(ship == null,
-          'All ships were placed, but state didn\'t properly changed');
+      if (player.state is PlayerPlacingShipsConfimation) {
+        var response = int.tryParse(message);
+        switch (response) {
+          case 1:
+            player.setState(PlayerAwaiting());
+            break;
+          case 2:
+            player.setState(PlayerSelectingShipsPlacement());
+            break;
+          default:
+            player.send(Messages.incorrectInput);
+        }
+        return;
+      }
+      // assert(ship == null,
+      //     'All ships were placed, but state didn\'t properly changed');
     }
   }
 
   void _automaticPlaceShips(Player player) {
     player.setState(PlayerPlacingShips());
     player.playerField.randomFillWithShips();
-    player.setState(PlayerAwaiting());
+    player.setState(PlayerPlacingShipsConfimation());
   }
 }

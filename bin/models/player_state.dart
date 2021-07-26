@@ -63,6 +63,13 @@ class PlayerSelectShipOrientation extends PlayerPlacingShips {
   }
 }
 
+class PlayerPlacingShipsConfimation extends PlayerPlacingShips {
+  @override
+  String toString() {
+    return 'Подтвержает расстановку кораблей';
+  }
+}
+
 class PlayerDoShot extends PlayerInGame {
   @override
   String toString() {

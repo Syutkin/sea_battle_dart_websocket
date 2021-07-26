@@ -25,8 +25,7 @@ class Player extends Cubit<PlayerState> {
   }
 
   void init() {
-    playerField.initShips();
-    playerField.initField();
+    playerField.init();
     battleField.initField();
   }
 
@@ -34,12 +33,16 @@ class Player extends Cubit<PlayerState> {
     if (state is PlayerInMenu) {
       send(Menu.mainMenu);
     }
+
     if (state is PlayerInQueue) {
       send(Menu.inQueue);
     }
+
     if (state is PlayerSelectingShipsPlacement) {
+      playerField.init();
       send(Menu.howtoPlaceShips);
     }
+
     if (state is PlayerSelectShipStart) {
       var ship = playerField.nextShip;
       if (ship != null) {
@@ -48,13 +51,21 @@ class Player extends Cubit<PlayerState> {
         send(Menu.shipStartPoint);
       }
     }
+
     if (state is PlayerSelectShipOrientation) {
       send(Menu.shipOrientation);
     }
+
+    if (state is PlayerPlacingShipsConfimation) {
+      send(playerField.toString());
+      send(Menu.confirmShipsPlacement);
+    }
+
     if (state is PlayerDoShot) {
       send(fields());
       send(Menu.doShot);
     }
+
     if (state is PlayerAwaiting) {
       send(fields());
       send(Messages.awaitingPlayer);

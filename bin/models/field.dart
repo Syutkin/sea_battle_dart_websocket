@@ -114,6 +114,11 @@ class PlayerField extends Field {
 
   List<Ship> ships = <Ship>[];
 
+  void init() {
+    initShips();
+    initField();
+  }
+
   void initShips() {
     ships = [
       Ship(shipSize: ShipSize.Battleship),
@@ -214,7 +219,7 @@ class PlayerField extends Field {
   }
 
   void randomFillWithShips() {
-    for (var ship in ships) {
+    ships.forEach((ship) {
       if (!ship.isPlaced) {
         var rng = Random();
         int orientation;
@@ -226,7 +231,7 @@ class PlayerField extends Field {
           ship.orientation = orientationFromInt(orientation);
         } while (!tryPlaceShip(ship));
       }
-    }
+    });
   }
 
   Cell doShot(Coordinates coordinates) {
