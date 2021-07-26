@@ -132,9 +132,15 @@ class Game extends Cubit<GameState> {
         default:
           player.send(Messages.incorrectInput);
       }
-    } else if (player.state is PlayerPlacingShips) {
+      return;
+    }
+
+    if (player.state is PlayerPlacingShips) {
       _placeShipHandler(player, message);
-    } else if (player.state is PlayerDoShot) {
+      return;
+    }
+
+    if (player.state is PlayerDoShot) {
       var coordinates = Coordinates.tryParse(message);
       if (coordinates != null) {
         var shotResult = anotherPlayer(player).playerField.doShot(coordinates);
@@ -177,7 +183,10 @@ class Game extends Cubit<GameState> {
       } else {
         player.send(Messages.wrongCoordinates);
       }
-    } else if (player.state is PlayerAwaiting) {}
+      return;
+    }
+
+    if (player.state is PlayerAwaiting) {}
   }
 
   void _placeShip(Player player, Ship ship) {

@@ -133,11 +133,15 @@ class Server {
   void _parseMessage(Player player, String message) {
     if (message.startsWith('/pm ')) {
       _pmChat(player, message.replaceFirst('/pm ', ''));
-    } else if (message == '/stat') {
-      _showGameStat(player);
-    } else {
-      _commonCommandsParser(player, message);
+      return;
     }
+
+    if (message == '/stat') {
+      _showGameStat(player);
+      return;
+    }
+
+    _commonCommandsParser(player, message);
   }
 
   void _showGameStat(Player player) {
@@ -173,7 +177,10 @@ class Server {
       send(player, 'Добро пожаловать в морской бой, ${player.name}');
       sendMessageToAll('${player.name} заходит на сервер', PlayerInMenu());
       player.setState(PlayerInMenu());
-    } else if (player.state is PlayerInMenu) {
+      return;
+    }
+
+    if (player.state is PlayerInMenu) {
       var response = int.tryParse(message);
       switch (response) {
         case 1: // find game
@@ -199,8 +206,10 @@ class Server {
           player.send(Messages.incorrectInput);
           player.setState(PlayerInMenu());
       }
-      // send(player, Menu.menu);
-    } else if (player.state is PlayerInQueue) {
+      return;
+    }
+
+    if (player.state is PlayerInQueue) {
       var response = int.tryParse(message);
       switch (response) {
         case 1:
@@ -210,8 +219,12 @@ class Server {
           player.send(Messages.incorrectInput);
           player.setState(PlayerInQueue());
       }
-    } else if (player.state is PlayerInGame) {
+      return;
+    }
+
+    if (player.state is PlayerInGame) {
       player.playerInput.sink.add(message);
+      return;
     }
   }
 
