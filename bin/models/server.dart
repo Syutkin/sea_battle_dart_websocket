@@ -3,6 +3,7 @@ import 'package:shelf/shelf_io.dart' as shelf_io;
 import 'package:shelf_web_socket/shelf_web_socket.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
+import '../main.dart';
 import 'game.dart';
 import 'game_state.dart';
 import 'player.dart';
@@ -198,8 +199,9 @@ class Server {
           player.setState(PlayerInMenu());
           break;
         case 3: // server info
-          // ToDo
-          send(player, 'Информация о сервере: TBD');
+          // ToDo: uptime
+          // ToDo: games played
+          send(player, 'Информация о сервере:/n/n' 'Версия: $serverVersion');
           player.setState(PlayerInMenu());
           break;
         default:
@@ -231,7 +233,10 @@ class Server {
   /// Server constructor
   /// param [address]
   /// param [port]
-  Server.bind(this.address, this.port) {
+  Server.bind({
+    required this.address,
+    required this.port,
+  }) {
     var connectionHandler = webSocketHandler((WebSocketChannel webSocket,
         {pingInterval = const Duration(seconds: 5)}) {
       var connectionName = 'user_$userCount';

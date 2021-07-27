@@ -3,9 +3,9 @@ import 'package:args/args.dart';
 
 import 'models/server.dart';
 
-void main(List<String> arguments) {
-  const version = '1.0.1';
+const serverVersion = '1.0.1';
 
+void main(List<String> arguments) {
   const urlParamName = 'url';
   const defaultUrl = 'ws://127.0.0.1:9224';
   const helpParamName = 'help';
@@ -16,7 +16,7 @@ void main(List<String> arguments) {
 
   final parser = ArgParser();
 
-  parser.addSeparator('Sea Battle server $version.\n\n'
+  parser.addSeparator('Sea Battle server $serverVersion.\n\n'
       'Usage: sea_battle_server [--version] [--help] [--url=<url>]\n\n'
       'Global options:');
 
@@ -51,10 +51,11 @@ void main(List<String> arguments) {
   }
 
   if (argResults[versionParamName]) {
-    print('Sea Battle server: version $version');
+    print('Sea Battle server: version $serverVersion');
     return;
   }
 
+  print('Starting Sea Battle server, version $serverVersion');
   var uri = Uri.tryParse(argResults[urlParamName]) ?? Uri.parse(defaultUrl);
-  Server.bind(uri.host, uri.port);
+  Server.bind(address: uri.host, port: uri.port);
 }
