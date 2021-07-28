@@ -104,7 +104,6 @@ abstract class Field {
         }
       });
     });
-    print(count);
     return count;
   }
 }
