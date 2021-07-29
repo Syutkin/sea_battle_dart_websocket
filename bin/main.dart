@@ -1,7 +1,6 @@
 import 'package:ansicolor/ansicolor.dart';
 import 'package:args/args.dart';
 
-import 'db/database.dart';
 import 'models/server.dart';
 
 const serverVersion = '1.0.1';

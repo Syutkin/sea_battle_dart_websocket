@@ -1524,9 +1524,15 @@ abstract class _$Database extends GeneratedDatabase {
         readsFrom: {users}).map((QueryRow row) => row.read<int>('COUNT(*)'));
   }
 
+  Selectable<int> gamesCount() {
+    return customSelect('SELECT COUNT(*) FROM games',
+        variables: [],
+        readsFrom: {games}).map((QueryRow row) => row.read<int>('COUNT(*)'));
+  }
+
   Future<int> addUser(String name) {
     return customInsert(
-      'INSERT OR IGNORE INTO users (date, name)\r\n						VALUES (strftime(\'%s\',\'now\'), :name)',
+      'INSERT OR IGNORE INTO users (date, name) VALUES (strftime(\'%s\',\'now\'), :name)',
       variables: [Variable<String>(name)],
       updates: {users},
     );
@@ -1534,7 +1540,7 @@ abstract class _$Database extends GeneratedDatabase {
 
   Future<int> addUserInput(String user, String input) {
     return customInsert(
-      'INSERT INTO usersinput (date, user, input)\r\n						VALUES (strftime(\'%s\',\'now\'), :user, :input)',
+      'INSERT INTO usersinput (date, user, input) VALUES (strftime(\'%s\',\'now\'), :user, :input)',
       variables: [Variable<String>(user), Variable<String>(input)],
       updates: {usersinput},
     );
@@ -1542,7 +1548,7 @@ abstract class _$Database extends GeneratedDatabase {
 
   Future<int> addLogin(String user, int connection) {
     return customInsert(
-      'INSERT INTO logins (date, user, connection)\r\n						VALUES (strftime(\'%s\',\'now\'), :user, :connection)',
+      'INSERT INTO logins (date, user, connection) VALUES (strftime(\'%s\',\'now\'), :user, :connection)',
       variables: [Variable<String>(user), Variable<int>(connection)],
       updates: {logins},
     );
@@ -1550,7 +1556,7 @@ abstract class _$Database extends GeneratedDatabase {
 
   Future<int> addGame(String player1, String player2) {
     return customInsert(
-      'INSERT INTO games (datestarted, player1, player2)\r\n						VALUES (strftime(\'%s\',\'now\'), :player1, :player2)',
+      'INSERT INTO games (datestarted, player1, player2) VALUES (strftime(\'%s\',\'now\'), :player1, :player2)',
       variables: [Variable<String>(player1), Variable<String>(player2)],
       updates: {games},
     );
@@ -1559,7 +1565,7 @@ abstract class _$Database extends GeneratedDatabase {
   Future<int> setGameResult(
       int result, String? winner, String? looser, int id) {
     return customUpdate(
-      'UPDATE games\r\n						SET datefinished = strftime(\'%s\',\'now\'), result = :result, winner = :winner, looser = :looser\r\n						WHERE id = :id',
+      'UPDATE games SET datefinished = strftime(\'%s\',\'now\'), result = :result, winner = :winner, looser = :looser WHERE id = :id',
       variables: [
         Variable<int>(result),
         Variable<String?>(winner),
@@ -1574,7 +1580,7 @@ abstract class _$Database extends GeneratedDatabase {
   Future<int> addInGameUserInput(
       int game, String user, String input, String result) {
     return customInsert(
-      'INSERT INTO gamelogs (date, game, user, input, result)\r\n						VALUES (strftime(\'%s\',\'now\'), :game, :user, :input, :result)',
+      'INSERT INTO gamelogs (date, game, user, input, result) VALUES (strftime(\'%s\',\'now\'), :game, :user, :input, :result)',
       variables: [
         Variable<int>(game),
         Variable<String>(user),

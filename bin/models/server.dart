@@ -20,24 +20,24 @@ class Server {
   String address;
 
   /// Active connections
-  Map<String, Player> players = <String, Player>{};
+  Map<int, Player> players = <int, Player>{};
 
-  int userCount = 1;
+  int connectionCount = 1;
 
   /// Players ready for new game
   Map<String, Player> awaitingPlayers = <String, Player>{};
 
   /// Currently ongoing games
-  Map<String, Game> activeGames = <String, Game>{};
+  Map<int, Game> activeGames = <int, Game>{};
 
-  int gameCount;
+  // int gameCount;
 
   final db.Database database;
 
   /// Send message to player
-  void sendByConnectionName(String connectionName, String message) {
+  void sendByConnectionId(int connectionId, String message) {
     if (message.isNotEmpty) {
-      players[connectionName]?.webSocket.sink.add(message);
+      players[connectionId]?.webSocket.sink.add(message);
     }
   }
 
@@ -45,7 +45,7 @@ class Server {
     if (players.isNotEmpty) {
       for (var user in players.keys) {
         if (players[user]?.name == playerName) {
-          sendByConnectionName(user, message);
+          sendByConnectionId(user, message);
           return true;
         }
       }
@@ -62,10 +62,10 @@ class Server {
       if (players.isNotEmpty) {
         for (var user in players.keys) {
           if (playerState == null) {
-            sendByConnectionName(user, message);
+            sendByConnectionId(user, message);
           } else {
             if (players[user]?.state.toString() == playerState.toString()) {
-              sendByConnectionName(user, message);
+              sendByConnectionId(user, message);
             }
           }
         }
@@ -80,12 +80,17 @@ class Server {
   }
 
   /// Close user connections
-  void closeConnection(String connectionName) {
-    if (players.containsKey(connectionName)) {
-      players.remove(connectionName);
+  void closeConnection(int connectionId) {
+    if (players.containsKey(connectionId)) {
+      if (players[connectionId]?.name != null) {
+        print('Player ${players[connectionId]?.name} disconnected');
+      } else {
+        print('Connection ID $connectionId disconnected');
+      }
+      players.remove(connectionId);
     }
-    if (awaitingPlayers.containsKey(connectionName)) {
-      players.remove(connectionName);
+    if (awaitingPlayers.containsKey(connectionId)) {
+      awaitingPlayers.remove(connectionId);
     }
   }
 
@@ -100,23 +105,25 @@ class Server {
     if (keys.length > 1) {
       players[keys[0]]?.setState(PlayerInGame());
       players[keys[1]]?.setState(PlayerInGame());
-      var gameName = 'game_$gameCount';
-      gameCount++;
+      var gameId = await database.gamesCount().getSingle();
+
+      // var gameName = 'game_$gameCount';
+      // gameCount++;
 
       var game = Game(players[keys[0]]!, players[keys[1]]!);
 
       game.stream.listen((state) {
         if (state is GameEnded) {
-          endGame(gameName);
+          endGame(gameId);
         }
       });
 
-      activeGames.putIfAbsent(gameName, () => game);
+      activeGames.putIfAbsent(gameId, () => game);
 
       // ignore: unawaited_futures
       game.playGame();
 
-      print('Game $gameName started: '
+      print('Game number $gameId started: '
           '${players[keys[0]]?.name} vs ${players[keys[1]]?.name}');
 
       return true;
@@ -125,11 +132,11 @@ class Server {
     }
   }
 
-  Future<void> endGame(String gameName) async {
-    print('Game $gameName ended');
-    if (activeGames.containsKey(gameName)) {
-      await activeGames[gameName]?.close();
-      activeGames.remove(gameName);
+  Future<void> endGame(int gameId) async {
+    print('Game $gameId ended');
+    if (activeGames.containsKey(gameId)) {
+      await activeGames[gameId]?.close();
+      activeGames.remove(gameId);
     }
   }
 
@@ -174,10 +181,11 @@ class Server {
     }
   }
 
-  void _commonCommandsParser(Player player, String message) {
+  void _commonCommandsParser(Player player, String message) async {
     if (player.state is PlayerConnecting) {
+      player.id = await database.addUser(message);
       player.name = message;
-      print('${player.connectionName} new name: $message');
+      print('Connection ${player.connectionId} is player: $message');
       send(player, 'Добро пожаловать в морской бой, ${player.name}');
       sendMessageToAll('${player.name} заходит на сервер', PlayerInMenu());
       player.setState(PlayerInMenu());
@@ -195,9 +203,7 @@ class Server {
           send(player,
               'Игроков на сервере: ${players.length}, текущих игр: ${activeGames.length}');
           players.forEach((key, value) {
-            if (value.name != null) {
-              send(player, '${value.name}: ${value.state}');
-            }
+            send(player, '${value.name}: ${value.state}');
           });
           player.setState(PlayerInMenu());
           break;
@@ -242,23 +248,23 @@ class Server {
   }) : database = db.Database() {
     var connectionHandler = webSocketHandler((WebSocketChannel webSocket,
         {pingInterval = const Duration(seconds: 5)}) {
-      var connectionName = 'user_$userCount';
-      userCount++;
+      var connectionId = connectionCount;
+      connectionCount++;
 
-      var player = Player(connectionName: connectionName, webSocket: webSocket);
+      var player = Player(connectionId: connectionId, webSocket: webSocket);
 
       webSocket.stream.listen((message) {
         message = message.toString().trim();
         _parseMessage(player, message);
       }).onDone(() {
-        player.emit(PlayerDisconnected());
-        closeConnection(connectionName);
-        print('Player $connectionName disconnected');
+        player.setState(PlayerDisconnected());
+
+        closeConnection(connectionId);
       });
 
-      players.putIfAbsent(connectionName, () => player);
+      players.putIfAbsent(connectionId, () => player);
 
-      print('Player $connectionName connected');
+      print('New connection: ID $connectionId');
 
       sendWelcome(player);
     });

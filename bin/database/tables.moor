@@ -41,22 +41,10 @@ CREATE TABLE "gamelogs" (
 );
 
 usersCount:			SELECT COUNT(*) FROM users;
-
-addUser: 			INSERT OR IGNORE INTO users (date, name)
-						VALUES (strftime('%s','now'), :name);
-
-addUserInput:		INSERT INTO usersinput (date, user, input)
-						VALUES (strftime('%s','now'), :user, :input);
-
-addLogin: 			INSERT INTO logins (date, user, connection)
-						VALUES (strftime('%s','now'), :user, :connection);
-
-addGame:			INSERT INTO games (datestarted, player1, player2)
-						VALUES (strftime('%s','now'), :player1, :player2);
-
-setGameResult: 		UPDATE games
-						SET datefinished = strftime('%s','now'), result = :result, winner = :winner, looser = :looser
-						WHERE id = :id;
-
-addInGameUserInput: INSERT INTO gamelogs (date, game, user, input, result)
-						VALUES (strftime('%s','now'), :game, :user, :input, :result);
+gamesCount:			SELECT COUNT(*) FROM games;
+addUser: 			INSERT OR IGNORE INTO users (date, name) VALUES (strftime('%s','now'), :name);
+addUserInput:		INSERT INTO usersinput (date, user, input) VALUES (strftime('%s','now'), :user, :input);
+addLogin: 			INSERT INTO logins (date, user, connection) VALUES (strftime('%s','now'), :user, :connection);
+addGame:			INSERT INTO games (datestarted, player1, player2) VALUES (strftime('%s','now'), :player1, :player2);
+setGameResult: 		UPDATE games SET datefinished = strftime('%s','now'), result = :result, winner = :winner, looser = :looser WHERE id = :id;
+addInGameUserInput: INSERT INTO gamelogs (date, game, user, input, result) VALUES (strftime('%s','now'), :game, :user, :input, :result);
