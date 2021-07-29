@@ -3,6 +3,7 @@ import 'package:shelf/shelf_io.dart' as shelf_io;
 import 'package:shelf_web_socket/shelf_web_socket.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
+import '../database/database.dart' as db;
 import '../main.dart';
 import 'game.dart';
 import 'game_state.dart';
@@ -29,7 +30,9 @@ class Server {
   /// Currently ongoing games
   Map<String, Game> activeGames = <String, Game>{};
 
-  int gameCount = 1;
+  int gameCount;
+
+  final db.Database database;
 
   /// Send message to player
   void sendByConnectionName(String connectionName, String message) {
@@ -236,7 +239,7 @@ class Server {
   Server.bind({
     required this.address,
     required this.port,
-  }) {
+  }) : database = db.Database() {
     var connectionHandler = webSocketHandler((WebSocketChannel webSocket,
         {pingInterval = const Duration(seconds: 5)}) {
       var connectionName = 'user_$userCount';
