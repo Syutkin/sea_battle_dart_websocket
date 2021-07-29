@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:ansicolor/ansicolor.dart';
 import 'package:bloc/bloc.dart';
 
+import '../database/database.dart' as db;
 import 'cell.dart';
 import 'coordinates.dart';
 import 'game_state.dart';
@@ -16,9 +17,13 @@ class Game extends Cubit<GameState> {
   Player player1;
   Player player2;
 
+  late int id;
+
   Player _currentPlayer;
 
   final _streamSubscriptions = <StreamSubscription>[];
+
+  final db.Database database;
 
   Player currentPlayer() {
     if (_currentPlayer == player1) {
@@ -38,6 +43,7 @@ class Game extends Cubit<GameState> {
 
   Game(this.player1, this.player2)
       : _currentPlayer = player1,
+        database = db.Database(),
         super(GameInProgress());
 
   Future<void> playGame() async {
@@ -49,6 +55,10 @@ class Game extends Cubit<GameState> {
     if (rng.nextInt(2) == 1) {
       _currentPlayer = anotherPlayer(_currentPlayer);
     }
+
+    id = await database.addGame(player1.name!, player2.name!);
+
+    print('Game ID $id started: ${player1.name} vs ${player2.name}');
 
     player1.setState(PlayerSelectingShipsPlacement());
     player2.setState(PlayerSelectingShipsPlacement());
@@ -68,7 +78,7 @@ class Game extends Cubit<GameState> {
   }
 
   void _playerStateHandler(Player player) {
-    _streamSubscriptions.add(player.stream.listen((state) {
+    _streamSubscriptions.add(player.stream.listen((state) async {
       if (state is PlayerAwaiting) {
         if (anotherPlayer(player).state is PlayerAwaiting) {
           currentPlayer().setState(PlayerDoShot());
@@ -78,10 +88,15 @@ class Game extends Cubit<GameState> {
 
       if (state is PlayerDoShot) {
         if (!anotherPlayer(player).isAlive) {
+          //ToDo: get rid of this magic number
+          // 1 - game ended
+          await database.setGameResult(
+              1, player.name, anotherPlayer(player).name, id);
           final pen = AnsiPen()..red();
           player.send(pen(Messages.winner));
           player.setState(PlayerInMenu());
-          anotherPlayer(player).send(Messages.looser);
+          pen.blue();
+          anotherPlayer(player).send(pen(Messages.looser));
           anotherPlayer(player).setState(PlayerInMenu());
           // end game
           emit(GameEnded());
@@ -90,6 +105,10 @@ class Game extends Cubit<GameState> {
       }
 
       if (state is PlayerDisconnected) {
+        //ToDo: get rid of this magic number
+        // 2 - game ended with disconnect
+        await database.setGameResult(
+            2, anotherPlayer(player).name, player.name, id);
         anotherPlayer(player).send(Messages.opponentDisconnected);
         final pen = AnsiPen()..red();
         anotherPlayer(player).send(pen(Messages.winner));

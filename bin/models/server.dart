@@ -105,26 +105,20 @@ class Server {
     if (keys.length > 1) {
       players[keys[0]]?.setState(PlayerInGame());
       players[keys[1]]?.setState(PlayerInGame());
-      var gameId = await database.gamesCount().getSingle();
-
-      // var gameName = 'game_$gameCount';
-      // gameCount++;
 
       var game = Game(players[keys[0]]!, players[keys[1]]!);
 
       game.stream.listen((state) {
         if (state is GameEnded) {
-          endGame(gameId);
+          endGame(game.id);
         }
       });
 
-      activeGames.putIfAbsent(gameId, () => game);
+      await game.playGame();
 
-      // ignore: unawaited_futures
-      game.playGame();
+      activeGames.putIfAbsent(game.id, () => game);
 
-      print('Game number $gameId started: '
-          '${players[keys[0]]?.name} vs ${players[keys[1]]?.name}');
+      
 
       return true;
     } else {

@@ -154,36 +154,29 @@ class Users extends Table with TableInfo<Users, User> {
   final String? _alias;
   Users(this._db, [this._alias]);
   final VerificationMeta _idMeta = const VerificationMeta('id');
-  late final GeneratedIntColumn id = _constructId();
-  GeneratedIntColumn _constructId() {
-    return GeneratedIntColumn('id', $tableName, false,
-        declaredAsPrimaryKey: true,
-        hasAutoIncrement: true,
-        $customConstraints: 'NOT NULL PRIMARY KEY AUTOINCREMENT');
-  }
-
+  late final GeneratedColumn<int?> id = GeneratedColumn<int?>(
+      'id', aliasedName, false,
+      typeName: 'INTEGER',
+      requiredDuringInsert: false,
+      $customConstraints: 'NOT NULL PRIMARY KEY AUTOINCREMENT');
   final VerificationMeta _dateMeta = const VerificationMeta('date');
-  late final GeneratedIntColumn date = _constructDate();
-  GeneratedIntColumn _constructDate() {
-    return GeneratedIntColumn('date', $tableName, false,
-        $customConstraints: 'NOT NULL');
-  }
-
+  late final GeneratedColumn<int?> date = GeneratedColumn<int?>(
+      'date', aliasedName, false,
+      typeName: 'INTEGER',
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL');
   final VerificationMeta _nameMeta = const VerificationMeta('name');
-  late final GeneratedTextColumn name = _constructName();
-  GeneratedTextColumn _constructName() {
-    return GeneratedTextColumn('name', $tableName, false,
-        $customConstraints: 'NOT NULL UNIQUE');
-  }
-
+  late final GeneratedColumn<String?> name = GeneratedColumn<String?>(
+      'name', aliasedName, false,
+      typeName: 'TEXT',
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL UNIQUE');
   @override
   List<GeneratedColumn> get $columns => [id, date, name];
   @override
-  Users get asDslTable => this;
+  String get aliasedName => _alias ?? 'users';
   @override
-  String get $tableName => _alias ?? 'users';
-  @override
-  final String actualTableName = 'users';
+  String get actualTableName => 'users';
   @override
   VerificationContext validateIntegrity(Insertable<User> instance,
       {bool isInserting = false}) {
@@ -400,43 +393,35 @@ class Usersinput extends Table with TableInfo<Usersinput, userinput> {
   final String? _alias;
   Usersinput(this._db, [this._alias]);
   final VerificationMeta _idMeta = const VerificationMeta('id');
-  late final GeneratedIntColumn id = _constructId();
-  GeneratedIntColumn _constructId() {
-    return GeneratedIntColumn('id', $tableName, false,
-        declaredAsPrimaryKey: true,
-        hasAutoIncrement: true,
-        $customConstraints: 'NOT NULL PRIMARY KEY AUTOINCREMENT');
-  }
-
+  late final GeneratedColumn<int?> id = GeneratedColumn<int?>(
+      'id', aliasedName, false,
+      typeName: 'INTEGER',
+      requiredDuringInsert: false,
+      $customConstraints: 'NOT NULL PRIMARY KEY AUTOINCREMENT');
   final VerificationMeta _dateMeta = const VerificationMeta('date');
-  late final GeneratedIntColumn date = _constructDate();
-  GeneratedIntColumn _constructDate() {
-    return GeneratedIntColumn('date', $tableName, false,
-        $customConstraints: 'NOT NULL');
-  }
-
+  late final GeneratedColumn<int?> date = GeneratedColumn<int?>(
+      'date', aliasedName, false,
+      typeName: 'INTEGER',
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL');
   final VerificationMeta _userMeta = const VerificationMeta('user');
-  late final GeneratedTextColumn user = _constructUser();
-  GeneratedTextColumn _constructUser() {
-    return GeneratedTextColumn('user', $tableName, false,
-        $customConstraints: 'NOT NULL REFERENCES users (id)');
-  }
-
+  late final GeneratedColumn<String?> user = GeneratedColumn<String?>(
+      'user', aliasedName, false,
+      typeName: 'TEXT',
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL REFERENCES users (id)');
   final VerificationMeta _inputMeta = const VerificationMeta('input');
-  late final GeneratedTextColumn input = _constructInput();
-  GeneratedTextColumn _constructInput() {
-    return GeneratedTextColumn('input', $tableName, false,
-        $customConstraints: 'NOT NULL');
-  }
-
+  late final GeneratedColumn<String?> input = GeneratedColumn<String?>(
+      'input', aliasedName, false,
+      typeName: 'TEXT',
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL');
   @override
   List<GeneratedColumn> get $columns => [id, date, user, input];
   @override
-  Usersinput get asDslTable => this;
+  String get aliasedName => _alias ?? 'usersinput';
   @override
-  String get $tableName => _alias ?? 'usersinput';
-  @override
-  final String actualTableName = 'usersinput';
+  String get actualTableName => 'usersinput';
   @override
   VerificationContext validateIntegrity(Insertable<userinput> instance,
       {bool isInserting = false}) {
@@ -658,43 +643,35 @@ class Logins extends Table with TableInfo<Logins, Login> {
   final String? _alias;
   Logins(this._db, [this._alias]);
   final VerificationMeta _idMeta = const VerificationMeta('id');
-  late final GeneratedIntColumn id = _constructId();
-  GeneratedIntColumn _constructId() {
-    return GeneratedIntColumn('id', $tableName, false,
-        declaredAsPrimaryKey: true,
-        hasAutoIncrement: true,
-        $customConstraints: 'NOT NULL PRIMARY KEY AUTOINCREMENT');
-  }
-
+  late final GeneratedColumn<int?> id = GeneratedColumn<int?>(
+      'id', aliasedName, false,
+      typeName: 'INTEGER',
+      requiredDuringInsert: false,
+      $customConstraints: 'NOT NULL PRIMARY KEY AUTOINCREMENT');
   final VerificationMeta _dateMeta = const VerificationMeta('date');
-  late final GeneratedIntColumn date = _constructDate();
-  GeneratedIntColumn _constructDate() {
-    return GeneratedIntColumn('date', $tableName, false,
-        $customConstraints: 'NOT NULL');
-  }
-
+  late final GeneratedColumn<int?> date = GeneratedColumn<int?>(
+      'date', aliasedName, false,
+      typeName: 'INTEGER',
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL');
   final VerificationMeta _userMeta = const VerificationMeta('user');
-  late final GeneratedTextColumn user = _constructUser();
-  GeneratedTextColumn _constructUser() {
-    return GeneratedTextColumn('user', $tableName, false,
-        $customConstraints: 'NOT NULL REFERENCES users (id)');
-  }
-
+  late final GeneratedColumn<String?> user = GeneratedColumn<String?>(
+      'user', aliasedName, false,
+      typeName: 'TEXT',
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL REFERENCES users (id)');
   final VerificationMeta _connectionMeta = const VerificationMeta('connection');
-  late final GeneratedIntColumn connection = _constructConnection();
-  GeneratedIntColumn _constructConnection() {
-    return GeneratedIntColumn('connection', $tableName, false,
-        $customConstraints: 'NOT NULL');
-  }
-
+  late final GeneratedColumn<int?> connection = GeneratedColumn<int?>(
+      'connection', aliasedName, false,
+      typeName: 'INTEGER',
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL');
   @override
   List<GeneratedColumn> get $columns => [id, date, user, connection];
   @override
-  Logins get asDslTable => this;
+  String get aliasedName => _alias ?? 'logins';
   @override
-  String get $tableName => _alias ?? 'logins';
-  @override
-  final String actualTableName = 'logins';
+  String get actualTableName => 'logins';
   @override
   VerificationContext validateIntegrity(Insertable<Login> instance,
       {bool isInserting = false}) {
@@ -1035,75 +1012,61 @@ class Games extends Table with TableInfo<Games, Game> {
   final String? _alias;
   Games(this._db, [this._alias]);
   final VerificationMeta _idMeta = const VerificationMeta('id');
-  late final GeneratedIntColumn id = _constructId();
-  GeneratedIntColumn _constructId() {
-    return GeneratedIntColumn('id', $tableName, false,
-        declaredAsPrimaryKey: true,
-        hasAutoIncrement: true,
-        $customConstraints: 'NOT NULL PRIMARY KEY AUTOINCREMENT');
-  }
-
+  late final GeneratedColumn<int?> id = GeneratedColumn<int?>(
+      'id', aliasedName, false,
+      typeName: 'INTEGER',
+      requiredDuringInsert: false,
+      $customConstraints: 'NOT NULL PRIMARY KEY AUTOINCREMENT');
   final VerificationMeta _datestartedMeta =
       const VerificationMeta('datestarted');
-  late final GeneratedIntColumn datestarted = _constructDatestarted();
-  GeneratedIntColumn _constructDatestarted() {
-    return GeneratedIntColumn('datestarted', $tableName, false,
-        $customConstraints: 'NOT NULL');
-  }
-
+  late final GeneratedColumn<int?> datestarted = GeneratedColumn<int?>(
+      'datestarted', aliasedName, false,
+      typeName: 'INTEGER',
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL');
   final VerificationMeta _player1Meta = const VerificationMeta('player1');
-  late final GeneratedTextColumn player1 = _constructPlayer1();
-  GeneratedTextColumn _constructPlayer1() {
-    return GeneratedTextColumn('player1', $tableName, false,
-        $customConstraints: 'NOT NULL REFERENCES users (id)');
-  }
-
+  late final GeneratedColumn<String?> player1 = GeneratedColumn<String?>(
+      'player1', aliasedName, false,
+      typeName: 'TEXT',
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL REFERENCES users (id)');
   final VerificationMeta _player2Meta = const VerificationMeta('player2');
-  late final GeneratedTextColumn player2 = _constructPlayer2();
-  GeneratedTextColumn _constructPlayer2() {
-    return GeneratedTextColumn('player2', $tableName, false,
-        $customConstraints: 'NOT NULL REFERENCES users (id)');
-  }
-
+  late final GeneratedColumn<String?> player2 = GeneratedColumn<String?>(
+      'player2', aliasedName, false,
+      typeName: 'TEXT',
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL REFERENCES users (id)');
   final VerificationMeta _datefinishedMeta =
       const VerificationMeta('datefinished');
-  late final GeneratedIntColumn datefinished = _constructDatefinished();
-  GeneratedIntColumn _constructDatefinished() {
-    return GeneratedIntColumn('datefinished', $tableName, true,
-        $customConstraints: '');
-  }
-
+  late final GeneratedColumn<int?> datefinished = GeneratedColumn<int?>(
+      'datefinished', aliasedName, true,
+      typeName: 'INTEGER', requiredDuringInsert: false, $customConstraints: '');
   final VerificationMeta _resultMeta = const VerificationMeta('result');
-  late final GeneratedIntColumn result = _constructResult();
-  GeneratedIntColumn _constructResult() {
-    return GeneratedIntColumn('result', $tableName, false,
-        $customConstraints: 'NOT NULL DEFAULT 0',
-        defaultValue: const CustomExpression<int>('0'));
-  }
-
+  late final GeneratedColumn<int?> result = GeneratedColumn<int?>(
+      'result', aliasedName, false,
+      typeName: 'INTEGER',
+      requiredDuringInsert: false,
+      $customConstraints: 'NOT NULL DEFAULT 0',
+      defaultValue: const CustomExpression<int>('0'));
   final VerificationMeta _winnerMeta = const VerificationMeta('winner');
-  late final GeneratedTextColumn winner = _constructWinner();
-  GeneratedTextColumn _constructWinner() {
-    return GeneratedTextColumn('winner', $tableName, true,
-        $customConstraints: 'REFERENCES users (id)');
-  }
-
+  late final GeneratedColumn<String?> winner = GeneratedColumn<String?>(
+      'winner', aliasedName, true,
+      typeName: 'TEXT',
+      requiredDuringInsert: false,
+      $customConstraints: 'REFERENCES users (id)');
   final VerificationMeta _looserMeta = const VerificationMeta('looser');
-  late final GeneratedTextColumn looser = _constructLooser();
-  GeneratedTextColumn _constructLooser() {
-    return GeneratedTextColumn('looser', $tableName, true,
-        $customConstraints: 'REFERENCES users (id)');
-  }
-
+  late final GeneratedColumn<String?> looser = GeneratedColumn<String?>(
+      'looser', aliasedName, true,
+      typeName: 'TEXT',
+      requiredDuringInsert: false,
+      $customConstraints: 'REFERENCES users (id)');
   @override
   List<GeneratedColumn> get $columns =>
       [id, datestarted, player1, player2, datefinished, result, winner, looser];
   @override
-  Games get asDslTable => this;
+  String get aliasedName => _alias ?? 'games';
   @override
-  String get $tableName => _alias ?? 'games';
-  @override
-  final String actualTableName = 'games';
+  String get actualTableName => 'games';
   @override
   VerificationContext validateIntegrity(Insertable<Game> instance,
       {bool isInserting = false}) {
@@ -1402,57 +1365,47 @@ class Gamelogs extends Table with TableInfo<Gamelogs, Gamelog> {
   final String? _alias;
   Gamelogs(this._db, [this._alias]);
   final VerificationMeta _idMeta = const VerificationMeta('id');
-  late final GeneratedIntColumn id = _constructId();
-  GeneratedIntColumn _constructId() {
-    return GeneratedIntColumn('id', $tableName, false,
-        declaredAsPrimaryKey: true,
-        hasAutoIncrement: true,
-        $customConstraints: 'NOT NULL PRIMARY KEY AUTOINCREMENT');
-  }
-
+  late final GeneratedColumn<int?> id = GeneratedColumn<int?>(
+      'id', aliasedName, false,
+      typeName: 'INTEGER',
+      requiredDuringInsert: false,
+      $customConstraints: 'NOT NULL PRIMARY KEY AUTOINCREMENT');
   final VerificationMeta _dateMeta = const VerificationMeta('date');
-  late final GeneratedIntColumn date = _constructDate();
-  GeneratedIntColumn _constructDate() {
-    return GeneratedIntColumn('date', $tableName, false,
-        $customConstraints: 'NOT NULL');
-  }
-
+  late final GeneratedColumn<int?> date = GeneratedColumn<int?>(
+      'date', aliasedName, false,
+      typeName: 'INTEGER',
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL');
   final VerificationMeta _gameMeta = const VerificationMeta('game');
-  late final GeneratedIntColumn game = _constructGame();
-  GeneratedIntColumn _constructGame() {
-    return GeneratedIntColumn('game', $tableName, false,
-        $customConstraints: 'NOT NULL REFERENCES games (id)');
-  }
-
+  late final GeneratedColumn<int?> game = GeneratedColumn<int?>(
+      'game', aliasedName, false,
+      typeName: 'INTEGER',
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL REFERENCES games (id)');
   final VerificationMeta _userMeta = const VerificationMeta('user');
-  late final GeneratedTextColumn user = _constructUser();
-  GeneratedTextColumn _constructUser() {
-    return GeneratedTextColumn('user', $tableName, false,
-        $customConstraints: 'NOT NULL REFERENCES users (id)');
-  }
-
+  late final GeneratedColumn<String?> user = GeneratedColumn<String?>(
+      'user', aliasedName, false,
+      typeName: 'TEXT',
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL REFERENCES users (id)');
   final VerificationMeta _inputMeta = const VerificationMeta('input');
-  late final GeneratedTextColumn input = _constructInput();
-  GeneratedTextColumn _constructInput() {
-    return GeneratedTextColumn('input', $tableName, false,
-        $customConstraints: 'NOT NULL');
-  }
-
+  late final GeneratedColumn<String?> input = GeneratedColumn<String?>(
+      'input', aliasedName, false,
+      typeName: 'TEXT',
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL');
   final VerificationMeta _resultMeta = const VerificationMeta('result');
-  late final GeneratedTextColumn result = _constructResult();
-  GeneratedTextColumn _constructResult() {
-    return GeneratedTextColumn('result', $tableName, false,
-        $customConstraints: 'NOT NULL');
-  }
-
+  late final GeneratedColumn<String?> result = GeneratedColumn<String?>(
+      'result', aliasedName, false,
+      typeName: 'TEXT',
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL');
   @override
   List<GeneratedColumn> get $columns => [id, date, game, user, input, result];
   @override
-  Gamelogs get asDslTable => this;
+  String get aliasedName => _alias ?? 'gamelogs';
   @override
-  String get $tableName => _alias ?? 'gamelogs';
-  @override
-  final String actualTableName = 'gamelogs';
+  String get actualTableName => 'gamelogs';
   @override
   VerificationContext validateIntegrity(Insertable<Gamelog> instance,
       {bool isInserting = false}) {
@@ -1521,13 +1474,17 @@ abstract class _$Database extends GeneratedDatabase {
   Selectable<int> usersCount() {
     return customSelect('SELECT COUNT(*) FROM users',
         variables: [],
-        readsFrom: {users}).map((QueryRow row) => row.read<int>('COUNT(*)'));
+        readsFrom: {
+          users,
+        }).map((QueryRow row) => row.read<int>('COUNT(*)'));
   }
 
   Selectable<int> gamesCount() {
     return customSelect('SELECT COUNT(*) FROM games',
         variables: [],
-        readsFrom: {games}).map((QueryRow row) => row.read<int>('COUNT(*)'));
+        readsFrom: {
+          games,
+        }).map((QueryRow row) => row.read<int>('COUNT(*)'));
   }
 
   Future<int> addUser(String name) {
@@ -1563,14 +1520,14 @@ abstract class _$Database extends GeneratedDatabase {
   }
 
   Future<int> setGameResult(
-      int result, String? winner, String? looser, int id) {
+      int result, String? winner, String? looser, int? id) {
     return customUpdate(
       'UPDATE games SET datefinished = strftime(\'%s\',\'now\'), result = :result, winner = :winner, looser = :looser WHERE id = :id',
       variables: [
         Variable<int>(result),
         Variable<String?>(winner),
         Variable<String?>(looser),
-        Variable<int>(id)
+        Variable<int?>(id)
       ],
       updates: {games},
       updateKind: UpdateKind.update,

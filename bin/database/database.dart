@@ -9,8 +9,6 @@ import 'package:path/path.dart' as p;
 part 'database.g.dart';
 
 @UseMoor(
-  // relative import for the moor file. Moor also supports `package:`
-  // imports
   include: {'tables.moor'},
 )
 class Database extends _$Database {
@@ -23,12 +21,7 @@ class Database extends _$Database {
 LazyDatabase _openConnection() {
   // the LazyDatabase util lets us find the right location for the file async.
   return LazyDatabase(() async {
-    // put the database file, called db.sqlite here, into the documents folder
-    // for your app.
-
-    final dbFolder = Directory.current;
-    final file = File(p.join(dbFolder.path, 'db.sqlite'));
-    print(file);
+    final file = File(p.join('db', 'db.sqlite'));
     return VmDatabase(file);
   });
 }
