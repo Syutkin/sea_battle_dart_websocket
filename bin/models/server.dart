@@ -22,6 +22,7 @@ class Server {
   /// Active connections
   Map<int, Player> players = <int, Player>{};
 
+  /// Connections count from last run
   int connectionCount = 1;
 
   /// Players ready for new game
@@ -30,17 +31,17 @@ class Server {
   /// Currently ongoing games
   Map<int, Game> activeGames = <int, Game>{};
 
-  // int gameCount;
-
+  /// Database sqlite log helper
   final DatabaseBloc dbBloc;
 
-  /// Send message to player
+  /// Send message to player by connectionId
   void sendByConnectionId(int connectionId, String message) {
     if (message.isNotEmpty) {
       players[connectionId]?.webSocket.sink.add(message);
     }
   }
 
+  /// Send message to player by player name
   bool sendByPlayerName(String playerName, String message) {
     if (players.isNotEmpty) {
       for (var user in players.keys) {
@@ -53,10 +54,12 @@ class Server {
     return false;
   }
 
+  /// Send message to player
   void send(Player player, String message) {
     player.webSocket.sink.add(message);
   }
 
+  // Send message to all players at server
   void sendMessageToAll(String message, [PlayerState? playerState]) {
     if (message.isNotEmpty) {
       if (players.isNotEmpty) {
@@ -120,6 +123,8 @@ class Server {
 
       await game.playGame();
 
+      print('after await game.playGame();');
+
       activeGames.putIfAbsent(game.id, () => game);
 
       return true;
@@ -128,6 +133,7 @@ class Server {
     }
   }
 
+  /// End game an remove it from gamelist
   Future<void> endGame(int gameId) async {
     print('Game $gameId ended');
     if (activeGames.containsKey(gameId)) {
@@ -137,7 +143,23 @@ class Server {
   }
 
   /// Parse message from user
-  void _parseMessage(Player player, String message) {
+  void _parseMessage(Player player, String message) async {
+    if (player.state is PlayerConnecting) {
+      //ToDo: authorization
+      player.id = await dbBloc.addUser(message);
+      player.name = message;
+      //ToDo: get rid of this magic number
+      // 0 - player logged in
+      await dbBloc.addUserLogin(player.id!, 0);
+      print('Connection ${player.connectionId} is player: $message');
+      send(player, 'Добро пожаловать в морской бой, ${player.name}');
+      sendMessageToAll('${player.name} заходит на сервер', PlayerInMenu());
+      player.setState(PlayerInMenu());
+      return;
+    }
+
+    dbBloc.addUserInput(player.id!, message);
+
     if (message.startsWith('/pm ')) {
       _pmChat(player, message.replaceFirst('/pm ', ''));
       return;
@@ -151,6 +173,7 @@ class Server {
     _commonCommandsParser(player, message);
   }
 
+  /// Shows current game statistics to player
   void _showGameStat(Player player) {
     if (player.state is PlayerInGame &&
         player.state is! PlayerSelectingShipsPlacement) {
@@ -160,6 +183,7 @@ class Server {
     }
   }
 
+  /// Shows current game statistics to player
   void _pmChat(Player player, String message) {
     if (message.isNotEmpty) {
       var playerName = message.split(' ')[0];
@@ -177,21 +201,10 @@ class Server {
     }
   }
 
+  /// Menu command parser
+  ///
+  /// If player in game, sink message
   void _commonCommandsParser(Player player, String message) async {
-    if (player.state is PlayerConnecting) {
-      //ToDo: authorization
-      player.id = await dbBloc.addUser(message);
-      player.name = message;
-      //ToDo: get rid of this magic number
-      // 0 - player logged in
-      await dbBloc.addUserLogin(player.id!, 0);
-      print('Connection ${player.connectionId} is player: $message');
-      send(player, 'Добро пожаловать в морской бой, ${player.name}');
-      sendMessageToAll('${player.name} заходит на сервер', PlayerInMenu());
-      player.setState(PlayerInMenu());
-      return;
-    }
-
     if (player.state is PlayerInMenu) {
       var response = int.tryParse(message);
       switch (response) {

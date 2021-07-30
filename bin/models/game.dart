@@ -171,6 +171,9 @@ class Game extends Cubit<GameState> {
         player.battleField.doShot(coordinates, shotResult);
 
         if (shotResult is ShipInCell && shotResult.wasAlive) {
+          dbBloc.addInGameUserInput(
+              id, player.id!, coordinates.toString(), 'hit');
+
           final pen = AnsiPen()..red();
           if (shotResult.ship.isAlive) {
             //ship is alive
@@ -190,6 +193,9 @@ class Game extends Cubit<GameState> {
           anotherPlayer(player).setState(PlayerAwaiting());
           player.setState(PlayerDoShot());
         } else if (shotResult is EmptyCell) {
+          dbBloc.addInGameUserInput(
+              id, player.id!, coordinates.toString(), 'miss');
+
           final pen = AnsiPen()..blue();
 
           player.send(Messages.playerDoShot(coordinates));
