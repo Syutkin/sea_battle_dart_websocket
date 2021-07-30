@@ -145,11 +145,7 @@ class Server {
   /// Parse message from user
   void _parseMessage(Player player, String message) async {
     if (player.state is PlayerConnecting) {
-      print('PlayerConnecting: ${player.state}');
-
-      //ToDo: authorization
       if (player.state is PlayerAuthorizing) {
-        print('PlayerEnterPassword: ${player.state}');
         var authentification = await player.authentification(message);
         if (authentification) {
           //ToDo: get rid of this magic number
@@ -168,7 +164,6 @@ class Server {
       }
 
       if (player.state is PlayerRegistering) {
-        print('PlayerRegistering: ${player.state}');
         // регистрация нового аккаунта
         var response = int.tryParse(message);
         switch (response) {
@@ -183,7 +178,6 @@ class Server {
       }
 
       if (player.state is PlayerSettingPassword) {
-        print('PlayerSettingPassword: ${player.state}');
         // ввод пароля
         player.password = message;
         player.setState(PlayerRepeatingPassword());
@@ -191,7 +185,6 @@ class Server {
       }
 
       if (player.state is PlayerRepeatingPassword) {
-        print('PlayerRepeatingPassword: ${player.state}');
         // подтверждение нового пароля
         if (player.password == message) {
           // Add new user
@@ -227,8 +220,6 @@ class Server {
         player.setState(PlayerAuthorizing());
         return;
       }
-
-      return;
     }
 
     if (message.startsWith('/password ')) {
