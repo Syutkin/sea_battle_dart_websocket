@@ -72,4 +72,8 @@ class Messages {
   static const String repeatPassword = 'Повторите пароль';
 
   static const String incorrectPassword = 'Неверный пароль';
+
+  static const String passwordMismatch = 'Пароли не совпадают';
+
+  static const String notImplemented = 'Не реализовано';
 }

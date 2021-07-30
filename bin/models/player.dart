@@ -4,6 +4,7 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 
 import '../database/database_bloc.dart';
 import 'field.dart';
+import 'password.dart';
 import 'player_state.dart';
 import 'strings.dart';
 
@@ -34,7 +35,7 @@ class Player extends Cubit<PlayerState> {
   bool get isAuthenticated => _authentification;
 
   Future<bool> authentification(String password) async {
-    if (password == await _dbBloc.getPassword(id!)) {
+    if (hash(password, name!) == await _dbBloc.getPassword(id!)) {
       _authentification = true;
     } else {
       _authentification = false;

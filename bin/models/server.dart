@@ -7,6 +7,7 @@ import '../database/database_bloc.dart';
 import '../main.dart';
 import 'game.dart';
 import 'game_state.dart';
+import 'password.dart';
 import 'player.dart';
 import 'player_state.dart';
 import 'strings.dart';
@@ -146,13 +147,16 @@ class Server {
   void _parseMessage(Player player, String message) async {
     if (player.state is PlayerConnecting) {
       if (player.state is PlayerAuthorizing) {
-        var authentification = await player.authentification(message);
-        if (authentification) {
+        var isAuthentificated = await player.authentification(message);
+        if (isAuthentificated) {
           _playerLogin(player);
           return;
         } else {
           // password error
           send(player, Messages.incorrectPassword);
+          //ToDo: set delay if password is incorrect
+          player.setState(PlayerAuthorizing());
+          //ToDo: after 3 incorrect inputs disconnect
           return;
         }
       }
@@ -182,11 +186,13 @@ class Server {
         // подтверждение нового пароля
         if (player.password == message) {
           // Add new user
-          player.id = await _dbBloc.addUser(player.name!, player.password);
+          player.id = await _dbBloc.addUser(
+              player.name!, hash(player.password!, player.name!));
           _playerLogin(player);
           return;
         } else {
           // password mismatch
+          player.send(Messages.passwordMismatch);
           player.setState(PlayerSettingPassword());
           return;
         }
@@ -210,7 +216,7 @@ class Server {
 
     if (message.startsWith('/password ')) {
       //ToDo: user can change password
-      send(player, 'Can not change password at this time');
+      send(player, Messages.notImplemented);
     }
 
     // after that log all messages from users
