@@ -92,7 +92,7 @@ class Server {
       await _dbBloc.addUserLogin(players[connectionId]!.id!, 1);
       print('Player ${players[connectionId]?.name} disconnected');
     } else {
-      print('Connection ID $connectionId disconnected');
+      print('Connection $connectionId disconnected');
     }
 
     if (players.containsKey(connectionId)) {
@@ -148,13 +148,7 @@ class Server {
       if (player.state is PlayerAuthorizing) {
         var authentification = await player.authentification(message);
         if (authentification) {
-          //ToDo: get rid of this magic number
-          // 0 - player logged in
-          await _dbBloc.addUserLogin(player.id!, 0);
-          print('Connection ${player.connectionId} is player: $message');
-          send(player, 'Добро пожаловать в морской бой, ${player.name}');
-          sendMessageToAll('${player.name} заходит на сервер', PlayerInMenu());
-          player.setState(PlayerInMenu());
+          _playerLogin(player);
           return;
         } else {
           // password error
@@ -170,7 +164,7 @@ class Server {
           case 1: // register new account
             player.setState(PlayerSettingPassword());
             break;
-          case 2: // enter new name
+          case 2: // enter another name
             player.setState(PlayerConnecting());
             break;
         }
@@ -189,14 +183,7 @@ class Server {
         if (player.password == message) {
           // Add new user
           player.id = await _dbBloc.addUser(player.name!, player.password);
-
-          //ToDo: get rid of this magic number
-          // 0 - player logged in
-          await _dbBloc.addUserLogin(player.id!, 0);
-          print('Connection ${player.connectionId} is player: $message');
-          send(player, 'Добро пожаловать в морской бой, ${player.name}');
-          sendMessageToAll('${player.name} заходит на сервер', PlayerInMenu());
-          player.setState(PlayerInMenu());
+          _playerLogin(player);
           return;
         } else {
           // password mismatch
@@ -209,7 +196,6 @@ class Server {
 
       // check isUserExists
       var id = await _dbBloc.getUserId(player.name!);
-      print('id: $id');
       if (id == null) {
         // new user
         player.setState(PlayerRegistering());
@@ -235,12 +221,22 @@ class Server {
       return;
     }
 
-    if (message == '/stat') {
+    if (message == '/cells') {
       _showGameStat(player);
       return;
     }
 
     _commonCommandsParser(player, message);
+  }
+
+  void _playerLogin(Player player) async {
+    //ToDo: get rid of this magic number
+    // 0 - player logged in
+    await _dbBloc.addUserLogin(player.id!, 0);
+    print('Connection ${player.connectionId} is player: ${player.name}');
+    send(player, 'Добро пожаловать в морской бой, ${player.name}');
+    sendMessageToAll('${player.name} заходит на сервер', PlayerInMenu());
+    player.setState(PlayerInMenu());
   }
 
   /// Shows current game statistics to player
@@ -347,7 +343,7 @@ class Server {
 
       players.putIfAbsent(connectionId, () => player);
 
-      print('New connection: ID $connectionId');
+      print('New connection: $connectionId');
 
       sendWelcome(player);
     });

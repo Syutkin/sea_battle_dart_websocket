@@ -58,7 +58,7 @@ class Game extends Cubit<GameState> {
 
     id = await _dbBloc.addGame(player1.id!, player2.id!);
 
-    print('Game ID $id started: ${player1.name} vs ${player2.name}');
+    print('Game $id started: ${player1.name} vs ${player2.name}');
 
     player1.setState(PlayerSelectingShipsPlacement());
     player2.setState(PlayerSelectingShipsPlacement());
