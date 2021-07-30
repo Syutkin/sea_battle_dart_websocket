@@ -1,0 +1,87 @@
+CREATE TABLE "users" (
+	"id"			INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+	"date"			INTEGER NOT NULL,
+	"name"			TEXT NOT NULL UNIQUE
+	-- email		TEXT NOT NULL UNIQUE,
+	-- password		TEXT NOT NULL
+);
+
+CREATE TABLE "usersinput" (
+	"id"			INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+	"date"			INTEGER NOT NULL,
+	"user"			INTEGER NOT NULL,
+	"input"			TEXT NOT NULL,
+	FOREIGN KEY (user) REFERENCES users (id)
+) AS userinput;
+
+CREATE TABLE "logins" (
+	"id"			INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+	"date"			INTEGER NOT NULL,
+	"user"			INTEGER NOT NULL,
+	"connection"	INTEGER NOT NULL, -- 0: connected, 1 - disconnected,
+	FOREIGN KEY (user) REFERENCES users (id)
+);
+
+CREATE TABLE "games" (
+	"id"			INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+	"datestarted"	INTEGER NOT NULL,
+	"player1"		INTEGER NOT NULL,
+	"player2"		INTEGER NOT NULL,
+	"datefinished"	INTEGER,
+	"result"		INTEGER NOT NULL DEFAULT 0, -- 0: active, 1 - ended, 2 - ended with disconnect
+	"winner"		INTEGER,
+	"looser"		INTEGER,
+	FOREIGN KEY (player1) REFERENCES users (id),
+	FOREIGN KEY (player2) REFERENCES users (id),
+	FOREIGN KEY (winner) REFERENCES users (id),
+	FOREIGN KEY (looser) REFERENCES users (id)
+);
+
+CREATE TABLE "gamelogs" (
+	"id"			INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+	"date"			INTEGER NOT NULL,
+	"game"			INTEGER NOT NULL,
+	"user"			INTEGER NOT NULL,
+	"input"			TEXT NOT NULL,
+	"result"		TEXT NOT NULL,
+	FOREIGN KEY (user) REFERENCES users (id),
+	FOREIGN KEY (game) REFERENCES games (id)
+);
+
+usersCount:			SELECT COUNT(*) FROM users;
+gamesCount:			SELECT COUNT(*) FROM games;
+addUser: 			INSERT OR IGNORE INTO users (date, name) VALUES (strftime('%s','now'), :name);
+addUserInput:		INSERT INTO usersinput (date, user, input) VALUES (strftime('%s','now'), :user, :input);
+addUserLogin: 		INSERT INTO logins (date, user, connection) VALUES (strftime('%s','now'), :user, :connection);
+addGame:			INSERT INTO games (datestarted, player1, player2) VALUES (strftime('%s','now'), :player1, :player2);
+setGameResult: 		UPDATE games SET datefinished = strftime('%s','now'), result = :result, winner = :winner, looser = :looser WHERE id = :id;
+addInGameUserInput: INSERT INTO gamelogs (date, game, user, input, result) VALUES (strftime('%s','now'), :game, :user, :input, :result);
+
+
+-- Change id to names
+/*
+SELECT datestarted,
+       player1.name as player1,
+	   player2.name as player2,
+	   datefinished,
+	   result,
+	   winner.name as winner,
+	   looser.name as looser
+FROM games, users player1, users player2, users winner, users looser
+WHERE games.player1 = player1.id AND games.player2 = player2.id AND games.winner = winner.id AND games.looser = looser.id;
+
+OR
+
+SELECT datestarted,
+       player1.name as player1,
+	   player2.name as player2,
+	   datefinished,
+	   result,
+	   winner.name as winner,
+	   looser.name as looser
+FROM games
+LEFT JOIN users as player1 ON player1.id = games.player1
+LEFT JOIN users as player2 ON player2.id = games.player2
+LEFT JOIN users as winner ON winner.id = games.winner
+LEFT JOIN users as looser ON looser.id = games.looser
+*/

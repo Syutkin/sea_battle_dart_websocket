@@ -8,14 +8,15 @@ import 'strings.dart';
 
 class Player extends Cubit<PlayerState> {
   String? name;
+  int? id;
   final PlayerField playerField;
   final BattleField battleField;
-  final String connectionName;
+  final int connectionId;
   final WebSocketChannel webSocket;
 
   StreamController<String> playerInput = StreamController<String>.broadcast();
 
-  Player({required this.connectionName, required this.webSocket})
+  Player({required this.connectionId, required this.webSocket})
       : playerField = PlayerField(),
         battleField = BattleField(),
         super(PlayerConnecting());

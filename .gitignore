@@ -40,3 +40,4 @@ doc/api/
 # Some random stuff
 compile.sh
 bin/sea_battle_server
+db/
