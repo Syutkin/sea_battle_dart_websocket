@@ -1,9 +1,9 @@
 CREATE TABLE "users" (
 	"id"			INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 	"date"			INTEGER NOT NULL,
-	"name"			TEXT NOT NULL UNIQUE
-	-- email		TEXT NOT NULL UNIQUE,
-	-- password		TEXT NOT NULL
+	"name"			TEXT NOT NULL UNIQUE,
+	-- "email"		TEXT NOT NULL UNIQUE,
+	"password"		TEXT
 );
 
 CREATE TABLE "usersinput" (
@@ -50,7 +50,9 @@ CREATE TABLE "gamelogs" (
 
 usersCount:			SELECT COUNT(*) FROM users;
 gamesCount:			SELECT COUNT(*) FROM games;
-addUser: 			INSERT OR IGNORE INTO users (date, name) VALUES (strftime('%s','now'), :name);
+getUserId:			SELECT id FROM users WHERE name = :name;
+getPassword:		SELECT password FROM users WHERE id = :id;
+addUser: 			INSERT OR IGNORE INTO users (date, name, password) VALUES (strftime('%s','now'), :name, :password);
 addUserInput:		INSERT INTO usersinput (date, user, input) VALUES (strftime('%s','now'), :user, :input);
 addUserLogin: 		INSERT INTO logins (date, user, connection) VALUES (strftime('%s','now'), :user, :connection);
 addGame:			INSERT INTO games (datestarted, player1, player2) VALUES (strftime('%s','now'), :player1, :player2);

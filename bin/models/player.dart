@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
+import '../database/database_bloc.dart';
 import 'field.dart';
 import 'player_state.dart';
 import 'strings.dart';
@@ -9,20 +10,36 @@ import 'strings.dart';
 class Player extends Cubit<PlayerState> {
   String? name;
   int? id;
+  bool _authentification = false;
+  String? password;
   final PlayerField playerField;
   final BattleField battleField;
   final int connectionId;
   final WebSocketChannel webSocket;
+
+  final DatabaseBloc _dbBloc;
 
   StreamController<String> playerInput = StreamController<String>.broadcast();
 
   Player({required this.connectionId, required this.webSocket})
       : playerField = PlayerField(),
         battleField = BattleField(),
+        _dbBloc = DatabaseBloc(),
         super(PlayerConnecting());
 
   bool get isAlive {
     return playerField.isShipsExists;
+  }
+
+  bool get isAuthenticated => _authentification;
+
+  Future<bool> authentification(String password) async {
+    if (password == await _dbBloc.getPassword(id!)) {
+      _authentification = true;
+    } else {
+      _authentification = false;
+    }
+    return _authentification;
   }
 
   void init() {
@@ -71,6 +88,23 @@ class Player extends Cubit<PlayerState> {
       send(fields());
       send(Messages.awaitingPlayer);
     }
+
+    if (state is PlayerAuthorizing) {
+      send(Messages.enterPassword);
+    }
+
+    if (state is PlayerRegistering) {
+      send(Menu.createNewAccount);
+    }
+
+    if (state is PlayerSettingPassword) {
+      send(Messages.setPassword);
+    }
+
+    if (state is PlayerRepeatingPassword) {
+      send(Messages.repeatPassword);
+    }
+
     emit(state);
   }
 

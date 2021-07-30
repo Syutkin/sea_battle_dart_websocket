@@ -7,6 +7,34 @@ class PlayerConnecting extends PlayerState {
   }
 }
 
+class PlayerAuthorizing extends PlayerConnecting {
+  @override
+  String toString() {
+    return 'Авторизация';
+  }
+}
+
+class PlayerRegistering extends PlayerConnecting {
+  @override
+  String toString() {
+    return 'Заводит аккаунт';
+  }
+}
+
+class PlayerSettingPassword extends PlayerConnecting {
+  @override
+  String toString() {
+    return 'Устанавливает пароль';
+  }
+}
+
+class PlayerRepeatingPassword extends PlayerConnecting {
+  @override
+  String toString() {
+    return 'Подтверждение пароля';
+  }
+}
+
 class PlayerDisconnected extends PlayerState {
   @override
   String toString() {

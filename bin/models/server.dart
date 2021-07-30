@@ -32,7 +32,7 @@ class Server {
   Map<int, Game> activeGames = <int, Game>{};
 
   /// Database sqlite log helper
-  final DatabaseBloc dbBloc;
+  final DatabaseBloc _dbBloc;
 
   /// Send message to player by connectionId
   void sendByConnectionId(int connectionId, String message) {
@@ -59,7 +59,9 @@ class Server {
     player.webSocket.sink.add(message);
   }
 
-  // Send message to all players at server
+  /// Send message to all players at server
+  ///
+  /// If [playerState] is set, send message only to players in [playerState]
   void sendMessageToAll(String message, [PlayerState? playerState]) {
     if (message.isNotEmpty) {
       if (players.isNotEmpty) {
@@ -84,10 +86,10 @@ class Server {
 
   /// Close user connections
   void closeConnection(int connectionId) async {
-    if (players[connectionId]?.name != null) {
+    if (players[connectionId]?.isAuthenticated ?? false) {
       //ToDo: get rid of this magic number
       // 1 - player disconnected
-      await dbBloc.addUserLogin(players[connectionId]!.id!, 1);
+      await _dbBloc.addUserLogin(players[connectionId]!.id!, 1);
       print('Player ${players[connectionId]?.name} disconnected');
     } else {
       print('Connection ID $connectionId disconnected');
@@ -123,8 +125,6 @@ class Server {
 
       await game.playGame();
 
-      print('after await game.playGame();');
-
       activeGames.putIfAbsent(game.id, () => game);
 
       return true;
@@ -145,20 +145,99 @@ class Server {
   /// Parse message from user
   void _parseMessage(Player player, String message) async {
     if (player.state is PlayerConnecting) {
+      print('PlayerConnecting: ${player.state}');
+
       //ToDo: authorization
-      player.id = await dbBloc.addUser(message);
+      if (player.state is PlayerAuthorizing) {
+        print('PlayerEnterPassword: ${player.state}');
+        var authentification = await player.authentification(message);
+        if (authentification) {
+          //ToDo: get rid of this magic number
+          // 0 - player logged in
+          await _dbBloc.addUserLogin(player.id!, 0);
+          print('Connection ${player.connectionId} is player: $message');
+          send(player, 'Добро пожаловать в морской бой, ${player.name}');
+          sendMessageToAll('${player.name} заходит на сервер', PlayerInMenu());
+          player.setState(PlayerInMenu());
+          return;
+        } else {
+          // password error
+          send(player, Messages.incorrectPassword);
+          return;
+        }
+      }
+
+      if (player.state is PlayerRegistering) {
+        print('PlayerRegistering: ${player.state}');
+        // регистрация нового аккаунта
+        var response = int.tryParse(message);
+        switch (response) {
+          case 1: // register new account
+            player.setState(PlayerSettingPassword());
+            break;
+          case 2: // enter new name
+            player.setState(PlayerConnecting());
+            break;
+        }
+        return;
+      }
+
+      if (player.state is PlayerSettingPassword) {
+        print('PlayerSettingPassword: ${player.state}');
+        // ввод пароля
+        player.password = message;
+        player.setState(PlayerRepeatingPassword());
+        return;
+      }
+
+      if (player.state is PlayerRepeatingPassword) {
+        print('PlayerRepeatingPassword: ${player.state}');
+        // подтверждение нового пароля
+        if (player.password == message) {
+          // Add new user
+          player.id = await _dbBloc.addUser(player.name!, player.password);
+
+          //ToDo: get rid of this magic number
+          // 0 - player logged in
+          await _dbBloc.addUserLogin(player.id!, 0);
+          print('Connection ${player.connectionId} is player: $message');
+          send(player, 'Добро пожаловать в морской бой, ${player.name}');
+          sendMessageToAll('${player.name} заходит на сервер', PlayerInMenu());
+          player.setState(PlayerInMenu());
+          return;
+        } else {
+          // password mismatch
+          player.setState(PlayerSettingPassword());
+          return;
+        }
+      }
+
       player.name = message;
-      //ToDo: get rid of this magic number
-      // 0 - player logged in
-      await dbBloc.addUserLogin(player.id!, 0);
-      print('Connection ${player.connectionId} is player: $message');
-      send(player, 'Добро пожаловать в морской бой, ${player.name}');
-      sendMessageToAll('${player.name} заходит на сервер', PlayerInMenu());
-      player.setState(PlayerInMenu());
+
+      // check isUserExists
+      var id = await _dbBloc.getUserId(player.name!);
+      print('id: $id');
+      if (id == null) {
+        // new user
+        player.setState(PlayerRegistering());
+        return;
+      } else {
+        // ask password
+        player.id = id;
+        player.setState(PlayerAuthorizing());
+        return;
+      }
+
       return;
     }
 
-    dbBloc.addUserInput(player.id!, message);
+    if (message.startsWith('/password ')) {
+      //ToDo: user can change password
+      send(player, 'Can not change password at this time');
+    }
+
+    // after that log all messages from users
+    _dbBloc.addUserInput(player.id!, message);
 
     if (message.startsWith('/pm ')) {
       _pmChat(player, message.replaceFirst('/pm ', ''));
@@ -223,7 +302,7 @@ class Server {
         case 3: // server info
           // ToDo: uptime
           // ToDo: games played
-          send(player, 'Информация о сервере:/n/n' 'Версия: $serverVersion');
+          send(player, 'Информация о сервере:\n\n' 'Версия: $serverVersion');
           player.setState(PlayerInMenu());
           break;
         default:
@@ -258,7 +337,7 @@ class Server {
   Server.bind({
     required this.address,
     required this.port,
-  }) : dbBloc = DatabaseBloc() {
+  }) : _dbBloc = DatabaseBloc() {
     var connectionHandler = webSocketHandler((WebSocketChannel webSocket,
         {pingInterval = const Duration(seconds: 5)}) {
       var connectionId = connectionCount;

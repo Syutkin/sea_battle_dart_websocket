@@ -23,7 +23,7 @@ class Game extends Cubit<GameState> {
 
   final _streamSubscriptions = <StreamSubscription>[];
 
-  final DatabaseBloc dbBloc;
+  final DatabaseBloc _dbBloc;
 
   Player currentPlayer() {
     if (_currentPlayer == player1) {
@@ -43,7 +43,7 @@ class Game extends Cubit<GameState> {
 
   Game(this.player1, this.player2)
       : _currentPlayer = player1,
-        dbBloc = DatabaseBloc(),
+        _dbBloc = DatabaseBloc(),
         super(GameInProgress());
 
   Future<void> playGame() async {
@@ -56,7 +56,7 @@ class Game extends Cubit<GameState> {
       _currentPlayer = anotherPlayer(_currentPlayer);
     }
 
-    id = await dbBloc.addGame(player1.id!, player2.id!);
+    id = await _dbBloc.addGame(player1.id!, player2.id!);
 
     print('Game ID $id started: ${player1.name} vs ${player2.name}');
 
@@ -90,7 +90,7 @@ class Game extends Cubit<GameState> {
         if (!anotherPlayer(player).isAlive) {
           //ToDo: get rid of this magic number
           // 1 - game ended
-          await dbBloc.setGameResult(
+          await _dbBloc.setGameResult(
               1, player.id, anotherPlayer(player).id, id);
           final pen = AnsiPen()..red();
           player.send(pen(Messages.winner));
@@ -107,7 +107,7 @@ class Game extends Cubit<GameState> {
       if (state is PlayerDisconnected) {
         //ToDo: get rid of this magic number
         // 2 - game ended with disconnect
-        await dbBloc.setGameResult(2, anotherPlayer(player).id, player.id, id);
+        await _dbBloc.setGameResult(2, anotherPlayer(player).id, player.id, id);
         anotherPlayer(player).send(Messages.opponentDisconnected);
         final pen = AnsiPen()..red();
         anotherPlayer(player).send(pen(Messages.winner));
@@ -171,7 +171,7 @@ class Game extends Cubit<GameState> {
         player.battleField.doShot(coordinates, shotResult);
 
         if (shotResult is ShipInCell && shotResult.wasAlive) {
-          dbBloc.addInGameUserInput(
+          _dbBloc.addInGameUserInput(
               id, player.id!, coordinates.toString(), 'hit');
 
           final pen = AnsiPen()..red();
@@ -193,7 +193,7 @@ class Game extends Cubit<GameState> {
           anotherPlayer(player).setState(PlayerAwaiting());
           player.setState(PlayerDoShot());
         } else if (shotResult is EmptyCell) {
-          dbBloc.addInGameUserInput(
+          _dbBloc.addInGameUserInput(
               id, player.id!, coordinates.toString(), 'miss');
 
           final pen = AnsiPen()..blue();

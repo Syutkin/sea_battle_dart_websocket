@@ -19,8 +19,16 @@ class DatabaseBloc {
     return db.gamesCount().getSingle();
   }
 
-  Future<int> addUser(String name) {
-    return db.addUser(name);
+  Future<int?> getUserId(String name) {
+    return db.getUserId(name).getSingleOrNull();
+  }
+
+  Future<String?> getPassword(int id) {
+    return db.getPassword(id).getSingleOrNull();
+  }
+
+  Future<int> addUser(String name, String? password) {
+    return db.addUser(name, password);
   }
 
   Future<int> addUserInput(int user, String input) {

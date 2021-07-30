@@ -26,6 +26,9 @@ class Menu {
 
   static const String confirmShipsPlacement =
       'Подтверждение расстановки: 1 - всё верно; 2 - расставить заново';
+
+  static const String createNewAccount =
+      'Пользователь с таким именем не найден: 1 - создать нового, 2 - ввести имя заново';
 }
 
 class Messages {
@@ -61,4 +64,12 @@ class Messages {
 
   static const String opponentDisconnected =
       'Соединение с противником потеряно';
+
+  static const String enterPassword = 'Введите пароль';
+
+  static const String setPassword = 'Установите пароль';
+
+  static const String repeatPassword = 'Повторите пароль';
+
+  static const String incorrectPassword = 'Неверный пароль';
 }
