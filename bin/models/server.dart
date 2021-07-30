@@ -3,7 +3,7 @@ import 'package:shelf/shelf_io.dart' as shelf_io;
 import 'package:shelf_web_socket/shelf_web_socket.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
-import '../database/database.dart' as db;
+import '../database/database_bloc.dart';
 import '../main.dart';
 import 'game.dart';
 import 'game_state.dart';
@@ -32,7 +32,7 @@ class Server {
 
   // int gameCount;
 
-  final db.Database database;
+  final DatabaseBloc dbBloc;
 
   /// Send message to player
   void sendByConnectionId(int connectionId, String message) {
@@ -80,13 +80,17 @@ class Server {
   }
 
   /// Close user connections
-  void closeConnection(int connectionId) {
+  void closeConnection(int connectionId) async {
+    if (players[connectionId]?.name != null) {
+      //ToDo: get rid of this magic number
+      // 1 - player disconnected
+      await dbBloc.addUserLogin(players[connectionId]!.id!, 1);
+      print('Player ${players[connectionId]?.name} disconnected');
+    } else {
+      print('Connection ID $connectionId disconnected');
+    }
+
     if (players.containsKey(connectionId)) {
-      if (players[connectionId]?.name != null) {
-        print('Player ${players[connectionId]?.name} disconnected');
-      } else {
-        print('Connection ID $connectionId disconnected');
-      }
       players.remove(connectionId);
     }
     if (awaitingPlayers.containsKey(connectionId)) {
@@ -117,8 +121,6 @@ class Server {
       await game.playGame();
 
       activeGames.putIfAbsent(game.id, () => game);
-
-      
 
       return true;
     } else {
@@ -177,8 +179,12 @@ class Server {
 
   void _commonCommandsParser(Player player, String message) async {
     if (player.state is PlayerConnecting) {
-      player.id = await database.addUser(message);
+      //ToDo: authorization
+      player.id = await dbBloc.addUser(message);
       player.name = message;
+      //ToDo: get rid of this magic number
+      // 0 - player logged in
+      await dbBloc.addUserLogin(player.id!, 0);
       print('Connection ${player.connectionId} is player: $message');
       send(player, 'Добро пожаловать в морской бой, ${player.name}');
       sendMessageToAll('${player.name} заходит на сервер', PlayerInMenu());
@@ -239,7 +245,7 @@ class Server {
   Server.bind({
     required this.address,
     required this.port,
-  }) : database = db.Database() {
+  }) : dbBloc = DatabaseBloc() {
     var connectionHandler = webSocketHandler((WebSocketChannel webSocket,
         {pingInterval = const Duration(seconds: 5)}) {
       var connectionId = connectionCount;

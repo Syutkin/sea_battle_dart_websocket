@@ -220,7 +220,7 @@ class Users extends Table with TableInfo<Users, User> {
 class userinput extends DataClass implements Insertable<userinput> {
   final int id;
   final int date;
-  final String user;
+  final int user;
   final String input;
   userinput(
       {required this.id,
@@ -235,7 +235,7 @@ class userinput extends DataClass implements Insertable<userinput> {
           .mapFromDatabaseResponse(data['${effectivePrefix}id'])!,
       date: const IntType()
           .mapFromDatabaseResponse(data['${effectivePrefix}date'])!,
-      user: const StringType()
+      user: const IntType()
           .mapFromDatabaseResponse(data['${effectivePrefix}user'])!,
       input: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}input'])!,
@@ -246,7 +246,7 @@ class userinput extends DataClass implements Insertable<userinput> {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['date'] = Variable<int>(date);
-    map['user'] = Variable<String>(user);
+    map['user'] = Variable<int>(user);
     map['input'] = Variable<String>(input);
     return map;
   }
@@ -266,7 +266,7 @@ class userinput extends DataClass implements Insertable<userinput> {
     return userinput(
       id: serializer.fromJson<int>(json['id']),
       date: serializer.fromJson<int>(json['date']),
-      user: serializer.fromJson<String>(json['user']),
+      user: serializer.fromJson<int>(json['user']),
       input: serializer.fromJson<String>(json['input']),
     );
   }
@@ -276,12 +276,12 @@ class userinput extends DataClass implements Insertable<userinput> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'date': serializer.toJson<int>(date),
-      'user': serializer.toJson<String>(user),
+      'user': serializer.toJson<int>(user),
       'input': serializer.toJson<String>(input),
     };
   }
 
-  userinput copyWith({int? id, int? date, String? user, String? input}) =>
+  userinput copyWith({int? id, int? date, int? user, String? input}) =>
       userinput(
         id: id ?? this.id,
         date: date ?? this.date,
@@ -315,7 +315,7 @@ class userinput extends DataClass implements Insertable<userinput> {
 class UsersinputCompanion extends UpdateCompanion<userinput> {
   final Value<int> id;
   final Value<int> date;
-  final Value<String> user;
+  final Value<int> user;
   final Value<String> input;
   const UsersinputCompanion({
     this.id = const Value.absent(),
@@ -326,7 +326,7 @@ class UsersinputCompanion extends UpdateCompanion<userinput> {
   UsersinputCompanion.insert({
     this.id = const Value.absent(),
     required int date,
-    required String user,
+    required int user,
     required String input,
   })  : date = Value(date),
         user = Value(user),
@@ -334,7 +334,7 @@ class UsersinputCompanion extends UpdateCompanion<userinput> {
   static Insertable<userinput> custom({
     Expression<int>? id,
     Expression<int>? date,
-    Expression<String>? user,
+    Expression<int>? user,
     Expression<String>? input,
   }) {
     return RawValuesInsertable({
@@ -348,7 +348,7 @@ class UsersinputCompanion extends UpdateCompanion<userinput> {
   UsersinputCompanion copyWith(
       {Value<int>? id,
       Value<int>? date,
-      Value<String>? user,
+      Value<int>? user,
       Value<String>? input}) {
     return UsersinputCompanion(
       id: id ?? this.id,
@@ -368,7 +368,7 @@ class UsersinputCompanion extends UpdateCompanion<userinput> {
       map['date'] = Variable<int>(date.value);
     }
     if (user.present) {
-      map['user'] = Variable<String>(user.value);
+      map['user'] = Variable<int>(user.value);
     }
     if (input.present) {
       map['input'] = Variable<String>(input.value);
@@ -405,11 +405,11 @@ class Usersinput extends Table with TableInfo<Usersinput, userinput> {
       requiredDuringInsert: true,
       $customConstraints: 'NOT NULL');
   final VerificationMeta _userMeta = const VerificationMeta('user');
-  late final GeneratedColumn<String?> user = GeneratedColumn<String?>(
+  late final GeneratedColumn<int?> user = GeneratedColumn<int?>(
       'user', aliasedName, false,
-      typeName: 'TEXT',
+      typeName: 'INTEGER',
       requiredDuringInsert: true,
-      $customConstraints: 'NOT NULL REFERENCES users (id)');
+      $customConstraints: 'NOT NULL');
   final VerificationMeta _inputMeta = const VerificationMeta('input');
   late final GeneratedColumn<String?> input = GeneratedColumn<String?>(
       'input', aliasedName, false,
@@ -465,13 +465,16 @@ class Usersinput extends Table with TableInfo<Usersinput, userinput> {
   }
 
   @override
+  List<String> get customConstraints =>
+      const ['FOREIGN KEY (user) REFERENCES users (id)'];
+  @override
   bool get dontWriteConstraints => true;
 }
 
 class Login extends DataClass implements Insertable<Login> {
   final int id;
   final int date;
-  final String user;
+  final int user;
   final int connection;
   Login(
       {required this.id,
@@ -486,7 +489,7 @@ class Login extends DataClass implements Insertable<Login> {
           .mapFromDatabaseResponse(data['${effectivePrefix}id'])!,
       date: const IntType()
           .mapFromDatabaseResponse(data['${effectivePrefix}date'])!,
-      user: const StringType()
+      user: const IntType()
           .mapFromDatabaseResponse(data['${effectivePrefix}user'])!,
       connection: const IntType()
           .mapFromDatabaseResponse(data['${effectivePrefix}connection'])!,
@@ -497,7 +500,7 @@ class Login extends DataClass implements Insertable<Login> {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['date'] = Variable<int>(date);
-    map['user'] = Variable<String>(user);
+    map['user'] = Variable<int>(user);
     map['connection'] = Variable<int>(connection);
     return map;
   }
@@ -517,7 +520,7 @@ class Login extends DataClass implements Insertable<Login> {
     return Login(
       id: serializer.fromJson<int>(json['id']),
       date: serializer.fromJson<int>(json['date']),
-      user: serializer.fromJson<String>(json['user']),
+      user: serializer.fromJson<int>(json['user']),
       connection: serializer.fromJson<int>(json['connection']),
     );
   }
@@ -527,12 +530,12 @@ class Login extends DataClass implements Insertable<Login> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'date': serializer.toJson<int>(date),
-      'user': serializer.toJson<String>(user),
+      'user': serializer.toJson<int>(user),
       'connection': serializer.toJson<int>(connection),
     };
   }
 
-  Login copyWith({int? id, int? date, String? user, int? connection}) => Login(
+  Login copyWith({int? id, int? date, int? user, int? connection}) => Login(
         id: id ?? this.id,
         date: date ?? this.date,
         user: user ?? this.user,
@@ -565,7 +568,7 @@ class Login extends DataClass implements Insertable<Login> {
 class LoginsCompanion extends UpdateCompanion<Login> {
   final Value<int> id;
   final Value<int> date;
-  final Value<String> user;
+  final Value<int> user;
   final Value<int> connection;
   const LoginsCompanion({
     this.id = const Value.absent(),
@@ -576,7 +579,7 @@ class LoginsCompanion extends UpdateCompanion<Login> {
   LoginsCompanion.insert({
     this.id = const Value.absent(),
     required int date,
-    required String user,
+    required int user,
     required int connection,
   })  : date = Value(date),
         user = Value(user),
@@ -584,7 +587,7 @@ class LoginsCompanion extends UpdateCompanion<Login> {
   static Insertable<Login> custom({
     Expression<int>? id,
     Expression<int>? date,
-    Expression<String>? user,
+    Expression<int>? user,
     Expression<int>? connection,
   }) {
     return RawValuesInsertable({
@@ -598,7 +601,7 @@ class LoginsCompanion extends UpdateCompanion<Login> {
   LoginsCompanion copyWith(
       {Value<int>? id,
       Value<int>? date,
-      Value<String>? user,
+      Value<int>? user,
       Value<int>? connection}) {
     return LoginsCompanion(
       id: id ?? this.id,
@@ -618,7 +621,7 @@ class LoginsCompanion extends UpdateCompanion<Login> {
       map['date'] = Variable<int>(date.value);
     }
     if (user.present) {
-      map['user'] = Variable<String>(user.value);
+      map['user'] = Variable<int>(user.value);
     }
     if (connection.present) {
       map['connection'] = Variable<int>(connection.value);
@@ -655,11 +658,11 @@ class Logins extends Table with TableInfo<Logins, Login> {
       requiredDuringInsert: true,
       $customConstraints: 'NOT NULL');
   final VerificationMeta _userMeta = const VerificationMeta('user');
-  late final GeneratedColumn<String?> user = GeneratedColumn<String?>(
+  late final GeneratedColumn<int?> user = GeneratedColumn<int?>(
       'user', aliasedName, false,
-      typeName: 'TEXT',
+      typeName: 'INTEGER',
       requiredDuringInsert: true,
-      $customConstraints: 'NOT NULL REFERENCES users (id)');
+      $customConstraints: 'NOT NULL');
   final VerificationMeta _connectionMeta = const VerificationMeta('connection');
   late final GeneratedColumn<int?> connection = GeneratedColumn<int?>(
       'connection', aliasedName, false,
@@ -717,18 +720,21 @@ class Logins extends Table with TableInfo<Logins, Login> {
   }
 
   @override
+  List<String> get customConstraints =>
+      const ['FOREIGN KEY (user) REFERENCES users (id)'];
+  @override
   bool get dontWriteConstraints => true;
 }
 
 class Game extends DataClass implements Insertable<Game> {
   final int id;
   final int datestarted;
-  final String player1;
-  final String player2;
+  final int player1;
+  final int player2;
   final int? datefinished;
   final int result;
-  final String? winner;
-  final String? looser;
+  final int? winner;
+  final int? looser;
   Game(
       {required this.id,
       required this.datestarted,
@@ -746,17 +752,17 @@ class Game extends DataClass implements Insertable<Game> {
           .mapFromDatabaseResponse(data['${effectivePrefix}id'])!,
       datestarted: const IntType()
           .mapFromDatabaseResponse(data['${effectivePrefix}datestarted'])!,
-      player1: const StringType()
+      player1: const IntType()
           .mapFromDatabaseResponse(data['${effectivePrefix}player1'])!,
-      player2: const StringType()
+      player2: const IntType()
           .mapFromDatabaseResponse(data['${effectivePrefix}player2'])!,
       datefinished: const IntType()
           .mapFromDatabaseResponse(data['${effectivePrefix}datefinished']),
       result: const IntType()
           .mapFromDatabaseResponse(data['${effectivePrefix}result'])!,
-      winner: const StringType()
+      winner: const IntType()
           .mapFromDatabaseResponse(data['${effectivePrefix}winner']),
-      looser: const StringType()
+      looser: const IntType()
           .mapFromDatabaseResponse(data['${effectivePrefix}looser']),
     );
   }
@@ -765,17 +771,17 @@ class Game extends DataClass implements Insertable<Game> {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['datestarted'] = Variable<int>(datestarted);
-    map['player1'] = Variable<String>(player1);
-    map['player2'] = Variable<String>(player2);
+    map['player1'] = Variable<int>(player1);
+    map['player2'] = Variable<int>(player2);
     if (!nullToAbsent || datefinished != null) {
       map['datefinished'] = Variable<int?>(datefinished);
     }
     map['result'] = Variable<int>(result);
     if (!nullToAbsent || winner != null) {
-      map['winner'] = Variable<String?>(winner);
+      map['winner'] = Variable<int?>(winner);
     }
     if (!nullToAbsent || looser != null) {
-      map['looser'] = Variable<String?>(looser);
+      map['looser'] = Variable<int?>(looser);
     }
     return map;
   }
@@ -803,12 +809,12 @@ class Game extends DataClass implements Insertable<Game> {
     return Game(
       id: serializer.fromJson<int>(json['id']),
       datestarted: serializer.fromJson<int>(json['datestarted']),
-      player1: serializer.fromJson<String>(json['player1']),
-      player2: serializer.fromJson<String>(json['player2']),
+      player1: serializer.fromJson<int>(json['player1']),
+      player2: serializer.fromJson<int>(json['player2']),
       datefinished: serializer.fromJson<int?>(json['datefinished']),
       result: serializer.fromJson<int>(json['result']),
-      winner: serializer.fromJson<String?>(json['winner']),
-      looser: serializer.fromJson<String?>(json['looser']),
+      winner: serializer.fromJson<int?>(json['winner']),
+      looser: serializer.fromJson<int?>(json['looser']),
     );
   }
   @override
@@ -817,24 +823,24 @@ class Game extends DataClass implements Insertable<Game> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'datestarted': serializer.toJson<int>(datestarted),
-      'player1': serializer.toJson<String>(player1),
-      'player2': serializer.toJson<String>(player2),
+      'player1': serializer.toJson<int>(player1),
+      'player2': serializer.toJson<int>(player2),
       'datefinished': serializer.toJson<int?>(datefinished),
       'result': serializer.toJson<int>(result),
-      'winner': serializer.toJson<String?>(winner),
-      'looser': serializer.toJson<String?>(looser),
+      'winner': serializer.toJson<int?>(winner),
+      'looser': serializer.toJson<int?>(looser),
     };
   }
 
   Game copyWith(
           {int? id,
           int? datestarted,
-          String? player1,
-          String? player2,
+          int? player1,
+          int? player2,
           int? datefinished,
           int? result,
-          String? winner,
-          String? looser}) =>
+          int? winner,
+          int? looser}) =>
       Game(
         id: id ?? this.id,
         datestarted: datestarted ?? this.datestarted,
@@ -890,12 +896,12 @@ class Game extends DataClass implements Insertable<Game> {
 class GamesCompanion extends UpdateCompanion<Game> {
   final Value<int> id;
   final Value<int> datestarted;
-  final Value<String> player1;
-  final Value<String> player2;
+  final Value<int> player1;
+  final Value<int> player2;
   final Value<int?> datefinished;
   final Value<int> result;
-  final Value<String?> winner;
-  final Value<String?> looser;
+  final Value<int?> winner;
+  final Value<int?> looser;
   const GamesCompanion({
     this.id = const Value.absent(),
     this.datestarted = const Value.absent(),
@@ -909,8 +915,8 @@ class GamesCompanion extends UpdateCompanion<Game> {
   GamesCompanion.insert({
     this.id = const Value.absent(),
     required int datestarted,
-    required String player1,
-    required String player2,
+    required int player1,
+    required int player2,
     this.datefinished = const Value.absent(),
     this.result = const Value.absent(),
     this.winner = const Value.absent(),
@@ -921,12 +927,12 @@ class GamesCompanion extends UpdateCompanion<Game> {
   static Insertable<Game> custom({
     Expression<int>? id,
     Expression<int>? datestarted,
-    Expression<String>? player1,
-    Expression<String>? player2,
+    Expression<int>? player1,
+    Expression<int>? player2,
     Expression<int?>? datefinished,
     Expression<int>? result,
-    Expression<String?>? winner,
-    Expression<String?>? looser,
+    Expression<int?>? winner,
+    Expression<int?>? looser,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -943,12 +949,12 @@ class GamesCompanion extends UpdateCompanion<Game> {
   GamesCompanion copyWith(
       {Value<int>? id,
       Value<int>? datestarted,
-      Value<String>? player1,
-      Value<String>? player2,
+      Value<int>? player1,
+      Value<int>? player2,
       Value<int?>? datefinished,
       Value<int>? result,
-      Value<String?>? winner,
-      Value<String?>? looser}) {
+      Value<int?>? winner,
+      Value<int?>? looser}) {
     return GamesCompanion(
       id: id ?? this.id,
       datestarted: datestarted ?? this.datestarted,
@@ -971,10 +977,10 @@ class GamesCompanion extends UpdateCompanion<Game> {
       map['datestarted'] = Variable<int>(datestarted.value);
     }
     if (player1.present) {
-      map['player1'] = Variable<String>(player1.value);
+      map['player1'] = Variable<int>(player1.value);
     }
     if (player2.present) {
-      map['player2'] = Variable<String>(player2.value);
+      map['player2'] = Variable<int>(player2.value);
     }
     if (datefinished.present) {
       map['datefinished'] = Variable<int?>(datefinished.value);
@@ -983,10 +989,10 @@ class GamesCompanion extends UpdateCompanion<Game> {
       map['result'] = Variable<int>(result.value);
     }
     if (winner.present) {
-      map['winner'] = Variable<String?>(winner.value);
+      map['winner'] = Variable<int?>(winner.value);
     }
     if (looser.present) {
-      map['looser'] = Variable<String?>(looser.value);
+      map['looser'] = Variable<int?>(looser.value);
     }
     return map;
   }
@@ -1025,17 +1031,17 @@ class Games extends Table with TableInfo<Games, Game> {
       requiredDuringInsert: true,
       $customConstraints: 'NOT NULL');
   final VerificationMeta _player1Meta = const VerificationMeta('player1');
-  late final GeneratedColumn<String?> player1 = GeneratedColumn<String?>(
+  late final GeneratedColumn<int?> player1 = GeneratedColumn<int?>(
       'player1', aliasedName, false,
-      typeName: 'TEXT',
+      typeName: 'INTEGER',
       requiredDuringInsert: true,
-      $customConstraints: 'NOT NULL REFERENCES users (id)');
+      $customConstraints: 'NOT NULL');
   final VerificationMeta _player2Meta = const VerificationMeta('player2');
-  late final GeneratedColumn<String?> player2 = GeneratedColumn<String?>(
+  late final GeneratedColumn<int?> player2 = GeneratedColumn<int?>(
       'player2', aliasedName, false,
-      typeName: 'TEXT',
+      typeName: 'INTEGER',
       requiredDuringInsert: true,
-      $customConstraints: 'NOT NULL REFERENCES users (id)');
+      $customConstraints: 'NOT NULL');
   final VerificationMeta _datefinishedMeta =
       const VerificationMeta('datefinished');
   late final GeneratedColumn<int?> datefinished = GeneratedColumn<int?>(
@@ -1049,17 +1055,13 @@ class Games extends Table with TableInfo<Games, Game> {
       $customConstraints: 'NOT NULL DEFAULT 0',
       defaultValue: const CustomExpression<int>('0'));
   final VerificationMeta _winnerMeta = const VerificationMeta('winner');
-  late final GeneratedColumn<String?> winner = GeneratedColumn<String?>(
+  late final GeneratedColumn<int?> winner = GeneratedColumn<int?>(
       'winner', aliasedName, true,
-      typeName: 'TEXT',
-      requiredDuringInsert: false,
-      $customConstraints: 'REFERENCES users (id)');
+      typeName: 'INTEGER', requiredDuringInsert: false, $customConstraints: '');
   final VerificationMeta _looserMeta = const VerificationMeta('looser');
-  late final GeneratedColumn<String?> looser = GeneratedColumn<String?>(
+  late final GeneratedColumn<int?> looser = GeneratedColumn<int?>(
       'looser', aliasedName, true,
-      typeName: 'TEXT',
-      requiredDuringInsert: false,
-      $customConstraints: 'REFERENCES users (id)');
+      typeName: 'INTEGER', requiredDuringInsert: false, $customConstraints: '');
   @override
   List<GeneratedColumn> get $columns =>
       [id, datestarted, player1, player2, datefinished, result, winner, looser];
@@ -1130,6 +1132,13 @@ class Games extends Table with TableInfo<Games, Game> {
   }
 
   @override
+  List<String> get customConstraints => const [
+        'FOREIGN KEY (player1) REFERENCES users (id)',
+        'FOREIGN KEY (player2) REFERENCES users (id)',
+        'FOREIGN KEY (winner) REFERENCES users (id)',
+        'FOREIGN KEY (looser) REFERENCES users (id)'
+      ];
+  @override
   bool get dontWriteConstraints => true;
 }
 
@@ -1137,7 +1146,7 @@ class Gamelog extends DataClass implements Insertable<Gamelog> {
   final int id;
   final int date;
   final int game;
-  final String user;
+  final int user;
   final String input;
   final String result;
   Gamelog(
@@ -1157,7 +1166,7 @@ class Gamelog extends DataClass implements Insertable<Gamelog> {
           .mapFromDatabaseResponse(data['${effectivePrefix}date'])!,
       game: const IntType()
           .mapFromDatabaseResponse(data['${effectivePrefix}game'])!,
-      user: const StringType()
+      user: const IntType()
           .mapFromDatabaseResponse(data['${effectivePrefix}user'])!,
       input: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}input'])!,
@@ -1171,7 +1180,7 @@ class Gamelog extends DataClass implements Insertable<Gamelog> {
     map['id'] = Variable<int>(id);
     map['date'] = Variable<int>(date);
     map['game'] = Variable<int>(game);
-    map['user'] = Variable<String>(user);
+    map['user'] = Variable<int>(user);
     map['input'] = Variable<String>(input);
     map['result'] = Variable<String>(result);
     return map;
@@ -1195,7 +1204,7 @@ class Gamelog extends DataClass implements Insertable<Gamelog> {
       id: serializer.fromJson<int>(json['id']),
       date: serializer.fromJson<int>(json['date']),
       game: serializer.fromJson<int>(json['game']),
-      user: serializer.fromJson<String>(json['user']),
+      user: serializer.fromJson<int>(json['user']),
       input: serializer.fromJson<String>(json['input']),
       result: serializer.fromJson<String>(json['result']),
     );
@@ -1207,7 +1216,7 @@ class Gamelog extends DataClass implements Insertable<Gamelog> {
       'id': serializer.toJson<int>(id),
       'date': serializer.toJson<int>(date),
       'game': serializer.toJson<int>(game),
-      'user': serializer.toJson<String>(user),
+      'user': serializer.toJson<int>(user),
       'input': serializer.toJson<String>(input),
       'result': serializer.toJson<String>(result),
     };
@@ -1217,7 +1226,7 @@ class Gamelog extends DataClass implements Insertable<Gamelog> {
           {int? id,
           int? date,
           int? game,
-          String? user,
+          int? user,
           String? input,
           String? result}) =>
       Gamelog(
@@ -1264,7 +1273,7 @@ class GamelogsCompanion extends UpdateCompanion<Gamelog> {
   final Value<int> id;
   final Value<int> date;
   final Value<int> game;
-  final Value<String> user;
+  final Value<int> user;
   final Value<String> input;
   final Value<String> result;
   const GamelogsCompanion({
@@ -1279,7 +1288,7 @@ class GamelogsCompanion extends UpdateCompanion<Gamelog> {
     this.id = const Value.absent(),
     required int date,
     required int game,
-    required String user,
+    required int user,
     required String input,
     required String result,
   })  : date = Value(date),
@@ -1291,7 +1300,7 @@ class GamelogsCompanion extends UpdateCompanion<Gamelog> {
     Expression<int>? id,
     Expression<int>? date,
     Expression<int>? game,
-    Expression<String>? user,
+    Expression<int>? user,
     Expression<String>? input,
     Expression<String>? result,
   }) {
@@ -1309,7 +1318,7 @@ class GamelogsCompanion extends UpdateCompanion<Gamelog> {
       {Value<int>? id,
       Value<int>? date,
       Value<int>? game,
-      Value<String>? user,
+      Value<int>? user,
       Value<String>? input,
       Value<String>? result}) {
     return GamelogsCompanion(
@@ -1335,7 +1344,7 @@ class GamelogsCompanion extends UpdateCompanion<Gamelog> {
       map['game'] = Variable<int>(game.value);
     }
     if (user.present) {
-      map['user'] = Variable<String>(user.value);
+      map['user'] = Variable<int>(user.value);
     }
     if (input.present) {
       map['input'] = Variable<String>(input.value);
@@ -1381,13 +1390,13 @@ class Gamelogs extends Table with TableInfo<Gamelogs, Gamelog> {
       'game', aliasedName, false,
       typeName: 'INTEGER',
       requiredDuringInsert: true,
-      $customConstraints: 'NOT NULL REFERENCES games (id)');
+      $customConstraints: 'NOT NULL');
   final VerificationMeta _userMeta = const VerificationMeta('user');
-  late final GeneratedColumn<String?> user = GeneratedColumn<String?>(
+  late final GeneratedColumn<int?> user = GeneratedColumn<int?>(
       'user', aliasedName, false,
-      typeName: 'TEXT',
+      typeName: 'INTEGER',
       requiredDuringInsert: true,
-      $customConstraints: 'NOT NULL REFERENCES users (id)');
+      $customConstraints: 'NOT NULL');
   final VerificationMeta _inputMeta = const VerificationMeta('input');
   late final GeneratedColumn<String?> input = GeneratedColumn<String?>(
       'input', aliasedName, false,
@@ -1461,6 +1470,11 @@ class Gamelogs extends Table with TableInfo<Gamelogs, Gamelog> {
   }
 
   @override
+  List<String> get customConstraints => const [
+        'FOREIGN KEY (user) REFERENCES users (id)',
+        'FOREIGN KEY (game) REFERENCES games (id)'
+      ];
+  @override
   bool get dontWriteConstraints => true;
 }
 
@@ -1495,38 +1509,37 @@ abstract class _$Database extends GeneratedDatabase {
     );
   }
 
-  Future<int> addUserInput(String user, String input) {
+  Future<int> addUserInput(int user, String input) {
     return customInsert(
       'INSERT INTO usersinput (date, user, input) VALUES (strftime(\'%s\',\'now\'), :user, :input)',
-      variables: [Variable<String>(user), Variable<String>(input)],
+      variables: [Variable<int>(user), Variable<String>(input)],
       updates: {usersinput},
     );
   }
 
-  Future<int> addLogin(String user, int connection) {
+  Future<int> addUserLogin(int user, int connection) {
     return customInsert(
       'INSERT INTO logins (date, user, connection) VALUES (strftime(\'%s\',\'now\'), :user, :connection)',
-      variables: [Variable<String>(user), Variable<int>(connection)],
+      variables: [Variable<int>(user), Variable<int>(connection)],
       updates: {logins},
     );
   }
 
-  Future<int> addGame(String player1, String player2) {
+  Future<int> addGame(int player1, int player2) {
     return customInsert(
       'INSERT INTO games (datestarted, player1, player2) VALUES (strftime(\'%s\',\'now\'), :player1, :player2)',
-      variables: [Variable<String>(player1), Variable<String>(player2)],
+      variables: [Variable<int>(player1), Variable<int>(player2)],
       updates: {games},
     );
   }
 
-  Future<int> setGameResult(
-      int result, String? winner, String? looser, int? id) {
+  Future<int> setGameResult(int result, int? winner, int? looser, int? id) {
     return customUpdate(
       'UPDATE games SET datefinished = strftime(\'%s\',\'now\'), result = :result, winner = :winner, looser = :looser WHERE id = :id',
       variables: [
         Variable<int>(result),
-        Variable<String?>(winner),
-        Variable<String?>(looser),
+        Variable<int?>(winner),
+        Variable<int?>(looser),
         Variable<int?>(id)
       ],
       updates: {games},
@@ -1535,12 +1548,12 @@ abstract class _$Database extends GeneratedDatabase {
   }
 
   Future<int> addInGameUserInput(
-      int game, String user, String input, String result) {
+      int game, int user, String input, String result) {
     return customInsert(
       'INSERT INTO gamelogs (date, game, user, input, result) VALUES (strftime(\'%s\',\'now\'), :game, :user, :input, :result)',
       variables: [
         Variable<int>(game),
-        Variable<String>(user),
+        Variable<int>(user),
         Variable<String>(input),
         Variable<String>(result)
       ],

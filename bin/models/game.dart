@@ -4,7 +4,7 @@ import 'dart:math';
 import 'package:ansicolor/ansicolor.dart';
 import 'package:bloc/bloc.dart';
 
-import '../database/database.dart' as db;
+import '../database/database_bloc.dart';
 import 'cell.dart';
 import 'coordinates.dart';
 import 'game_state.dart';
@@ -23,7 +23,7 @@ class Game extends Cubit<GameState> {
 
   final _streamSubscriptions = <StreamSubscription>[];
 
-  final db.Database database;
+  final DatabaseBloc dbBloc;
 
   Player currentPlayer() {
     if (_currentPlayer == player1) {
@@ -43,7 +43,7 @@ class Game extends Cubit<GameState> {
 
   Game(this.player1, this.player2)
       : _currentPlayer = player1,
-        database = db.Database(),
+        dbBloc = DatabaseBloc(),
         super(GameInProgress());
 
   Future<void> playGame() async {
@@ -56,7 +56,7 @@ class Game extends Cubit<GameState> {
       _currentPlayer = anotherPlayer(_currentPlayer);
     }
 
-    id = await database.addGame(player1.name!, player2.name!);
+    id = await dbBloc.addGame(player1.id!, player2.id!);
 
     print('Game ID $id started: ${player1.name} vs ${player2.name}');
 
@@ -90,8 +90,8 @@ class Game extends Cubit<GameState> {
         if (!anotherPlayer(player).isAlive) {
           //ToDo: get rid of this magic number
           // 1 - game ended
-          await database.setGameResult(
-              1, player.name, anotherPlayer(player).name, id);
+          await dbBloc.setGameResult(
+              1, player.id, anotherPlayer(player).id, id);
           final pen = AnsiPen()..red();
           player.send(pen(Messages.winner));
           player.setState(PlayerInMenu());
@@ -107,8 +107,7 @@ class Game extends Cubit<GameState> {
       if (state is PlayerDisconnected) {
         //ToDo: get rid of this magic number
         // 2 - game ended with disconnect
-        await database.setGameResult(
-            2, anotherPlayer(player).name, player.name, id);
+        await dbBloc.setGameResult(2, anotherPlayer(player).id, player.id, id);
         anotherPlayer(player).send(Messages.opponentDisconnected);
         final pen = AnsiPen()..red();
         anotherPlayer(player).send(pen(Messages.winner));
