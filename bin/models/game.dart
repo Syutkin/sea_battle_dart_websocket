@@ -171,12 +171,11 @@ class Game extends Cubit<GameState> {
         player.battleField.doShot(coordinates, shotResult);
 
         if (shotResult is ShipInCell && shotResult.wasAlive) {
-          _dbBloc.addInGameUserInput(
-              id, player.id!, coordinates.toString(), 'hit');
-
           final pen = AnsiPen()..red();
           if (shotResult.ship.isAlive) {
             //ship is alive
+            _dbBloc.addInGameUserInput(
+                id, player.id!, coordinates.toString(), 'hit');
             player.send(Messages.playerDoShot(coordinates));
             anotherPlayer(player)
                 .send(Messages.enemyDoShot('\r\n${player.name}', coordinates));
@@ -184,6 +183,8 @@ class Game extends Cubit<GameState> {
             anotherPlayer(player).send(pen(Messages.hit));
           } else {
             //ship dead
+            _dbBloc.addInGameUserInput(
+                id, player.id!, coordinates.toString(), 'kill');
             player.send(Messages.playerDoShot(coordinates));
             anotherPlayer(player)
                 .send(Messages.enemyDoShot('\r\n${player.name}', coordinates));
