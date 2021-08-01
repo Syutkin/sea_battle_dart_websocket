@@ -168,7 +168,7 @@ class Game extends Cubit<GameState> {
       var coordinates = Coordinates.tryParse(message);
       if (coordinates != null) {
         var shotResult = anotherPlayer(player).playerField.doShot(coordinates);
-        player.battleField.doShot(coordinates, shotResult);
+        player.battleField.setShotResult(coordinates, shotResult);
 
         if (shotResult is ShipInCell && shotResult.wasAlive) {
           final pen = AnsiPen()..red();

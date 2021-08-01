@@ -236,7 +236,7 @@ class PlayerField extends Field {
   Cell doShot(Coordinates coordinates) {
     var result = _field[coordinates.y][coordinates.x];
     if (result is ShipInCell) {
-      if (result.ship.isAlive) {
+      if (result.isAlive) {
         result.isAlive = false;
         if (result.ship.Shot(coordinates)) {
           //ship is alive
@@ -258,7 +258,7 @@ class PlayerField extends Field {
 class BattleField extends Field {
   BattleField() : super();
 
-  void doShot(Coordinates coordinates, Cell shotResult) {
+  void setShotResult(Coordinates coordinates, Cell shotResult) {
     if (shotResult is ShipInCell && shotResult.wasAlive) {
       _field[coordinates.y][coordinates.x] = shotResult;
       if (shotResult.ship.isAlive) {
