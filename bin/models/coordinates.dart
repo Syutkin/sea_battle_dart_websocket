@@ -10,8 +10,8 @@ class Coordinates {
     int? x;
     int? y;
 
-    final exp_a1 = RegExp(r'^([A-J])([1-9]|10)$');
-    final exp_1a = RegExp(r'^([1-9]|10)([A-J])$');
+    final exp_a1 = RegExp(r'^([A-J])([0-9]|10)$');
+    final exp_1a = RegExp(r'^([0-9]|10)([A-J])$');
 
     input = input.trim().toUpperCase().replaceAll(' ', '');
 
@@ -21,11 +21,17 @@ class Coordinates {
       x = letters.indexOf(match.group(1)!);
 
       y = int.parse(match.group(2)!) - 1;
+      if (y == -1) {
+        y = 9;
+      }
     } else {
       match = exp_1a.firstMatch(input);
       if (match != null) {
         x = letters.indexOf(match.group(2)!);
         y = int.parse(match.group(1)!) - 1;
+        if (y == -1) {
+          y = 9;
+        }
       }
     }
     if (x == null || y == null) {
@@ -36,6 +42,6 @@ class Coordinates {
 
   @override
   String toString() {
-    return '${letters[x]}${y+1}';
+    return '${letters[x]}${y + 1}';
   }
 }

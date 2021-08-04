@@ -46,7 +46,17 @@ class Game extends Cubit<GameState> {
         _dbBloc = DatabaseBloc(),
         super(GameInProgress());
 
-  Future<void> playGame() async {
+  @override
+  void onChange(Change<GameState> change) {
+    super.onChange(change);
+  }
+
+  Future<void> startGame() async {
+    player1.send(Messages.gameFound('${player2.name}'));
+    player2.send(Messages.gameFound('${player1.name}'));
+
+    //ToDo: personal score
+
     player1.init();
     player2.init();
 
@@ -60,28 +70,52 @@ class Game extends Cubit<GameState> {
 
     print('Game $id started: ${player1.name} vs ${player2.name}');
 
-    player1.setState(PlayerSelectingShipsPlacement());
-    player2.setState(PlayerSelectingShipsPlacement());
+    player1.emit(PlayerSelectingShipsPlacement());
+    player2.emit(PlayerSelectingShipsPlacement());
 
+    _subscribe();
+  }
+
+  /// Reconnect player to game
+  void reconnect(Player player) {
+    print('Player ${player.name} reconnected to game $id');
+    emit(GameInProgress());
+    _unsubscribe();
+    if (player.id == player1.id) {
+      player1 = player;
+    } else {
+      player2 = player;
+    }
+    _subscribe();
+    player.send(Messages.reconnectingToGame);
+    anotherPlayer(player).send(Messages.playerReconnected(player));
+  }
+
+  @override
+  Future<void> close() async {
+    _unsubscribe();
+    return super.close();
+  }
+
+  void _subscribe() {
     _playerInputHandler(player1);
     _playerInputHandler(player2);
     _playerStateHandler(player1);
     _playerStateHandler(player2);
   }
 
-  @override
-  Future<void> close() async {
+  void _unsubscribe() {
     _streamSubscriptions.forEach((element) {
       element.cancel();
     });
-    return super.close();
+    _streamSubscriptions.clear();
   }
 
   void _playerStateHandler(Player player) {
     _streamSubscriptions.add(player.stream.listen((state) async {
       if (state is PlayerAwaiting) {
         if (anotherPlayer(player).state is PlayerAwaiting) {
-          currentPlayer().setState(PlayerDoShot());
+          currentPlayer().emit(PlayerDoShot());
         }
         return;
       }
@@ -94,10 +128,10 @@ class Game extends Cubit<GameState> {
               1, player.id, anotherPlayer(player).id, id);
           final pen = AnsiPen()..red();
           player.send(pen(Messages.winner));
-          player.setState(PlayerInMenu());
+          player.emit(PlayerInMenu());
           pen.blue();
           anotherPlayer(player).send(pen(Messages.looser));
-          anotherPlayer(player).setState(PlayerInMenu());
+          anotherPlayer(player).emit(PlayerInMenu());
           // end game
           emit(GameEnded());
         }
@@ -105,13 +139,19 @@ class Game extends Cubit<GameState> {
       }
 
       if (state is PlayerDisconnected) {
+        emit(GameAwaitingReconnect());
+        anotherPlayer(player).send(Messages.opponentDisconnected);
+        //ToDo: timer for awaiting disconnect
+      }
+
+      if (state is PlayerRemove) {
         //ToDo: get rid of this magic number
         // 2 - game ended with disconnect
         await _dbBloc.setGameResult(2, anotherPlayer(player).id, player.id, id);
-        anotherPlayer(player).send(Messages.opponentDisconnected);
+        // anotherPlayer(player).send(Messages.opponentDisconnected);
         final pen = AnsiPen()..red();
         anotherPlayer(player).send(pen(Messages.winner));
-        anotherPlayer(player).setState(PlayerInMenu());
+        anotherPlayer(player).emit(PlayerInMenu());
         emit(GameEnded());
         return;
       }
@@ -119,7 +159,7 @@ class Game extends Cubit<GameState> {
   }
 
   void _playerInputHandler(Player player) {
-    _streamSubscriptions.add(player.playerInput.stream.listen((message) {
+    _streamSubscriptions.add(player.playerIngameInput.stream.listen((message) {
       if (message.startsWith('/chat ')) {
         _gameChat(player, message.replaceFirst('/chat ', ''));
         return;
@@ -144,7 +184,7 @@ class Game extends Cubit<GameState> {
       switch (response) {
         case 1:
           if (player.playerField.nextShip != null) {
-            player.setState(PlayerSelectShipStart());
+            player.emit(PlayerSelectShipStart());
           } else {
             assert(player.playerField.nextShip == null,
                 'All ships were placed, but state didn\'t properly changed');
@@ -191,8 +231,8 @@ class Game extends Cubit<GameState> {
             player.send(pen(Messages.sunk));
             anotherPlayer(player).send(pen(Messages.sunk));
           }
-          anotherPlayer(player).setState(PlayerAwaiting());
-          player.setState(PlayerDoShot());
+          anotherPlayer(player).emit(PlayerAwaiting());
+          player.emit(PlayerDoShot());
         } else if (shotResult is EmptyCell) {
           _dbBloc.addInGameUserInput(
               id, player.id!, coordinates.toString(), 'miss');
@@ -205,8 +245,8 @@ class Game extends Cubit<GameState> {
           player.send(pen(Messages.miss));
           anotherPlayer(player).send(pen(Messages.miss));
 
-          player.setState(PlayerAwaiting());
-          anotherPlayer(player).setState(PlayerDoShot());
+          player.emit(PlayerAwaiting());
+          anotherPlayer(player).emit(PlayerDoShot());
         } else {
           // shot to occupied field, shoot again
           player.send(Messages.shootAgain);
@@ -224,13 +264,13 @@ class Game extends Cubit<GameState> {
     if (player.playerField.tryPlaceShip(ship)) {
       if (player.playerField.nextShip == null) {
         //all ship placed
-        player.setState(PlayerPlacingShipsConfimation());
+        player.emit(PlayerPlacingShipsConfimation());
       } else {
-        player.setState(PlayerSelectShipStart());
+        player.emit(PlayerSelectShipStart());
       }
     } else {
       player.send(Messages.cannotPlaceShip);
-      player.setState(PlayerSelectShipStart());
+      player.emit(PlayerSelectShipStart());
     }
   }
 
@@ -239,7 +279,7 @@ class Game extends Cubit<GameState> {
     if (ship != null) {
       var automaticPlace = int.tryParse(message);
 
-      if (automaticPlace == 9) {
+      if (automaticPlace == 0) {
         _automaticPlaceShips(player);
         return;
       }
@@ -249,7 +289,7 @@ class Game extends Cubit<GameState> {
         if (coordinates != null) {
           ship.setCoordinates(coordinates);
           if (ship.size.integer > 1) {
-            player.setState(PlayerSelectShipOrientation());
+            player.emit(PlayerSelectShipOrientation());
           } else {
             _placeShip(player, ship);
           }
@@ -277,10 +317,10 @@ class Game extends Cubit<GameState> {
         var response = int.tryParse(message);
         switch (response) {
           case 1:
-            player.setState(PlayerAwaiting());
+            player.emit(PlayerAwaiting());
             break;
           case 2:
-            player.setState(PlayerSelectingShipsPlacement());
+            player.emit(PlayerSelectingShipsPlacement());
             break;
           default:
             player.send(Messages.incorrectInput);
@@ -293,8 +333,8 @@ class Game extends Cubit<GameState> {
   }
 
   void _automaticPlaceShips(Player player) {
-    player.setState(PlayerPlacingShips());
+    player.emit(PlayerPlacingShips());
     player.playerField.randomFillWithShips();
-    player.setState(PlayerPlacingShipsConfimation());
+    player.emit(PlayerPlacingShipsConfimation());
   }
 }

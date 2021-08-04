@@ -3,8 +3,22 @@ CREATE TABLE "users" (
 	"date"			INTEGER NOT NULL,
 	"name"			TEXT NOT NULL UNIQUE,
 	-- "email"		TEXT NOT NULL UNIQUE,
-	"password"		TEXT
+	"password"		TEXT,
+	"role"			INTEGER NOT NULL DEFAULT 0,
+	"status"		INTEGER NOT NULL DEFAULT 0,
+	FOREIGN KEY (role) REFERENCES roles (id),
+	FOREIGN KEY (status) REFERENCES roles (id)
 );
+
+CREATE TABLE "roles" (
+	"id"			INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+	"name"			TEXT NOT NULL
+);
+
+CREATE TABLE "statuses" (
+	"id"			INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+	"name"			TEXT NOT NULL
+) AS status;
 
 CREATE TABLE "usersinput" (
 	"id"			INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,

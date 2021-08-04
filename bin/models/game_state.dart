@@ -14,6 +14,13 @@ class GameInProgress extends GameState {
   }
 }
 
+class GameAwaitingReconnect extends GameState {
+  @override
+  String toString() {
+    return 'Ожидание переподключения';
+  }
+}
+
 class GameEnded extends GameState {
   @override
   String toString() {

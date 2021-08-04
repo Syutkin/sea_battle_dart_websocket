@@ -7,16 +7,193 @@ part of 'database.dart';
 // **************************************************************************
 
 // ignore_for_file: unnecessary_brace_in_string_interps, unnecessary_this
+class Role extends DataClass implements Insertable<Role> {
+  final int id;
+  final String name;
+  Role({required this.id, required this.name});
+  factory Role.fromData(Map<String, dynamic> data, GeneratedDatabase db,
+      {String? prefix}) {
+    final effectivePrefix = prefix ?? '';
+    return Role(
+      id: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}id'])!,
+      name: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}name'])!,
+    );
+  }
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['name'] = Variable<String>(name);
+    return map;
+  }
+
+  RolesCompanion toCompanion(bool nullToAbsent) {
+    return RolesCompanion(
+      id: Value(id),
+      name: Value(name),
+    );
+  }
+
+  factory Role.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return Role(
+      id: serializer.fromJson<int>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'name': serializer.toJson<String>(name),
+    };
+  }
+
+  Role copyWith({int? id, String? name}) => Role(
+        id: id ?? this.id,
+        name: name ?? this.name,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('Role(')
+          ..write('id: $id, ')
+          ..write('name: $name')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => $mrjf($mrjc(id.hashCode, name.hashCode));
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Role && other.id == this.id && other.name == this.name);
+}
+
+class RolesCompanion extends UpdateCompanion<Role> {
+  final Value<int> id;
+  final Value<String> name;
+  const RolesCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+  });
+  RolesCompanion.insert({
+    this.id = const Value.absent(),
+    required String name,
+  }) : name = Value(name);
+  static Insertable<Role> custom({
+    Expression<int>? id,
+    Expression<String>? name,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+    });
+  }
+
+  RolesCompanion copyWith({Value<int>? id, Value<String>? name}) {
+    return RolesCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('RolesCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class Roles extends Table with TableInfo<Roles, Role> {
+  final GeneratedDatabase _db;
+  final String? _alias;
+  Roles(this._db, [this._alias]);
+  final VerificationMeta _idMeta = const VerificationMeta('id');
+  late final GeneratedColumn<int?> id = GeneratedColumn<int?>(
+      'id', aliasedName, false,
+      typeName: 'INTEGER',
+      requiredDuringInsert: false,
+      $customConstraints: 'NOT NULL PRIMARY KEY AUTOINCREMENT');
+  final VerificationMeta _nameMeta = const VerificationMeta('name');
+  late final GeneratedColumn<String?> name = GeneratedColumn<String?>(
+      'name', aliasedName, false,
+      typeName: 'TEXT',
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL');
+  @override
+  List<GeneratedColumn> get $columns => [id, name];
+  @override
+  String get aliasedName => _alias ?? 'roles';
+  @override
+  String get actualTableName => 'roles';
+  @override
+  VerificationContext validateIntegrity(Insertable<Role> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Role map(Map<String, dynamic> data, {String? tablePrefix}) {
+    return Role.fromData(data, _db,
+        prefix: tablePrefix != null ? '$tablePrefix.' : null);
+  }
+
+  @override
+  Roles createAlias(String alias) {
+    return Roles(_db, alias);
+  }
+
+  @override
+  bool get dontWriteConstraints => true;
+}
+
 class User extends DataClass implements Insertable<User> {
   final int id;
   final int date;
   final String name;
   final String? password;
+  final int role;
+  final int status;
   User(
       {required this.id,
       required this.date,
       required this.name,
-      this.password});
+      this.password,
+      required this.role,
+      required this.status});
   factory User.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String? prefix}) {
     final effectivePrefix = prefix ?? '';
@@ -29,6 +206,10 @@ class User extends DataClass implements Insertable<User> {
           .mapFromDatabaseResponse(data['${effectivePrefix}name'])!,
       password: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}password']),
+      role: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}role'])!,
+      status: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}status'])!,
     );
   }
   @override
@@ -40,6 +221,8 @@ class User extends DataClass implements Insertable<User> {
     if (!nullToAbsent || password != null) {
       map['password'] = Variable<String?>(password);
     }
+    map['role'] = Variable<int>(role);
+    map['status'] = Variable<int>(status);
     return map;
   }
 
@@ -51,6 +234,8 @@ class User extends DataClass implements Insertable<User> {
       password: password == null && nullToAbsent
           ? const Value.absent()
           : Value(password),
+      role: Value(role),
+      status: Value(status),
     );
   }
 
@@ -62,6 +247,8 @@ class User extends DataClass implements Insertable<User> {
       date: serializer.fromJson<int>(json['date']),
       name: serializer.fromJson<String>(json['name']),
       password: serializer.fromJson<String?>(json['password']),
+      role: serializer.fromJson<int>(json['role']),
+      status: serializer.fromJson<int>(json['status']),
     );
   }
   @override
@@ -72,14 +259,25 @@ class User extends DataClass implements Insertable<User> {
       'date': serializer.toJson<int>(date),
       'name': serializer.toJson<String>(name),
       'password': serializer.toJson<String?>(password),
+      'role': serializer.toJson<int>(role),
+      'status': serializer.toJson<int>(status),
     };
   }
 
-  User copyWith({int? id, int? date, String? name, String? password}) => User(
+  User copyWith(
+          {int? id,
+          int? date,
+          String? name,
+          String? password,
+          int? role,
+          int? status}) =>
+      User(
         id: id ?? this.id,
         date: date ?? this.date,
         name: name ?? this.name,
         password: password ?? this.password,
+        role: role ?? this.role,
+        status: status ?? this.status,
       );
   @override
   String toString() {
@@ -87,14 +285,22 @@ class User extends DataClass implements Insertable<User> {
           ..write('id: $id, ')
           ..write('date: $date, ')
           ..write('name: $name, ')
-          ..write('password: $password')
+          ..write('password: $password, ')
+          ..write('role: $role, ')
+          ..write('status: $status')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => $mrjf($mrjc(id.hashCode,
-      $mrjc(date.hashCode, $mrjc(name.hashCode, password.hashCode))));
+  int get hashCode => $mrjf($mrjc(
+      id.hashCode,
+      $mrjc(
+          date.hashCode,
+          $mrjc(
+              name.hashCode,
+              $mrjc(
+                  password.hashCode, $mrjc(role.hashCode, status.hashCode))))));
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -102,7 +308,9 @@ class User extends DataClass implements Insertable<User> {
           other.id == this.id &&
           other.date == this.date &&
           other.name == this.name &&
-          other.password == this.password);
+          other.password == this.password &&
+          other.role == this.role &&
+          other.status == this.status);
 }
 
 class UsersCompanion extends UpdateCompanion<User> {
@@ -110,17 +318,23 @@ class UsersCompanion extends UpdateCompanion<User> {
   final Value<int> date;
   final Value<String> name;
   final Value<String?> password;
+  final Value<int> role;
+  final Value<int> status;
   const UsersCompanion({
     this.id = const Value.absent(),
     this.date = const Value.absent(),
     this.name = const Value.absent(),
     this.password = const Value.absent(),
+    this.role = const Value.absent(),
+    this.status = const Value.absent(),
   });
   UsersCompanion.insert({
     this.id = const Value.absent(),
     required int date,
     required String name,
     this.password = const Value.absent(),
+    this.role = const Value.absent(),
+    this.status = const Value.absent(),
   })  : date = Value(date),
         name = Value(name);
   static Insertable<User> custom({
@@ -128,12 +342,16 @@ class UsersCompanion extends UpdateCompanion<User> {
     Expression<int>? date,
     Expression<String>? name,
     Expression<String?>? password,
+    Expression<int>? role,
+    Expression<int>? status,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (date != null) 'date': date,
       if (name != null) 'name': name,
       if (password != null) 'password': password,
+      if (role != null) 'role': role,
+      if (status != null) 'status': status,
     });
   }
 
@@ -141,12 +359,16 @@ class UsersCompanion extends UpdateCompanion<User> {
       {Value<int>? id,
       Value<int>? date,
       Value<String>? name,
-      Value<String?>? password}) {
+      Value<String?>? password,
+      Value<int>? role,
+      Value<int>? status}) {
     return UsersCompanion(
       id: id ?? this.id,
       date: date ?? this.date,
       name: name ?? this.name,
       password: password ?? this.password,
+      role: role ?? this.role,
+      status: status ?? this.status,
     );
   }
 
@@ -165,6 +387,12 @@ class UsersCompanion extends UpdateCompanion<User> {
     if (password.present) {
       map['password'] = Variable<String?>(password.value);
     }
+    if (role.present) {
+      map['role'] = Variable<int>(role.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<int>(status.value);
+    }
     return map;
   }
 
@@ -174,7 +402,9 @@ class UsersCompanion extends UpdateCompanion<User> {
           ..write('id: $id, ')
           ..write('date: $date, ')
           ..write('name: $name, ')
-          ..write('password: $password')
+          ..write('password: $password, ')
+          ..write('role: $role, ')
+          ..write('status: $status')
           ..write(')'))
         .toString();
   }
@@ -206,8 +436,23 @@ class Users extends Table with TableInfo<Users, User> {
   late final GeneratedColumn<String?> password = GeneratedColumn<String?>(
       'password', aliasedName, true,
       typeName: 'TEXT', requiredDuringInsert: false, $customConstraints: '');
+  final VerificationMeta _roleMeta = const VerificationMeta('role');
+  late final GeneratedColumn<int?> role = GeneratedColumn<int?>(
+      'role', aliasedName, false,
+      typeName: 'INTEGER',
+      requiredDuringInsert: false,
+      $customConstraints: 'NOT NULL DEFAULT 0',
+      defaultValue: const CustomExpression<int>('0'));
+  final VerificationMeta _statusMeta = const VerificationMeta('status');
+  late final GeneratedColumn<int?> status = GeneratedColumn<int?>(
+      'status', aliasedName, false,
+      typeName: 'INTEGER',
+      requiredDuringInsert: false,
+      $customConstraints: 'NOT NULL DEFAULT 0',
+      defaultValue: const CustomExpression<int>('0'));
   @override
-  List<GeneratedColumn> get $columns => [id, date, name, password];
+  List<GeneratedColumn> get $columns =>
+      [id, date, name, password, role, status];
   @override
   String get aliasedName => _alias ?? 'users';
   @override
@@ -236,6 +481,14 @@ class Users extends Table with TableInfo<Users, User> {
       context.handle(_passwordMeta,
           password.isAcceptableOrUnknown(data['password']!, _passwordMeta));
     }
+    if (data.containsKey('role')) {
+      context.handle(
+          _roleMeta, role.isAcceptableOrUnknown(data['role']!, _roleMeta));
+    }
+    if (data.containsKey('status')) {
+      context.handle(_statusMeta,
+          status.isAcceptableOrUnknown(data['status']!, _statusMeta));
+    }
     return context;
   }
 
@@ -250,6 +503,184 @@ class Users extends Table with TableInfo<Users, User> {
   @override
   Users createAlias(String alias) {
     return Users(_db, alias);
+  }
+
+  @override
+  List<String> get customConstraints => const [
+        'FOREIGN KEY (role) REFERENCES roles (id)',
+        'FOREIGN KEY (status) REFERENCES roles (id)'
+      ];
+  @override
+  bool get dontWriteConstraints => true;
+}
+
+class status extends DataClass implements Insertable<status> {
+  final int id;
+  final String name;
+  status({required this.id, required this.name});
+  factory status.fromData(Map<String, dynamic> data, GeneratedDatabase db,
+      {String? prefix}) {
+    final effectivePrefix = prefix ?? '';
+    return status(
+      id: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}id'])!,
+      name: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}name'])!,
+    );
+  }
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['name'] = Variable<String>(name);
+    return map;
+  }
+
+  StatusesCompanion toCompanion(bool nullToAbsent) {
+    return StatusesCompanion(
+      id: Value(id),
+      name: Value(name),
+    );
+  }
+
+  factory status.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return status(
+      id: serializer.fromJson<int>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'name': serializer.toJson<String>(name),
+    };
+  }
+
+  status copyWith({int? id, String? name}) => status(
+        id: id ?? this.id,
+        name: name ?? this.name,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('status(')
+          ..write('id: $id, ')
+          ..write('name: $name')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => $mrjf($mrjc(id.hashCode, name.hashCode));
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is status && other.id == this.id && other.name == this.name);
+}
+
+class StatusesCompanion extends UpdateCompanion<status> {
+  final Value<int> id;
+  final Value<String> name;
+  const StatusesCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+  });
+  StatusesCompanion.insert({
+    this.id = const Value.absent(),
+    required String name,
+  }) : name = Value(name);
+  static Insertable<status> custom({
+    Expression<int>? id,
+    Expression<String>? name,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+    });
+  }
+
+  StatusesCompanion copyWith({Value<int>? id, Value<String>? name}) {
+    return StatusesCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('StatusesCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class Statuses extends Table with TableInfo<Statuses, status> {
+  final GeneratedDatabase _db;
+  final String? _alias;
+  Statuses(this._db, [this._alias]);
+  final VerificationMeta _idMeta = const VerificationMeta('id');
+  late final GeneratedColumn<int?> id = GeneratedColumn<int?>(
+      'id', aliasedName, false,
+      typeName: 'INTEGER',
+      requiredDuringInsert: false,
+      $customConstraints: 'NOT NULL PRIMARY KEY AUTOINCREMENT');
+  final VerificationMeta _nameMeta = const VerificationMeta('name');
+  late final GeneratedColumn<String?> name = GeneratedColumn<String?>(
+      'name', aliasedName, false,
+      typeName: 'TEXT',
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL');
+  @override
+  List<GeneratedColumn> get $columns => [id, name];
+  @override
+  String get aliasedName => _alias ?? 'statuses';
+  @override
+  String get actualTableName => 'statuses';
+  @override
+  VerificationContext validateIntegrity(Insertable<status> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  status map(Map<String, dynamic> data, {String? tablePrefix}) {
+    return status.fromData(data, _db,
+        prefix: tablePrefix != null ? '$tablePrefix.' : null);
+  }
+
+  @override
+  Statuses createAlias(String alias) {
+    return Statuses(_db, alias);
   }
 
   @override
@@ -1519,7 +1950,9 @@ class Gamelogs extends Table with TableInfo<Gamelogs, Gamelog> {
 
 abstract class _$Database extends GeneratedDatabase {
   _$Database(QueryExecutor e) : super(SqlTypeSystem.defaultInstance, e);
+  late final Roles roles = Roles(this);
   late final Users users = Users(this);
+  late final Statuses statuses = Statuses(this);
   late final Usersinput usersinput = Usersinput(this);
   late final Logins logins = Logins(this);
   late final Games games = Games(this);
@@ -1622,5 +2055,5 @@ abstract class _$Database extends GeneratedDatabase {
   Iterable<TableInfo> get allTables => allSchemaEntities.whereType<TableInfo>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities =>
-      [users, usersinput, logins, games, gamelogs];
+      [roles, users, statuses, usersinput, logins, games, gamelogs];
 }

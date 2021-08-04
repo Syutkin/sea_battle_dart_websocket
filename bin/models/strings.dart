@@ -1,4 +1,8 @@
+import 'package:duration/duration.dart';
+import 'package:duration/locale.dart';
+
 import 'coordinates.dart';
+import 'player.dart';
 import 'ship.dart';
 
 class Menu {
@@ -17,10 +21,10 @@ class Menu {
   }
 
   static const String shipStartPoint =
-      'Введите координату начала корабля; 9 - расставить оставшиеся корабли автоматически';
+      'Введите координату начала корабля; 0 - расставить оставшиеся корабли автоматически';
 
   static const String shipOrientation =
-      'Введите направление: 1 - горизонтально; 2 - вертикально; 9 - расставить оставшиеся корабли автоматически';
+      'Введите направление: 1 - горизонтально; 2 - вертикально; 0 - расставить оставшиеся корабли автоматически';
 
   static const String doShot = 'Введите координаты выстрела';
 
@@ -33,6 +37,10 @@ class Menu {
 
 class Messages {
   const Messages();
+
+  static String gameFound(String playerName) {
+    return 'Игра найдена, ваш соперник: $playerName';
+  }
 
   static const String incorrectInput = 'Неверный ввод';
 
@@ -63,7 +71,9 @@ class Messages {
   }
 
   static const String opponentDisconnected =
-      'Соединение с противником потеряно';
+      'Соединение с противником потеряно, ожидаем переподключения...';
+
+  static const String enterName = 'Введите Ваше имя:';
 
   static const String enterPassword = 'Введите пароль';
 
@@ -74,6 +84,64 @@ class Messages {
   static const String incorrectPassword = 'Неверный пароль';
 
   static const String passwordMismatch = 'Пароли не совпадают';
+
+  static const String reconnectingToGame = 'Переподключение к текущей игре';
+
+  static String playerReconnected(Player player) {
+    return '${player.name} переподключается к игре';
+  }
+
+  static String playerConnected(Player player) {
+    return '${player.name} заходит на сервер';
+  }
+
+  static String welcome(Player player) {
+    return 'Добро пожаловать в морской бой, ${player.name}';
+  }
+
+  static String cellsAwailable(Player player) {
+    return 'Доступных клеток для выстрела: ${player.battleField.countAvailableCells}, '
+        'у противника: ${player.playerField.countAvailableCells}';
+  }
+
+  static String playersOnline(int players, int games) {
+    return 'Игроков на сервере: $players, текущих игр: $games';
+  }
+
+  // Server info
+  static const String serverInfo = 'Информация о сервере:';
+
+  static String serverVersion(String serverVersion) {
+    return 'Версия: $serverVersion';
+  }
+
+  static String serverUptime(Duration serverUptime) {
+    return 'Онлайн: ${prettyDuration(
+      serverUptime,
+      locale: DurationLocale.fromLanguageCode('ru') ?? EnglishDurationLocale(),
+    )}';
+  }
+
+  static String usersCount(int users) {
+    return 'Зарегистрировано игроков: $users';
+  }
+
+  static String gamesCount(int games) {
+    return 'Игр сыграно: $games';
+  }
+
+  // chat
+  static String playerWroteToYou(String name, String message) {
+    return '$name пишет вам: $message';
+  }
+
+  static String youWroteToPlayer(String name, String message) {
+    return 'Игроку $name: $message';
+  }
+
+  static String playerNotFound(String name) {
+    return 'Игрок $name не найден';
+  }
 
   static const String notImplemented = 'Не реализовано';
 }

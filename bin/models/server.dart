@@ -5,6 +5,7 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 
 import '../database/database_bloc.dart';
 import '../main.dart';
+import 'connection.dart';
 import 'game.dart';
 import 'game_state.dart';
 import 'password.dart';
@@ -21,13 +22,13 @@ class Server {
   String address;
 
   /// Active connections
+  Map<int, Connection> connections = <int, Connection>{};
+
+  /// Active authorized players
   Map<int, Player> players = <int, Player>{};
 
   /// Connections count from last run
   int connectionCount = 1;
-
-  /// Players ready for new game
-  Map<String, Player> awaitingPlayers = <String, Player>{};
 
   /// Currently ongoing games
   Map<int, Game> activeGames = <int, Game>{};
@@ -35,14 +36,23 @@ class Server {
   /// Database sqlite log helper
   final DatabaseBloc _dbBloc;
 
-  /// Send message to player by connectionId
+  /// Server start time
+  final startTime = DateTime.now();
+
+  /// Server uptime
+  Duration get uptime {
+    var uptime = DateTime.now().difference(startTime);
+    return uptime;
+  }
+
+  /// Send [message] to player by [connectionId]
   void sendByConnectionId(int connectionId, String message) {
     if (message.isNotEmpty) {
-      players[connectionId]?.webSocket.sink.add(message);
+      players[connectionId]?.connection.webSocket.sink.add(message);
     }
   }
 
-  /// Send message to player by player name
+  /// Send [message] to player by [playerName]
   bool sendByPlayerName(String playerName, String message) {
     if (players.isNotEmpty) {
       for (var user in players.keys) {
@@ -55,9 +65,9 @@ class Server {
     return false;
   }
 
-  /// Send message to player
+  /// Send [message] to [player]
   void send(Player player, String message) {
-    player.webSocket.sink.add(message);
+    player.connection.webSocket.sink.add(message);
   }
 
   /// Send message to all players at server
@@ -79,13 +89,7 @@ class Server {
     }
   }
 
-  /// Sending welcome message to new client
-  void sendWelcome(Player player) {
-    final message = 'Введите Ваше имя:';
-    send(player, message);
-  }
-
-  /// Close user connections
+  /// Close user connection by [connectionId]
   void closeConnection(int connectionId) async {
     if (players[connectionId]?.isAuthenticated ?? false) {
       //ToDo: get rid of this magic number
@@ -95,16 +99,24 @@ class Server {
     } else {
       print('Connection $connectionId disconnected');
     }
-
-    if (players.containsKey(connectionId)) {
-      players.remove(connectionId);
+    // do not keep player state for reconnect if player was not in game
+    if (players[connectionId]?.previousState is! PlayerInGame) {
+      removePlayer(connectionId);
     }
-    if (awaitingPlayers.containsKey(connectionId)) {
-      awaitingPlayers.remove(connectionId);
+
+    if (connections.containsKey(connectionId)) {
+      connections.remove(connectionId);
     }
   }
 
-  /// Start new game if users in queue more than one
+  void removePlayer(int connectionId) async {
+    if (players.containsKey(connectionId)) {
+      players[connectionId]?.close();
+      players.remove(connectionId);
+    }
+  }
+
+  /// Start new game if ready for game players (state is [PlayerInQueue]) more than one
   Future<bool> startNewGame() async {
     var keys = [];
     players.forEach((key, value) {
@@ -113,8 +125,8 @@ class Server {
       }
     });
     if (keys.length > 1) {
-      players[keys[0]]?.setState(PlayerInGame());
-      players[keys[1]]?.setState(PlayerInGame());
+      players[keys[0]]?.emit(PlayerInGame());
+      players[keys[1]]?.emit(PlayerInGame());
 
       var game = Game(players[keys[0]]!, players[keys[1]]!);
 
@@ -124,7 +136,7 @@ class Server {
         }
       });
 
-      await game.playGame();
+      await game.startGame();
 
       activeGames.putIfAbsent(game.id, () => game);
 
@@ -143,7 +155,7 @@ class Server {
     }
   }
 
-  /// Parse message from user
+  /// Parse [message] from [player]
   void _parseMessage(Player player, String message) async {
     if (player.state is PlayerConnecting) {
       if (player.state is PlayerAuthorizing) {
@@ -155,7 +167,7 @@ class Server {
           // password error
           send(player, Messages.incorrectPassword);
           //ToDo: set delay if password is incorrect
-          player.setState(PlayerAuthorizing());
+          player.emit(PlayerAuthorizing());
           //ToDo: after 3 incorrect inputs disconnect
           return;
         }
@@ -166,10 +178,10 @@ class Server {
         var response = int.tryParse(message);
         switch (response) {
           case 1: // register new account
-            player.setState(PlayerSettingPassword());
+            player.emit(PlayerSettingPassword());
             break;
           case 2: // enter another name
-            player.setState(PlayerConnecting());
+            player.emit(PlayerConnecting());
             break;
         }
         return;
@@ -178,7 +190,7 @@ class Server {
       if (player.state is PlayerSettingPassword) {
         // ввод пароля
         player.password = message;
-        player.setState(PlayerRepeatingPassword());
+        player.emit(PlayerRepeatingPassword());
         return;
       }
 
@@ -193,7 +205,7 @@ class Server {
         } else {
           // password mismatch
           player.send(Messages.passwordMismatch);
-          player.setState(PlayerSettingPassword());
+          player.emit(PlayerSettingPassword());
           return;
         }
       }
@@ -204,12 +216,12 @@ class Server {
       var id = await _dbBloc.getUserId(player.name!);
       if (id == null) {
         // new user
-        player.setState(PlayerRegistering());
+        player.emit(PlayerRegistering());
         return;
       } else {
         // ask password
         player.id = id;
-        player.setState(PlayerAuthorizing());
+        player.emit(PlayerAuthorizing());
         return;
       }
     }
@@ -217,6 +229,7 @@ class Server {
     if (message.startsWith('/password ')) {
       //ToDo: user can change password
       send(player, Messages.notImplemented);
+      return;
     }
 
     // after that log all messages from users
@@ -232,26 +245,55 @@ class Server {
       return;
     }
 
-    _commonCommandsParser(player, message);
+    _menuCommandsParser(player, message);
   }
 
+  /// [player] authorized at server
+  ///
+  /// Log connection and checks ongoing games for equal [player.id]
+  /// If [player.id] are equal, reconnect to that game
   void _playerLogin(Player player) async {
     //ToDo: get rid of this magic number
     // 0 - player logged in
     await _dbBloc.addUserLogin(player.id!, 0);
-    print('Connection ${player.connectionId} is player: ${player.name}');
-    send(player, 'Добро пожаловать в морской бой, ${player.name}');
-    sendMessageToAll('${player.name} заходит на сервер', PlayerInMenu());
-    player.setState(PlayerInMenu());
+    print(
+        'Connection ${player.connection.connectionId} is player: ${player.name}');
+    send(player, Messages.welcome(player));
+
+    // reconnect to game if player was in it
+    // ToDo: ask reconnect or not
+    var reconnected = false;
+    for (var playerInMap in players.values) {
+      if (player.id == playerInMap.id &&
+          player.connection.connectionId !=
+              playerInMap.connection.connectionId) {
+        player.copyFromPlayer(playerInMap);
+        reconnected = true;
+
+        for (var game in activeGames.values) {
+          if (game.state is GameAwaitingReconnect) {
+            if (game.player1.id == player.id || game.player2.id == player.id) {
+              game.reconnect(player);
+              break;
+            }
+          }
+        }
+        removePlayer(playerInMap.connection.connectionId);
+        break;
+      }
+    }
+
+    if (!reconnected) {
+      sendMessageToAll(Messages.playerConnected(player), PlayerInMenu());
+      player.emit(PlayerInMenu());
+    }
   }
 
   /// Shows current game statistics to player
   void _showGameStat(Player player) {
     if (player.state is PlayerInGame &&
         player.state is! PlayerSelectingShipsPlacement) {
-      player.send(
-          'Доступных клеток для выстрела: ${player.battleField.countAvailableCells}, '
-          'у противника: ${player.playerField.countAvailableCells}');
+      player.send(Messages.cellsAwailable(player));
     }
   }
 
@@ -262,12 +304,14 @@ class Server {
       message = message.replaceFirst(playerName, '').trimLeft();
       if (message.isNotEmpty) {
         final pen = AnsiPen()..magenta();
-        if (sendByPlayerName(
-            playerName, pen('${player.name} пишет вам: $message'))) {
+        if (sendByPlayerName(playerName,
+            pen(Messages.playerWroteToYou('${player.name}', message)))) {
+          //clear input
           player.send('${ansiEscape}1A${ansiEscape}K${ansiEscape}1A');
-          player.send(pen('Игроку ${player.name}: $message'));
+          player
+              .send(pen(Messages.youWroteToPlayer('${player.name}', message)));
         } else {
-          player.send(pen('Игрок $playerName не найден'));
+          player.send(pen(Messages.playerNotFound(playerName)));
         }
       }
     }
@@ -276,31 +320,29 @@ class Server {
   /// Menu command parser
   ///
   /// If player in game, sink message
-  void _commonCommandsParser(Player player, String message) async {
+  void _menuCommandsParser(Player player, String message) async {
     if (player.state is PlayerInMenu) {
       var response = int.tryParse(message);
       switch (response) {
         case 1: // find game
-          player.setState(PlayerInQueue());
+          player.emit(PlayerInQueue());
           startNewGame();
           break;
         case 2: // players online
-          send(player,
-              'Игроков на сервере: ${players.length}, текущих игр: ${activeGames.length}');
+          player
+              .send(Messages.playersOnline(players.length, activeGames.length));
           players.forEach((key, value) {
-            send(player, '${value.name}: ${value.state}');
+            player.send('${value.name}: ${value.state}');
           });
-          player.setState(PlayerInMenu());
+          player.emit(PlayerInMenu());
           break;
         case 3: // server info
-          // ToDo: uptime
-          // ToDo: games played
-          send(player, 'Информация о сервере:\n\n' 'Версия: $serverVersion');
-          player.setState(PlayerInMenu());
+          player.send(await _serverInfo);
+          player.emit(PlayerInMenu());
           break;
         default:
           player.send(Messages.incorrectInput);
-          player.setState(PlayerInMenu());
+          player.emit(PlayerInMenu());
       }
       return;
     }
@@ -309,19 +351,33 @@ class Server {
       var response = int.tryParse(message);
       switch (response) {
         case 1:
-          player.setState(PlayerInMenu());
+          player.emit(PlayerInMenu());
           break;
         default:
           player.send(Messages.incorrectInput);
-          player.setState(PlayerInQueue());
+          player.emit(PlayerInQueue());
       }
       return;
     }
 
+    // If player in game, transfer message to game
     if (player.state is PlayerInGame) {
-      player.playerInput.sink.add(message);
+      player.playerIngameInput.sink.add(message);
       return;
     }
+  }
+
+  Future<String> get _serverInfo async {
+    var result = Messages.serverInfo;
+    result += '\n\n';
+    result += Messages.serverVersion(serverVersion);
+    result += '\n';
+    result += Messages.serverUptime(uptime);
+    result += '\n';
+    result += Messages.usersCount(await _dbBloc.usersCount());
+    result += '\n';
+    result += Messages.gamesCount(await _dbBloc.gamesCount());
+    return result + '\n';
   }
 
   /// Server constructor
@@ -336,22 +392,31 @@ class Server {
       var connectionId = connectionCount;
       connectionCount++;
 
-      var player = Player(connectionId: connectionId, webSocket: webSocket);
+      var connection =
+          Connection(connectionId: connectionId, webSocket: webSocket);
+      var player = Player(connection);
 
       webSocket.stream.listen((message) {
         message = message.toString().trim();
         _parseMessage(player, message);
       }).onDone(() {
-        player.setState(PlayerDisconnected());
+        player.emit(PlayerDisconnected());
 
         closeConnection(connectionId);
       });
 
+      player.stream.listen((event) {
+        if (event is PlayerRemove) {
+          removePlayer(connectionId);
+        }
+      });
+
+      connections.putIfAbsent(connectionId, () => connection);
       players.putIfAbsent(connectionId, () => player);
 
       print('New connection: $connectionId');
 
-      sendWelcome(player);
+      player.emit(PlayerEnteringName());
     });
 
     shelf_io.serve(connectionHandler, address, port).then((server) {

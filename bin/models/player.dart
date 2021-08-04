@@ -1,8 +1,9 @@
 import 'dart:async';
 import 'package:bloc/bloc.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:web_socket_channel/status.dart' as status;
 
 import '../database/database_bloc.dart';
+import 'connection.dart';
 import 'field.dart';
 import 'password.dart';
 import 'player_state.dart';
@@ -13,23 +14,113 @@ class Player extends Cubit<PlayerState> {
   int? id;
   bool _authentification = false;
   String? password;
-  final PlayerField playerField;
-  final BattleField battleField;
-  final int connectionId;
-  final WebSocketChannel webSocket;
+  PlayerField playerField;
+  BattleField battleField;
+
+  PlayerState previousState = PlayerConnecting();
+
+  final Connection connection;
 
   final DatabaseBloc _dbBloc;
 
-  StreamController<String> playerInput = StreamController<String>.broadcast();
+  Timer? _disconnectTimer;
 
-  Player({required this.connectionId, required this.webSocket})
+  StreamController<String> playerIngameInput =
+      StreamController<String>.broadcast();
+
+  Player(this.connection)
       : playerField = PlayerField(),
         battleField = BattleField(),
         _dbBloc = DatabaseBloc(),
         super(PlayerConnecting());
 
+  @override
+  void onChange(Change<PlayerState> change) {
+    super.onChange(change);
+    previousState = change.currentState;
+
+    if (change.nextState is PlayerEnteringName) {
+      send(Messages.enterName);
+    }
+
+    if (change.nextState is PlayerInMenu) {
+      send(Menu.mainMenu);
+    }
+
+    if (change.nextState is PlayerInQueue) {
+      send(Menu.inQueue);
+    }
+
+    if (change.nextState is PlayerSelectingShipsPlacement) {
+      playerField.init();
+      send(Menu.howtoPlaceShips);
+    }
+
+    if (change.nextState is PlayerSelectShipStart) {
+      var ship = playerField.nextShip;
+      if (ship != null) {
+        send(playerField.toString());
+        send(Menu.placingShip(ship, playerField.countShips(ship.size)));
+        send(Menu.shipStartPoint);
+      }
+    }
+
+    if (change.nextState is PlayerSelectShipOrientation) {
+      send(Menu.shipOrientation);
+    }
+
+    if (change.nextState is PlayerPlacingShipsConfimation) {
+      send(playerField.toString());
+      send(Menu.confirmShipsPlacement);
+    }
+
+    if (change.nextState is PlayerDoShot) {
+      send(fields());
+      send(Menu.doShot);
+    }
+
+    if (change.nextState is PlayerAwaiting) {
+      send(fields());
+      send(Messages.awaitingPlayer);
+    }
+
+    if (change.nextState is PlayerAuthorizing) {
+      send(Messages.enterPassword);
+    }
+
+    if (change.nextState is PlayerRegistering) {
+      send(Menu.createNewAccount);
+    }
+
+    if (change.nextState is PlayerSettingPassword) {
+      send(Messages.setPassword);
+    }
+
+    if (change.nextState is PlayerRepeatingPassword) {
+      send(Messages.repeatPassword);
+    }
+
+    if (change.nextState is PlayerDisconnected) {
+      //ToDo: countdown duration to config file
+      _disconnectTimer = Timer(Duration(seconds: 60), () {
+        emit(PlayerRemove());
+      });
+    }
+  }
+
   bool get isAlive {
     return playerField.isShipsExists;
+  }
+
+  void copyFromPlayer(Player player) {
+    playerField = player.playerField;
+    battleField = player.battleField;
+
+    if (player.state is PlayerDisconnected) {
+      emit(player.previousState);
+    } else {
+      emit(PlayerInMenu());
+    }
   }
 
   bool get isAuthenticated => _authentification;
@@ -48,70 +139,9 @@ class Player extends Cubit<PlayerState> {
     battleField.initField();
   }
 
-  void setState(PlayerState state) {
-    if (state is PlayerInMenu) {
-      send(Menu.mainMenu);
-    }
-
-    if (state is PlayerInQueue) {
-      send(Menu.inQueue);
-    }
-
-    if (state is PlayerSelectingShipsPlacement) {
-      playerField.init();
-      send(Menu.howtoPlaceShips);
-    }
-
-    if (state is PlayerSelectShipStart) {
-      var ship = playerField.nextShip;
-      if (ship != null) {
-        send(playerField.toString());
-        send(Menu.placingShip(ship, playerField.countShips(ship.size)));
-        send(Menu.shipStartPoint);
-      }
-    }
-
-    if (state is PlayerSelectShipOrientation) {
-      send(Menu.shipOrientation);
-    }
-
-    if (state is PlayerPlacingShipsConfimation) {
-      send(playerField.toString());
-      send(Menu.confirmShipsPlacement);
-    }
-
-    if (state is PlayerDoShot) {
-      send(fields());
-      send(Menu.doShot);
-    }
-
-    if (state is PlayerAwaiting) {
-      send(fields());
-      send(Messages.awaitingPlayer);
-    }
-
-    if (state is PlayerAuthorizing) {
-      send(Messages.enterPassword);
-    }
-
-    if (state is PlayerRegistering) {
-      send(Menu.createNewAccount);
-    }
-
-    if (state is PlayerSettingPassword) {
-      send(Messages.setPassword);
-    }
-
-    if (state is PlayerRepeatingPassword) {
-      send(Messages.repeatPassword);
-    }
-
-    emit(state);
-  }
-
   /// Send message to player
   void send(String message) {
-    webSocket.sink.add(message);
+    connection.webSocket.sink.add(message);
   }
 
   String fields() {
@@ -122,5 +152,14 @@ class Player extends Cubit<PlayerState> {
       field.add(battleFieldList[i] + '     ' + playerFieldList[i]);
     }
     return field.join('\r\n');
+  }
+
+  @override
+  Future<void> close() {
+    _disconnectTimer?.cancel();
+    playerIngameInput.done;
+    connection.webSocket.sink
+        .close(status.normalClosure, 'Another peer connected');
+    return super.close();
   }
 }

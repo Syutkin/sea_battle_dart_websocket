@@ -7,6 +7,13 @@ class PlayerConnecting extends PlayerState {
   }
 }
 
+class PlayerEnteringName extends PlayerConnecting {
+  @override
+  String toString() {
+    return 'Вводит имя';
+  }
+}
+
 class PlayerAuthorizing extends PlayerConnecting {
   @override
   String toString() {
@@ -39,6 +46,13 @@ class PlayerDisconnected extends PlayerState {
   @override
   String toString() {
     return 'Отключён';
+  }
+}
+
+class PlayerRemove extends PlayerState {
+  @override
+  String toString() {
+    return 'Удаление подключения к серверу';
   }
 }
 
