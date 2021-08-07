@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:ansicolor/ansicolor.dart';
 import 'package:shelf/shelf_io.dart' as shelf_io;
 import 'package:shelf_web_socket/shelf_web_socket.dart';
@@ -15,11 +17,8 @@ import 'strings.dart';
 
 /// Class [Server] implement websocket server for application
 class Server {
-  /// Server bind port
-  int port;
-
-  /// Server address
-  String address;
+  /// Server bind uri
+  Uri uri;
 
   /// Active connections
   Map<int, Connection> connections = <int, Connection>{};
@@ -381,12 +380,9 @@ class Server {
   }
 
   /// Server constructor
-  /// param [address]
-  /// param [port]
-  Server.bind({
-    required this.address,
-    required this.port,
-  }) : _dbBloc = DatabaseBloc() {
+  /// param [uri]
+  Server.bind(this.uri, {SecurityContext? securityContext})
+      : _dbBloc = DatabaseBloc() {
     var connectionHandler = webSocketHandler((WebSocketChannel webSocket,
         {pingInterval = const Duration(seconds: 5)}) {
       var connectionId = connectionCount;
@@ -419,8 +415,12 @@ class Server {
       player.emit(PlayerEnteringName());
     });
 
-    shelf_io.serve(connectionHandler, address, port).then((server) {
-      print('Serving at ws://${server.address.host}:${server.port}');
+    shelf_io
+        .serve(connectionHandler, uri.host, uri.port,
+            securityContext: securityContext)
+        .then((server) {
+      print(
+          'Serving at ${securityContext == null ? "ws" : "wss"}://${server.address.host}:${server.port}');
     });
   }
 }

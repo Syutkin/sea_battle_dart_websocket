@@ -1,9 +1,11 @@
+import 'dart:io';
+
 import 'package:ansicolor/ansicolor.dart';
 import 'package:args/args.dart';
 
 import 'models/server.dart';
 
-const serverVersion = '1.2.0';
+const serverVersion = '1.3.0';
 
 void main(List<String> arguments) {
   const urlParamName = 'url';
@@ -11,13 +13,21 @@ void main(List<String> arguments) {
   const helpParamName = 'help';
   const versionParamName = 'version';
 
+  const certParamName = 'cert';
+  const keyParamName = 'key';
+
+  SecurityContext? securityContext;
+
   // for ansi color output
   ansiColorDisabled = false;
 
   final parser = ArgParser();
 
   parser.addSeparator('Sea Battle server $serverVersion.\n\n'
-      'Usage: sea_battle_server [--version] [--help] [--url=<url>]\n\n'
+      'Usage: sea_battle_server [--version] [--help] '
+      '[--$urlParamName=<$urlParamName>] '
+      '[--$certParamName=<$certParamName>] '
+      '[--$keyParamName=<$keyParamName>]\n\n'
       'Global options:');
 
   parser.addFlag(
@@ -43,6 +53,20 @@ void main(List<String> arguments) {
         'where protocol can be ws or wss',
   );
 
+  parser.addOption(
+    certParamName,
+    abbr: 'c',
+    valueHelp: certParamName,
+    help: 'full path to ssl certificate and chain',
+  );
+
+  parser.addOption(
+    keyParamName,
+    abbr: 'k',
+    valueHelp: keyParamName,
+    help: 'full path to ssl key',
+  );
+
   var argResults = parser.parse(arguments);
 
   if (argResults[helpParamName]) {
@@ -57,5 +81,14 @@ void main(List<String> arguments) {
 
   print('Starting Sea Battle server, version $serverVersion');
   var uri = Uri.tryParse(argResults[urlParamName]) ?? Uri.parse(defaultUrl);
-  Server.bind(address: uri.host, port: uri.port);
+
+  if (uri.scheme == 'wss' &&
+      argResults[certParamName] != null &&
+      argResults[keyParamName] != null) {
+    securityContext = SecurityContext()
+      ..useCertificateChain(argResults[certParamName])
+      ..usePrivateKey(argResults[keyParamName]);
+  }
+
+  Server.bind(uri, securityContext: securityContext);
 }
