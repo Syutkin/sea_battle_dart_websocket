@@ -93,7 +93,7 @@ class Server {
     if (players[connectionId]?.isAuthenticated ?? false) {
       //ToDo: get rid of this magic number
       // 1 - player disconnected
-      await _dbBloc.addUserLogin(players[connectionId]!.id!, 1);
+      await _dbBloc.db.addUserLogin(players[connectionId]!.id!, 1);
       print('Player ${players[connectionId]?.name} disconnected');
     } else {
       print('Connection $connectionId disconnected');
@@ -197,7 +197,7 @@ class Server {
         // подтверждение нового пароля
         if (player.password == message) {
           // Add new user
-          player.id = await _dbBloc.addUser(
+          player.id = await _dbBloc.db.addUser(
               player.name!, hash(player.password!, player.name!));
           _playerLogin(player);
           return;
@@ -232,7 +232,7 @@ class Server {
     }
 
     // after that log all messages from users
-    _dbBloc.addUserInput(player.id!, message);
+    _dbBloc.db.addUserInput(player.id!, message);
 
     if (message.startsWith('/pm ')) {
       _pmChat(player, message.replaceFirst('/pm ', ''));
@@ -254,7 +254,7 @@ class Server {
   void _playerLogin(Player player) async {
     //ToDo: get rid of this magic number
     // 0 - player logged in
-    await _dbBloc.addUserLogin(player.id!, 0);
+    await _dbBloc.db.addUserLogin(player.id!, 0);
     print(
         'Connection ${player.connection.connectionId} is player: ${player.name}');
     send(player, Messages.welcome(player));

@@ -55,7 +55,29 @@ class Game extends Cubit<GameState> {
     player1.send(Messages.gameFound('${player2.name}'));
     player2.send(Messages.gameFound('${player1.name}'));
 
-    //ToDo: personal score
+    // Inform users about personal encounters
+    var encounters =
+        await _dbBloc.db.personalEncounters(player1.id!, player2.id!).get();
+
+    if (encounters.isNotEmpty) {
+      var total = 0;
+      var wins1 = 0;
+      var wins2 = 0;
+      encounters.forEach((element) {
+        total += element.wins;
+        if (element.winner == player1.id) {
+          wins1 = element.wins;
+        } else {
+          wins2 = element.wins;
+        }
+      });
+
+      player1.send(Messages.personalEncounters(total, wins1) + '\n');
+      player2.send(Messages.personalEncounters(total, wins2) + '\n');
+    } else {
+      player1.send(Messages.haventMet + '\n');
+      player2.send(Messages.haventMet + '\n');
+    }
 
     player1.init();
     player2.init();
@@ -66,7 +88,7 @@ class Game extends Cubit<GameState> {
       _currentPlayer = anotherPlayer(_currentPlayer);
     }
 
-    id = await _dbBloc.addGame(player1.id!, player2.id!);
+    id = await _dbBloc.db.addGame(player1.id!, player2.id!);
 
     print('Game $id started: ${player1.name} vs ${player2.name}');
 
@@ -124,8 +146,8 @@ class Game extends Cubit<GameState> {
         if (!anotherPlayer(player).isAlive) {
           //ToDo: get rid of this magic number
           // 1 - game ended
-          await _dbBloc.setGameResult(
-              1, player.id, anotherPlayer(player).id, id);
+          await _dbBloc.db
+              .setGameResult(1, player.id, anotherPlayer(player).id, id);
           final pen = AnsiPen()..red();
           player.send(pen(Messages.winner));
           player.emit(PlayerInMenu());
@@ -147,7 +169,8 @@ class Game extends Cubit<GameState> {
       if (state is PlayerRemove) {
         //ToDo: get rid of this magic number
         // 2 - game ended with disconnect
-        await _dbBloc.setGameResult(2, anotherPlayer(player).id, player.id, id);
+        await _dbBloc.db
+            .setGameResult(2, anotherPlayer(player).id, player.id, id);
         // anotherPlayer(player).send(Messages.opponentDisconnected);
         final pen = AnsiPen()..red();
         anotherPlayer(player).send(pen(Messages.winner));
@@ -214,7 +237,7 @@ class Game extends Cubit<GameState> {
           final pen = AnsiPen()..red();
           if (shotResult.ship.isAlive) {
             //ship is alive
-            _dbBloc.addInGameUserInput(
+            _dbBloc.db.addInGameUserInput(
                 id, player.id!, coordinates.toString(), 'hit');
             player.send(Messages.playerDoShot(coordinates));
             anotherPlayer(player)
@@ -223,7 +246,7 @@ class Game extends Cubit<GameState> {
             anotherPlayer(player).send(pen(Messages.hit));
           } else {
             //ship dead
-            _dbBloc.addInGameUserInput(
+            _dbBloc.db.addInGameUserInput(
                 id, player.id!, coordinates.toString(), 'kill');
             player.send(Messages.playerDoShot(coordinates));
             anotherPlayer(player)
@@ -234,7 +257,7 @@ class Game extends Cubit<GameState> {
           anotherPlayer(player).emit(PlayerAwaiting());
           player.emit(PlayerDoShot());
         } else if (shotResult is EmptyCell) {
-          _dbBloc.addInGameUserInput(
+          _dbBloc.db.addInGameUserInput(
               id, player.id!, coordinates.toString(), 'miss');
 
           final pen = AnsiPen()..blue();

@@ -2051,9 +2051,48 @@ abstract class _$Database extends GeneratedDatabase {
     );
   }
 
+  Selectable<PersonalEncountersResult> personalEncounters(
+      int player1id, int player2id) {
+    return customSelect(
+        'SELECT player1, player2, result, winner, looser, COUNT(winner) AS wins\n					FROM games\n					WHERE (games.player1 = :player1id OR games.player1 = :player2id) AND (games.player2 = :player1id OR games.player2 = :player2id) AND result > 0\n					GROUP BY winner',
+        variables: [
+          Variable<int>(player1id),
+          Variable<int>(player2id)
+        ],
+        readsFrom: {
+          games,
+        }).map((QueryRow row) {
+      return PersonalEncountersResult(
+        player1: row.read<int>('player1'),
+        player2: row.read<int>('player2'),
+        result: row.read<int>('result'),
+        winner: row.read<int?>('winner'),
+        looser: row.read<int?>('looser'),
+        wins: row.read<int>('wins'),
+      );
+    });
+  }
+
   @override
   Iterable<TableInfo> get allTables => allSchemaEntities.whereType<TableInfo>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities =>
       [roles, users, statuses, usersinput, logins, games, gamelogs];
+}
+
+class PersonalEncountersResult {
+  final int player1;
+  final int player2;
+  final int result;
+  final int? winner;
+  final int? looser;
+  final int wins;
+  PersonalEncountersResult({
+    required this.player1,
+    required this.player2,
+    required this.result,
+    this.winner,
+    this.looser,
+    required this.wins,
+  });
 }

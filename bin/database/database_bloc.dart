@@ -27,28 +27,30 @@ class DatabaseBloc {
     return db.getPassword(id).getSingleOrNull();
   }
 
-  Future<int> addUser(String name, String? password) {
-    return db.addUser(name, password);
-  }
+  // Future<int> addUser(String name, String? password) {
+  //   return db.addUser(name, password);
+  // }
 
-  Future<int> addUserInput(int user, String input) {
-    return db.addUserInput(user, input);
-  }
+  // Future<int> addUserInput(int user, String input) {
+  //   return db.addUserInput(user, input);
+  // }
 
-  Future<int> addUserLogin(int user, int connection) {
-    return db.addUserLogin(user, connection);
-  }
+  // Future<int> addUserLogin(int user, int connection) {
+  //   return db.addUserLogin(user, connection);
+  // }
 
-  Future<int> addGame(int player1, int player2) {
-    return db.addGame(player1, player2);
-  }
+  // Future<int> addGame(int player1, int player2) {
+  //   return db.addGame(player1, player2);
+  // }
 
-  Future<int> setGameResult(int result, int? winner, int? looser, int? id) {
-    return db.setGameResult(result, winner, looser, id);
-  }
+  // Future<int> setGameResult(int result, int? winner, int? looser, int? id) {
+  //   return db.setGameResult(result, winner, looser, id);
+  // }
 
-  Future<int> addInGameUserInput(
-      int game, int user, String input, String result) {
-    return db.addInGameUserInput(game, user, input, result);
-  }
+  // Future<int> addInGameUserInput(
+  //     int game, int user, String input, String result) {
+  //   return db.addInGameUserInput(game, user, input, result);
+  // }
+
+
 }

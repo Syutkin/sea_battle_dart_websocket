@@ -42,6 +42,12 @@ class Messages {
     return 'Игра найдена, ваш соперник: $playerName';
   }
 
+  static const String haventMet = 'Вы ранее не встречались с этим соперником';
+
+  static String personalEncounters(int total, int wins) {
+    return 'Вы встречались $total раз и одержали $wins побед';
+  }
+
   static const String incorrectInput = 'Неверный ввод';
 
   static const String cannotPlaceShip = 'Не удалось разместить корабль';

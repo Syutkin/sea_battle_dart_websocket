@@ -5,7 +5,7 @@ import 'package:args/args.dart';
 
 import 'models/server.dart';
 
-const serverVersion = '1.3.0';
+const serverVersion = '1.3.1';
 
 void main(List<String> arguments) {
   const urlParamName = 'url';

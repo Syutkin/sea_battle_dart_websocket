@@ -72,7 +72,10 @@ addUserLogin: 		INSERT INTO logins (date, user, connection) VALUES (strftime('%s
 addGame:			INSERT INTO games (datestarted, player1, player2) VALUES (strftime('%s','now'), :player1, :player2);
 setGameResult: 		UPDATE games SET datefinished = strftime('%s','now'), result = :result, winner = :winner, looser = :looser WHERE id = :id;
 addInGameUserInput: INSERT INTO gamelogs (date, game, user, input, result) VALUES (strftime('%s','now'), :game, :user, :input, :result);
-
+personalEncounters:	SELECT player1, player2, result, winner, looser, COUNT(winner) AS wins
+					FROM games
+					WHERE (games.player1 = :player1id OR games.player1 = :player2id) AND (games.player2 = :player1id OR games.player2 = :player2id) AND result > 0
+					GROUP BY winner;
 
 -- Change id to names
 /*
