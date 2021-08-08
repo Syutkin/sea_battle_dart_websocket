@@ -197,8 +197,8 @@ class Server {
         // подтверждение нового пароля
         if (player.password == message) {
           // Add new user
-          player.id = await _dbBloc.db.addUser(
-              player.name!, hash(player.password!, player.name!));
+          player.id = await _dbBloc.db
+              .addUser(player.name!, hash(player.password!, player.name!));
           _playerLogin(player);
           return;
         } else {
@@ -234,13 +234,8 @@ class Server {
     // after that log all messages from users
     _dbBloc.db.addUserInput(player.id!, message);
 
-    if (message.startsWith('/pm ')) {
-      _pmChat(player, message.replaceFirst('/pm ', ''));
-      return;
-    }
-
-    if (message == '/cells') {
-      _showGameStat(player);
+    if (message.startsWith('/')) {
+      _commandsParser(player, message);
       return;
     }
 
@@ -296,7 +291,30 @@ class Server {
     }
   }
 
-  /// Shows current game statistics to player
+  void _showPlayerStat(Player player) async {
+    var games = await _dbBloc.db.playerGames(player.id!).get();
+    var gamesCount = games.length;
+    var wins = await _dbBloc.db.playerWins(player.id!).getSingle();
+
+    if (gamesCount > 0) {
+      player.send(Messages.gamesPlayed(gamesCount, wins) + '\n');
+
+      // Show only 25 last games
+      if (gamesCount > 25) {
+        gamesCount = 25;
+      }
+    // ToDo: pretty formatting
+      player.send(Messages.lastGames(gamesCount));
+      for (var i = 0; i < gamesCount; i++) {
+        player.send(Messages.gameInfo(games[i].startTime, games[i].duration,
+            games[i].enemyname, player.id == games[i].winner));
+      }
+    } else {
+      player.send(Messages.gamesNotPlayed);
+    }
+  }
+
+  /// Ingame chat
   void _pmChat(Player player, String message) {
     if (message.isNotEmpty) {
       var playerName = message.split(' ')[0];
@@ -313,6 +331,25 @@ class Server {
           player.send(pen(Messages.playerNotFound(playerName)));
         }
       }
+    }
+  }
+
+  /// Command parser
+  ///
+  /// Command is a message starting with "/"
+  void _commandsParser(Player player, String message) {
+    if (message.startsWith('/pm ')) {
+      _pmChat(player, message.replaceFirst('/pm ', ''));
+      return;
+    }
+
+    if (message == '/cells') {
+      _showGameStat(player);
+      return;
+    }
+    if (message == '/stat') {
+      _showPlayerStat(player);
+      return;
     }
   }
 

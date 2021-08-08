@@ -1,5 +1,6 @@
 import 'package:duration/duration.dart';
 import 'package:duration/locale.dart';
+import 'package:intl/intl.dart';
 
 import 'coordinates.dart';
 import 'player.dart';
@@ -135,6 +136,35 @@ class Messages {
   static String gamesCount(int games) {
     return 'Игр сыграно: $games';
   }
+
+  // Player info
+  static String gamesPlayed(int gamesCount, int wins) {
+    return 'Сыграно $gamesCount игр, побед $wins, поражений ${gamesCount - wins}';
+  }
+
+  static String lastGames(int gamesCount) {
+    return 'Последние $gamesCount игр:';
+  }
+
+  static String gameInfo(
+    String startTime,
+    String duration,
+    String enemy,
+    bool win,
+  ) {
+    final _startTime = DateTime.parse(startTime);
+    final _duration = parseTime(duration + '.0');
+
+    return '${DateFormat.yMd('ru').format(_startTime)}, '
+        'длительность: ${prettyDuration(
+      _duration,
+      locale: DurationLocale.fromLanguageCode('ru') ?? EnglishDurationLocale(),
+    )}, '
+        'соперник: $enemy, '
+        '${win ? 'победа' : 'поражение'}';
+  }
+
+  static const String gamesNotPlayed = 'Вы ещё не сыграли ни одной игры';
 
   // chat
   static String playerWroteToYou(String name, String message) {

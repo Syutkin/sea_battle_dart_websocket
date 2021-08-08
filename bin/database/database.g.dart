@@ -2073,6 +2073,42 @@ abstract class _$Database extends GeneratedDatabase {
     });
   }
 
+  Selectable<PlayerGamesResult> playerGames(int playerid) {
+    return customSelect(
+        'SELECT	datetime(datestarted, \'unixepoch\') AS start_time,\n							datetime(datefinished, \'unixepoch\') AS finish_time,\n							time(datefinished - datestarted, \'unixepoch\') AS duration,\n							CASE games.player1\n								WHEN :playerid\n								THEN games.player2\n								ELSE games.player1\n							END enemy,\n							enemy.name as enemyname,\n							winner,\n							winner.name as winnername,\n							looser,\n							looser.name as loosername,\n							games.result\n					FROM games, users winner, users looser, users enemy\n					WHERE (games.player1 = :playerid OR games.player2 = :playerid) AND (enemy.id = enemy) AND games.winner = winner.id AND games.looser = looser.id AND result > 0\n					ORDER BY start_time DESC',
+        variables: [
+          Variable<int>(playerid)
+        ],
+        readsFrom: {
+          games,
+          users,
+        }).map((QueryRow row) {
+      return PlayerGamesResult(
+        startTime: row.read<String>('start_time'),
+        finishTime: row.read<String>('finish_time'),
+        duration: row.read<String>('duration'),
+        enemy: row.read<int>('enemy'),
+        enemyname: row.read<String>('enemyname'),
+        winner: row.read<int?>('winner'),
+        winnername: row.read<String>('winnername'),
+        looser: row.read<int?>('looser'),
+        loosername: row.read<String>('loosername'),
+        result: row.read<int>('result'),
+      );
+    });
+  }
+
+  Selectable<int> playerWins(int? playerid) {
+    return customSelect(
+        'SELECT count() as wins FROM games WHERE winner = :playerid',
+        variables: [
+          Variable<int?>(playerid)
+        ],
+        readsFrom: {
+          games,
+        }).map((QueryRow row) => row.read<int>('wins'));
+  }
+
   @override
   Iterable<TableInfo> get allTables => allSchemaEntities.whereType<TableInfo>();
   @override
@@ -2094,5 +2130,30 @@ class PersonalEncountersResult {
     this.winner,
     this.looser,
     required this.wins,
+  });
+}
+
+class PlayerGamesResult {
+  final String startTime;
+  final String finishTime;
+  final String duration;
+  final int enemy;
+  final String enemyname;
+  final int? winner;
+  final String winnername;
+  final int? looser;
+  final String loosername;
+  final int result;
+  PlayerGamesResult({
+    required this.startTime,
+    required this.finishTime,
+    required this.duration,
+    required this.enemy,
+    required this.enemyname,
+    this.winner,
+    required this.winnername,
+    this.looser,
+    required this.loosername,
+    required this.result,
   });
 }

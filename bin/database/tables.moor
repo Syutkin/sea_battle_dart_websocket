@@ -76,6 +76,24 @@ personalEncounters:	SELECT player1, player2, result, winner, looser, COUNT(winne
 					FROM games
 					WHERE (games.player1 = :player1id OR games.player1 = :player2id) AND (games.player2 = :player1id OR games.player2 = :player2id) AND result > 0
 					GROUP BY winner;
+playerGames:		SELECT	datetime(datestarted, 'unixepoch') AS start_time,
+							datetime(datefinished, 'unixepoch') AS finish_time,
+							time(datefinished - datestarted, 'unixepoch') AS duration,
+							CASE games.player1
+								WHEN :playerid
+								THEN games.player2
+								ELSE games.player1
+							END enemy,
+							enemy.name as enemyname,
+							winner,
+							winner.name as winnername,
+							looser,
+							looser.name as loosername,
+							games.result
+					FROM games, users winner, users looser, users enemy
+					WHERE (games.player1 = :playerid OR games.player2 = :playerid) AND (enemy.id = enemy) AND games.winner = winner.id AND games.looser = looser.id AND result > 0
+					ORDER BY start_time DESC;	
+playerWins:			SELECT count() as wins FROM games WHERE winner = :playerid;
 
 -- Change id to names
 /*
