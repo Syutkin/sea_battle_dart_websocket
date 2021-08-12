@@ -185,9 +185,9 @@ class PlayerInfoI18n {
     String result,
   ) {
     return Intl.message(
-      '$startTime, '
-      'длительность: $duration, '
-      'соперник: $enemy, '
+      '$startTime '
+      'длительность: $duration '
+      'соперник: $enemy '
       '$result',
       name: 'PlayerInfoI18n_gameInfo',
       args: [startTime, duration, enemy, result],

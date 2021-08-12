@@ -314,27 +314,51 @@ class Server {
       if (gamesCount > 25) {
         gamesCount = 25;
       }
-      // ToDo: pretty formatting
+
+      // Get max strings length for pretty output
+      var startDate = <String>[];
+      var duration = <String>[];
+      var enemyname = <String>[];
+      var dateLength = 0;
+      var durationLength = 0;
+      var enemynameLength = 0;
+
+      for (var i = 0; i < gamesCount; i++) {
+        startDate.add(DateFormat.yMd(player.language.short)
+            .format(DateTime.parse(games[i].startTime)));
+        duration.add(prettyDuration(parseTime(games[i].duration + '.0'),
+            locale: player.durationLocale));
+        enemyname.add(games[i].enemyname);
+        dateLength = _getMax(dateLength, startDate[i].length);
+        durationLength = _getMax(durationLength, duration[i].length);
+        enemynameLength = _getMax(enemynameLength, enemyname[i].length);
+      }
+
+      // plus 1 for trailing comma
+      dateLength++;
+      durationLength++;
+      enemynameLength++;
+
       player.sendLocalized(() => PlayerInfoI18n.lastGames(gamesCount));
       for (var i = 0; i < gamesCount; i++) {
-        // format startTime and duration to players locale
-        final startTime = DateFormat.yMd(player.language.short)
-            .format(DateTime.parse(games[i].startTime));
-        final duration = prettyDuration(
-          parseTime(games[i].duration + '.0'),
-          locale: player.durationLocale,
-        );
-
         player.sendLocalized(() => PlayerInfoI18n.gameInfo(
-            startTime,
-            duration,
-            games[i].enemyname,
+            (startDate[i] + ',').padRight(dateLength),
+            (duration[i] + ',').padRight(durationLength),
+            (games[i].enemyname + ',').padRight(enemynameLength),
             player.id == games[i].winner
                 ? PlayerInfoI18n.gameResultWin
                 : PlayerInfoI18n.gameResultDefeat));
       }
     } else {
       player.sendLocalized(() => PlayerInfoI18n.gamesNotPlayed);
+    }
+  }
+
+  int _getMax(int max, int number) {
+    if (max >= number) {
+      return max;
+    } else {
+      return number;
     }
   }
 

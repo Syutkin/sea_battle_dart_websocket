@@ -173,7 +173,7 @@
       "language": {}
     }
   },
-  "PlayerInfoI18n_gameInfo": "{startTime}, duration: {duration}, enemy: {enemy}, {result}",
+  "PlayerInfoI18n_gameInfo": "{startTime} duration: {duration} enemy: {enemy} {result}",
   "@PlayerInfoI18n_gameInfo": {
     "type": "text",
     "placeholders": {

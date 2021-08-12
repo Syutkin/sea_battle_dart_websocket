@@ -43,7 +43,7 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static m11(language) => "Текущий язык: ${language}";
 
-  static m12(startTime, duration, enemy, result) => "${startTime}, длительность: ${duration}, соперник: ${enemy}, ${result}";
+  static m12(startTime, duration, enemy, result) => "${startTime} длительность: ${duration} соперник: ${enemy} ${result}";
 
   static m13(gamesCount, wins, defeats) => "${Intl.plural(gamesCount, zero: '', one: 'Сыграна ${gamesCount} игра, побед ${wins}, поражений ${defeats}', few: 'Сыграно ${gamesCount} игры, побед ${wins}, поражений ${defeats}', many: 'Сыграно ${gamesCount} игр, побед ${wins}, поражений ${defeats}', other: 'Сыграно ${gamesCount} игр, побед ${wins}, поражений ${defeats}')}";
 
