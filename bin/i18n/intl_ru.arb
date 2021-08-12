@@ -1,0 +1,319 @@
+{
+  "@@locale": "ru",
+  "ChatI18n_playerNotFound": "Игрок {name} не найден",
+  "@ChatI18n_playerNotFound": {
+    "type": "text",
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "ChatI18n_playerWroteToYou": "{name} пишет вам: {message}",
+  "@ChatI18n_playerWroteToYou": {
+    "type": "text",
+    "placeholders": {
+      "name": {},
+      "message": {}
+    }
+  },
+  "ChatI18n_youWroteToPlayer": "Игроку {name}: {message}",
+  "@ChatI18n_youWroteToPlayer": {
+    "type": "text",
+    "placeholders": {
+      "name": {},
+      "message": {}
+    }
+  },
+  "GameI18n_awaitingPlayer": "Ожидание другого игрока",
+  "@GameI18n_awaitingPlayer": {
+    "type": "text"
+  },
+  "GameI18n_cannotPlaceShip": "Не удалось разместить корабль",
+  "@GameI18n_cannotPlaceShip": {
+    "type": "text"
+  },
+  "GameI18n_cellsAwailable": "Доступных клеток для выстрела: {battleFieldCells}, у противника: {playerFieldCells}",
+  "@GameI18n_cellsAwailable": {
+    "type": "text",
+    "placeholders": {
+      "battleFieldCells": {},
+      "playerFieldCells": {}
+    }
+  },
+  "GameI18n_confirmShipsPlacement": "Подтверждение расстановки: 1 - всё верно; 2 - расставить заново",
+  "@GameI18n_confirmShipsPlacement": {
+    "type": "text"
+  },
+  "GameI18n_doShot": "Введите координаты выстрела",
+  "@GameI18n_doShot": {
+    "type": "text"
+  },
+  "GameI18n_enemyDoShot": "{name} делает выстрел на {coordinates}",
+  "@GameI18n_enemyDoShot": {
+    "type": "text",
+    "placeholders": {
+      "name": {},
+      "coordinates": {}
+    }
+  },
+  "GameI18n_gameFound": "Игра найдена, ваш соперник: {name}",
+  "@GameI18n_gameFound": {
+    "type": "text",
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "GameI18n_haventMet": "Вы ранее не встречались с этим соперником",
+  "@GameI18n_haventMet": {
+    "type": "text"
+  },
+  "GameI18n_hit": "Попадание! Корабль ранен",
+  "@GameI18n_hit": {
+    "type": "text"
+  },
+  "GameI18n_howtoPlaceShips": "Как расставить корабли: 1 - вручную; 2 - автоматически",
+  "@GameI18n_howtoPlaceShips": {
+    "type": "text"
+  },
+  "GameI18n_incorrectInput": "Неверный ввод",
+  "@GameI18n_incorrectInput": {
+    "type": "text"
+  },
+  "GameI18n_looser": "Поражение!",
+  "@GameI18n_looser": {
+    "type": "text"
+  },
+  "GameI18n_miss": "Мимо",
+  "@GameI18n_miss": {
+    "type": "text"
+  },
+  "GameI18n_opponentDisconnected": "Соединение с противником потеряно, ожидаем переподключения...",
+  "@GameI18n_opponentDisconnected": {
+    "type": "text"
+  },
+  "GameI18n_personalEncountersAnd": "и",
+  "@GameI18n_personalEncountersAnd": {
+    "type": "text"
+  },
+  "GameI18n_personalEncountersMeets": "{total, plural, zero{} one{Вы встречались {total} раз} few{Вы встречались {total} раза} many{Вы встречались {total} раз} other{Вы встречались {total} раз}}",
+  "@GameI18n_personalEncountersMeets": {
+    "type": "text",
+    "placeholders": {
+      "total": {}
+    }
+  },
+  "GameI18n_personalEncountersWins": "{wins, plural, zero{} one{одержали {wins} побед} few{одержали {wins} победы} many{одержали {wins} побед} other{одержали {wins} побед}}",
+  "@GameI18n_personalEncountersWins": {
+    "type": "text",
+    "placeholders": {
+      "wins": {}
+    }
+  },
+  "GameI18n_placingShip": "Расставляем {shipSize}-палубный корабль. Осталось расставить: {shipsLeft}",
+  "@GameI18n_placingShip": {
+    "type": "text",
+    "placeholders": {
+      "shipSize": {},
+      "shipsLeft": {}
+    }
+  },
+  "GameI18n_playerDoShot": "Вы делаете выстрел на {coordinates}",
+  "@GameI18n_playerDoShot": {
+    "type": "text",
+    "placeholders": {
+      "coordinates": {}
+    }
+  },
+  "GameI18n_playerReconnected": "{name} переподключается к игре",
+  "@GameI18n_playerReconnected": {
+    "type": "text",
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "GameI18n_reconnectingToGame": "Переподключение к текущей игре",
+  "@GameI18n_reconnectingToGame": {
+    "type": "text"
+  },
+  "GameI18n_shipOrientation": "Введите направление: 1 - горизонтально; 2 - вертикально; 0 - расставить оставшиеся корабли автоматически",
+  "@GameI18n_shipOrientation": {
+    "type": "text"
+  },
+  "GameI18n_shipStartPoint": "Введите координату начала корабля; 0 - расставить оставшиеся корабли автоматически",
+  "@GameI18n_shipStartPoint": {
+    "type": "text"
+  },
+  "GameI18n_shootAgain": "Поле уже прострелено, повторите выстрел",
+  "@GameI18n_shootAgain": {
+    "type": "text"
+  },
+  "GameI18n_sunk": "Попадание! Корабль убит",
+  "@GameI18n_sunk": {
+    "type": "text"
+  },
+  "GameI18n_winner": "Победа!",
+  "@GameI18n_winner": {
+    "type": "text"
+  },
+  "GameI18n_wrongCoordinates": "Неверные координаты, задайте заново",
+  "@GameI18n_wrongCoordinates": {
+    "type": "text"
+  },
+  "NotImplementedI18n_notImplemented": "Не реализовано",
+  "@NotImplementedI18n_notImplemented": {
+    "type": "text"
+  },
+  "PlayerInfoI18n_availableLanguages": "Доступные языки:",
+  "@PlayerInfoI18n_availableLanguages": {
+    "type": "text"
+  },
+  "PlayerInfoI18n_currentLanguage": "Текущий язык: {language}",
+  "@PlayerInfoI18n_currentLanguage": {
+    "type": "text",
+    "placeholders": {
+      "language": {}
+    }
+  },
+  "PlayerInfoI18n_gameInfo": "{startTime}, длительность: {duration}, соперник: {enemy}, {result}",
+  "@PlayerInfoI18n_gameInfo": {
+    "type": "text",
+    "placeholders": {
+      "startTime": {},
+      "duration": {},
+      "enemy": {},
+      "result": {}
+    }
+  },
+  "PlayerInfoI18n_gameResultDefeat": "Поражение",
+  "@PlayerInfoI18n_gameResultDefeat": {
+    "type": "text"
+  },
+  "PlayerInfoI18n_gameResultWin": "Победа",
+  "@PlayerInfoI18n_gameResultWin": {
+    "type": "text"
+  },
+  "PlayerInfoI18n_gamesNotPlayed": "Вы ещё не сыграли ни одной игры",
+  "@PlayerInfoI18n_gamesNotPlayed": {
+    "type": "text"
+  },
+  "PlayerInfoI18n_gamesPlayed": "{gamesCount, plural, zero{} one{Сыграна {gamesCount} игра, побед {wins}, поражений {defeats}} few{Сыграно {gamesCount} игры, побед {wins}, поражений {defeats}} many{Сыграно {gamesCount} игр, побед {wins}, поражений {defeats}} other{Сыграно {gamesCount} игр, побед {wins}, поражений {defeats}}}",
+  "@PlayerInfoI18n_gamesPlayed": {
+    "type": "text",
+    "placeholders": {
+      "gamesCount": {},
+      "wins": {},
+      "defeats": {}
+    }
+  },
+  "PlayerInfoI18n_languageChanged": "Язык изменён на {language}",
+  "@PlayerInfoI18n_languageChanged": {
+    "type": "text",
+    "placeholders": {
+      "language": {}
+    }
+  },
+  "PlayerInfoI18n_lastGames": "{gamesCount, plural, zero{} one{Последняя {gamesCount} игра:} few{Последние {gamesCount} игры:} many{Последние {gamesCount} игр:} other{Последние {gamesCount} игр:}}",
+  "@PlayerInfoI18n_lastGames": {
+    "type": "text",
+    "placeholders": {
+      "gamesCount": {}
+    }
+  },
+  "PlayerInfoI18n_wrongLanguage": "Неверный язык",
+  "@PlayerInfoI18n_wrongLanguage": {
+    "type": "text"
+  },
+  "ServerI18n_createNewAccount": "Пользователь с таким именем не найден: 1 - создать нового, 2 - ввести имя заново",
+  "@ServerI18n_createNewAccount": {
+    "type": "text"
+  },
+  "ServerI18n_enterName": "Введите Ваше имя:",
+  "@ServerI18n_enterName": {
+    "type": "text"
+  },
+  "ServerI18n_enterPassword": "Введите пароль",
+  "@ServerI18n_enterPassword": {
+    "type": "text"
+  },
+  "ServerI18n_incorrectPassword": "Неверный пароль",
+  "@ServerI18n_incorrectPassword": {
+    "type": "text"
+  },
+  "ServerI18n_inQueue": "Ожидание игры: 1 - отмена поиска",
+  "@ServerI18n_inQueue": {
+    "type": "text"
+  },
+  "ServerI18n_mainMenu": "Меню: 1 - найти игру; 2 - игроки онлайн; 3 - информация о сервере",
+  "@ServerI18n_mainMenu": {
+    "type": "text"
+  },
+  "ServerI18n_passwordMismatch": "Пароли не совпадают",
+  "@ServerI18n_passwordMismatch": {
+    "type": "text"
+  },
+  "ServerI18n_playerConnected": "{name} заходит на сервер",
+  "@ServerI18n_playerConnected": {
+    "type": "text",
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "ServerI18n_repeatPassword": "Повторите пароль",
+  "@ServerI18n_repeatPassword": {
+    "type": "text"
+  },
+  "ServerI18n_setPassword": "Установите пароль",
+  "@ServerI18n_setPassword": {
+    "type": "text"
+  },
+  "ServerI18n_unknownCommand": "Неизвестная команда",
+  "@ServerI18n_unknownCommand": {
+    "type": "text"
+  },
+  "ServerI18n_welcome": "Добро пожаловать в морской бой, {name}",
+  "@ServerI18n_welcome": {
+    "type": "text",
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "ServerInfoI18n_gamesCount": "Игр сыграно: {games}",
+  "@ServerInfoI18n_gamesCount": {
+    "type": "text",
+    "placeholders": {
+      "games": {}
+    }
+  },
+  "ServerInfoI18n_playersOnline": "Игроков на сервере: {players}, текущих игр: {games}",
+  "@ServerInfoI18n_playersOnline": {
+    "type": "text",
+    "placeholders": {
+      "players": {},
+      "games": {}
+    }
+  },
+  "ServerInfoI18n_serverInfo": "Информация о сервере:",
+  "@ServerInfoI18n_serverInfo": {
+    "type": "text"
+  },
+  "ServerInfoI18n_serverUptime": "Онлайн: {serverUptime}",
+  "@ServerInfoI18n_serverUptime": {
+    "type": "text",
+    "placeholders": {
+      "serverUptime": {}
+    }
+  },
+  "ServerInfoI18n_serverVersion": "Версия: {serverVersion}",
+  "@ServerInfoI18n_serverVersion": {
+    "type": "text",
+    "placeholders": {
+      "serverVersion": {}
+    }
+  },
+  "ServerInfoI18n_usersCount": "Зарегистрировано игроков: {users}",
+  "@ServerInfoI18n_usersCount": {
+    "type": "text",
+    "placeholders": {
+      "users": {}
+    }
+  }
+}

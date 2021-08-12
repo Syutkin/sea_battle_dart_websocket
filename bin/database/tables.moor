@@ -6,8 +6,10 @@ CREATE TABLE "users" (
 	"password"		TEXT,
 	"role"			INTEGER NOT NULL DEFAULT 0,
 	"status"		INTEGER NOT NULL DEFAULT 0,
+	"language"		INTEGER NOT NULL DEFAULT 0,
 	FOREIGN KEY (role) REFERENCES roles (id),
-	FOREIGN KEY (status) REFERENCES roles (id)
+	FOREIGN KEY (status) REFERENCES roles (id),
+	FOREIGN KEY (language) REFERENCES languages (id)
 );
 
 CREATE TABLE "roles" (
@@ -19,6 +21,13 @@ CREATE TABLE "statuses" (
 	"id"			INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 	"name"			TEXT NOT NULL
 ) AS status;
+
+CREATE TABLE "languages" (
+	"id"			INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+	"short"			TEXT NOT NULL,
+	"long"			TEXT NOT NULL,
+	"native"		TEXT NOT NULL
+);
 
 CREATE TABLE "usersinput" (
 	"id"			INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
@@ -93,7 +102,11 @@ playerGames:		SELECT	datetime(datestarted, 'unixepoch') AS start_time,
 					FROM games, users winner, users looser, users enemy
 					WHERE (games.player1 = :playerid OR games.player2 = :playerid) AND (enemy.id = enemy) AND games.winner = winner.id AND games.looser = looser.id AND result > 0
 					ORDER BY start_time DESC;	
-playerWins:			SELECT count() as wins FROM games WHERE winner = :playerid;
+getPlayerWins:		SELECT count() as wins FROM games WHERE winner = :playerid;
+getPlayerLanguage:	SELECT languages.id, languages.short, languages.long, languages.native FROM users, languages WHERE users.id = :playerid AND languages.id = users.language; 
+getLanguage:		SELECT id, short, long, native from languages WHERE id = :language OR short = :language OR long = :language OR native = :language;
+setPlayerLanguage:	UPDATE users SET language = :languageid WHERE id = :playerid;
+getAvailableLanguages:	SELECT * FROM languages;
 
 -- Change id to names
 /*

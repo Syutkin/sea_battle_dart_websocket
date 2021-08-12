@@ -1,0 +1,319 @@
+{
+  "@@locale": "en",
+  "ChatI18n_playerNotFound": "Can not find player {name}",
+  "@ChatI18n_playerNotFound": {
+    "type": "text",
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "ChatI18n_playerWroteToYou": "{name} to you: {message}",
+  "@ChatI18n_playerWroteToYou": {
+    "type": "text",
+    "placeholders": {
+      "name": {},
+      "message": {}
+    }
+  },
+  "ChatI18n_youWroteToPlayer": "to {name}: {message}",
+  "@ChatI18n_youWroteToPlayer": {
+    "type": "text",
+    "placeholders": {
+      "name": {},
+      "message": {}
+    }
+  },
+  "GameI18n_awaitingPlayer": "Waiting for opponent",
+  "@GameI18n_awaitingPlayer": {
+    "type": "text"
+  },
+  "GameI18n_cannotPlaceShip": "Can not place ship",
+  "@GameI18n_cannotPlaceShip": {
+    "type": "text"
+  },
+  "GameI18n_cellsAwailable": "Available cells for the shot: {battleFieldCells}, for opponent: {playerFieldCells}",
+  "@GameI18n_cellsAwailable": {
+    "type": "text",
+    "placeholders": {
+      "battleFieldCells": {},
+      "playerFieldCells": {}
+    }
+  },
+  "GameI18n_confirmShipsPlacement": "Submit placement: 1 - all correct; 2 - set ships again",
+  "@GameI18n_confirmShipsPlacement": {
+    "type": "text"
+  },
+  "GameI18n_doShot": "Enter shot coordinates",
+  "@GameI18n_doShot": {
+    "type": "text"
+  },
+  "GameI18n_enemyDoShot": "{name} take a shot at {coordinates}",
+  "@GameI18n_enemyDoShot": {
+    "type": "text",
+    "placeholders": {
+      "name": {},
+      "coordinates": {}
+    }
+  },
+  "GameI18n_gameFound": "Game started, your opponent: {name}",
+  "@GameI18n_gameFound": {
+    "type": "text",
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "GameI18n_haventMet": "You never met with this opponent",
+  "@GameI18n_haventMet": {
+    "type": "text"
+  },
+  "GameI18n_hit": "Hit! Ship is wounded",
+  "@GameI18n_hit": {
+    "type": "text"
+  },
+  "GameI18n_howtoPlaceShips": "How to place ships: 1 - manual; 2 - automatically",
+  "@GameI18n_howtoPlaceShips": {
+    "type": "text"
+  },
+  "GameI18n_incorrectInput": "Invalid input",
+  "@GameI18n_incorrectInput": {
+    "type": "text"
+  },
+  "GameI18n_looser": "Defeat!",
+  "@GameI18n_looser": {
+    "type": "text"
+  },
+  "GameI18n_miss": "Miss",
+  "@GameI18n_miss": {
+    "type": "text"
+  },
+  "GameI18n_opponentDisconnected": "Lost connection to opponent, awaiting for reconnection...",
+  "@GameI18n_opponentDisconnected": {
+    "type": "text"
+  },
+  "GameI18n_personalEncountersAnd": "and",
+  "@GameI18n_personalEncountersAnd": {
+    "type": "text"
+  },
+  "GameI18n_personalEncountersMeets": "{total, plural, zero{} one{You've met {total} time} other{You've met {total} times}}",
+  "@GameI18n_personalEncountersMeets": {
+    "type": "text",
+    "placeholders": {
+      "total": {}
+    }
+  },
+  "GameI18n_personalEncountersWins": "{wins, plural, zero{} one{won {wins} game} other{won {wins} games}}",
+  "@GameI18n_personalEncountersWins": {
+    "type": "text",
+    "placeholders": {
+      "wins": {}
+    }
+  },
+  "GameI18n_placingShip": "Placing {shipSize}-deck ship. Ships remaining: {shipsLeft}",
+  "@GameI18n_placingShip": {
+    "type": "text",
+    "placeholders": {
+      "shipSize": {},
+      "shipsLeft": {}
+    }
+  },
+  "GameI18n_playerDoShot": "You take a shot at {coordinates}",
+  "@GameI18n_playerDoShot": {
+    "type": "text",
+    "placeholders": {
+      "coordinates": {}
+    }
+  },
+  "GameI18n_playerReconnected": "{name} reconnects to game",
+  "@GameI18n_playerReconnected": {
+    "type": "text",
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "GameI18n_reconnectingToGame": "Reconnecting to current game",
+  "@GameI18n_reconnectingToGame": {
+    "type": "text"
+  },
+  "GameI18n_shipOrientation": "Input orientation: 1 - horizontal; 2 - vertical; 0 - place remaining ships automatically",
+  "@GameI18n_shipOrientation": {
+    "type": "text"
+  },
+  "GameI18n_shipStartPoint": "Enter the coordinate of the beginning of the ship; 0 - place the remaining ships automatically",
+  "@GameI18n_shipStartPoint": {
+    "type": "text"
+  },
+  "GameI18n_shootAgain": "The field has already been shot, repeat the shot",
+  "@GameI18n_shootAgain": {
+    "type": "text"
+  },
+  "GameI18n_sunk": "Hit! Ship destroyed",
+  "@GameI18n_sunk": {
+    "type": "text"
+  },
+  "GameI18n_winner": "Victory!",
+  "@GameI18n_winner": {
+    "type": "text"
+  },
+  "GameI18n_wrongCoordinates": "Invalid coordinates, repeat input",
+  "@GameI18n_wrongCoordinates": {
+    "type": "text"
+  },
+  "NotImplementedI18n_notImplemented": "Not implemented",
+  "@NotImplementedI18n_notImplemented": {
+    "type": "text"
+  },
+  "PlayerInfoI18n_availableLanguages": "Supported languages:",
+  "@PlayerInfoI18n_availableLanguages": {
+    "type": "text"
+  },
+  "PlayerInfoI18n_currentLanguage": "Current language: {language}",
+  "@PlayerInfoI18n_currentLanguage": {
+    "type": "text",
+    "placeholders": {
+      "language": {}
+    }
+  },
+  "PlayerInfoI18n_gameInfo": "{startTime}, duration: {duration}, enemy: {enemy}, {result}",
+  "@PlayerInfoI18n_gameInfo": {
+    "type": "text",
+    "placeholders": {
+      "startTime": {},
+      "duration": {},
+      "enemy": {},
+      "result": {}
+    }
+  },
+  "PlayerInfoI18n_gameResultDefeat": "Defeat",
+  "@PlayerInfoI18n_gameResultDefeat": {
+    "type": "text"
+  },
+  "PlayerInfoI18n_gameResultWin": "Victory",
+  "@PlayerInfoI18n_gameResultWin": {
+    "type": "text"
+  },
+  "PlayerInfoI18n_gamesNotPlayed": "You haven't played any games yet",
+  "@PlayerInfoI18n_gamesNotPlayed": {
+    "type": "text"
+  },
+  "PlayerInfoI18n_gamesPlayed": "{gamesCount, plural, zero{} one{{gamesCount} game played, wins: {wins}, defeats: {defeats}} other{{gamesCount} games played, wins: {wins}, defeats: {defeats}}}",
+  "@PlayerInfoI18n_gamesPlayed": {
+    "type": "text",
+    "placeholders": {
+      "gamesCount": {},
+      "wins": {},
+      "defeats": {}
+    }
+  },
+  "PlayerInfoI18n_languageChanged": "Change language to {language}",
+  "@PlayerInfoI18n_languageChanged": {
+    "type": "text",
+    "placeholders": {
+      "language": {}
+    }
+  },
+  "PlayerInfoI18n_lastGames": "{gamesCount, plural, zero{} one{Last {gamesCount} game:} other{Last {gamesCount} games:}}",
+  "@PlayerInfoI18n_lastGames": {
+    "type": "text",
+    "placeholders": {
+      "gamesCount": {}
+    }
+  },
+  "PlayerInfoI18n_wrongLanguage": "Incorrect language",
+  "@PlayerInfoI18n_wrongLanguage": {
+    "type": "text"
+  },
+  "ServerI18n_createNewAccount": "Can not find registered player with that name: 1 - create new; 2 - enter another name",
+  "@ServerI18n_createNewAccount": {
+    "type": "text"
+  },
+  "ServerI18n_enterName": "Enter your name:",
+  "@ServerI18n_enterName": {
+    "type": "text"
+  },
+  "ServerI18n_enterPassword": "Enter password",
+  "@ServerI18n_enterPassword": {
+    "type": "text"
+  },
+  "ServerI18n_incorrectPassword": "Incorrect password",
+  "@ServerI18n_incorrectPassword": {
+    "type": "text"
+  },
+  "ServerI18n_inQueue": "Awaiting game: 1 - cancel search",
+  "@ServerI18n_inQueue": {
+    "type": "text"
+  },
+  "ServerI18n_mainMenu": "Menu: 1 - find game; 2 - players online; 3 - server info",
+  "@ServerI18n_mainMenu": {
+    "type": "text"
+  },
+  "ServerI18n_passwordMismatch": "Passwords mismatch",
+  "@ServerI18n_passwordMismatch": {
+    "type": "text"
+  },
+  "ServerI18n_playerConnected": "{name} joins the server",
+  "@ServerI18n_playerConnected": {
+    "type": "text",
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "ServerI18n_repeatPassword": "Repeat password",
+  "@ServerI18n_repeatPassword": {
+    "type": "text"
+  },
+  "ServerI18n_setPassword": "Set password",
+  "@ServerI18n_setPassword": {
+    "type": "text"
+  },
+  "ServerI18n_unknownCommand": "Unknown command",
+  "@ServerI18n_unknownCommand": {
+    "type": "text"
+  },
+  "ServerI18n_welcome": "Welcome to Sea Battle, {name}",
+  "@ServerI18n_welcome": {
+    "type": "text",
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "ServerInfoI18n_gamesCount": "Games played: {games}",
+  "@ServerInfoI18n_gamesCount": {
+    "type": "text",
+    "placeholders": {
+      "games": {}
+    }
+  },
+  "ServerInfoI18n_playersOnline": "Players online: {players}, current games: {games}",
+  "@ServerInfoI18n_playersOnline": {
+    "type": "text",
+    "placeholders": {
+      "players": {},
+      "games": {}
+    }
+  },
+  "ServerInfoI18n_serverInfo": "Server info:",
+  "@ServerInfoI18n_serverInfo": {
+    "type": "text"
+  },
+  "ServerInfoI18n_serverUptime": "Online: {serverUptime}",
+  "@ServerInfoI18n_serverUptime": {
+    "type": "text",
+    "placeholders": {
+      "serverUptime": {}
+    }
+  },
+  "ServerInfoI18n_serverVersion": "Version: {serverVersion}",
+  "@ServerInfoI18n_serverVersion": {
+    "type": "text",
+    "placeholders": {
+      "serverVersion": {}
+    }
+  },
+  "ServerInfoI18n_usersCount": "Registered players: {users}",
+  "@ServerInfoI18n_usersCount": {
+    "type": "text",
+    "placeholders": {
+      "users": {}
+    }
+  }
+}

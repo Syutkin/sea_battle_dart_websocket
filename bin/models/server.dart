@@ -1,6 +1,9 @@
 import 'dart:io';
 
 import 'package:ansicolor/ansicolor.dart';
+import 'package:duration/duration.dart';
+import 'package:duration/locale.dart';
+import 'package:intl/intl.dart';
 import 'package:shelf/shelf_io.dart' as shelf_io;
 import 'package:shelf_web_socket/shelf_web_socket.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -13,7 +16,7 @@ import 'game_state.dart';
 import 'password.dart';
 import 'player.dart';
 import 'player_state.dart';
-import 'strings.dart';
+import '../i18n/localizations.dart';
 
 /// Class [Server] implement websocket server for application
 class Server {
@@ -89,7 +92,7 @@ class Server {
   }
 
   /// Close user connection by [connectionId]
-  void closeConnection(int connectionId) async {
+  Future<void> closeConnection(int connectionId) async {
     if (players[connectionId]?.isAuthenticated ?? false) {
       //ToDo: get rid of this magic number
       // 1 - player disconnected
@@ -100,7 +103,7 @@ class Server {
     }
     // do not keep player state for reconnect if player was not in game
     if (players[connectionId]?.previousState is! PlayerInGame) {
-      removePlayer(connectionId);
+      await removePlayer(connectionId);
     }
 
     if (connections.containsKey(connectionId)) {
@@ -108,9 +111,9 @@ class Server {
     }
   }
 
-  void removePlayer(int connectionId) async {
+  Future<void> removePlayer(int connectionId) async {
     if (players.containsKey(connectionId)) {
-      players[connectionId]?.close();
+      await players[connectionId]?.close();
       players.remove(connectionId);
     }
   }
@@ -155,16 +158,16 @@ class Server {
   }
 
   /// Parse [message] from [player]
-  void _parseMessage(Player player, String message) async {
+  Future<void> _parseMessage(Player player, String message) async {
     if (player.state is PlayerConnecting) {
       if (player.state is PlayerAuthorizing) {
         var isAuthentificated = await player.authentification(message);
         if (isAuthentificated) {
-          _playerLogin(player);
+          await _playerLogin(player);
           return;
         } else {
           // password error
-          send(player, Messages.incorrectPassword);
+          send(player, ServerI18n.incorrectPassword);
           //ToDo: set delay if password is incorrect
           player.emit(PlayerAuthorizing());
           //ToDo: after 3 incorrect inputs disconnect
@@ -199,11 +202,11 @@ class Server {
           // Add new user
           player.id = await _dbBloc.db
               .addUser(player.name!, hash(player.password!, player.name!));
-          _playerLogin(player);
+          await _playerLogin(player);
           return;
         } else {
           // password mismatch
-          player.send(Messages.passwordMismatch);
+          player.sendLocalized(() => ServerI18n.passwordMismatch);
           player.emit(PlayerSettingPassword());
           return;
         }
@@ -227,32 +230,34 @@ class Server {
 
     if (message.startsWith('/password ')) {
       //ToDo: user can change password
-      send(player, Messages.notImplemented);
+      send(player, NotImplementedI18n.notImplemented);
+      player.showMenu();
       return;
     }
 
     // after that log all messages from users
-    _dbBloc.db.addUserInput(player.id!, message);
+    await _dbBloc.db.addUserInput(player.id!, message);
 
     if (message.startsWith('/')) {
-      _commandsParser(player, message);
+      await _commandsParser(player, message);
+      player.showMenu();
       return;
     }
 
-    _menuCommandsParser(player, message);
+    await _menuCommandsParser(player, message);
   }
 
   /// [player] authorized at server
   ///
   /// Log connection and checks ongoing games for equal [player.id]
   /// If [player.id] are equal, reconnect to that game
-  void _playerLogin(Player player) async {
+  Future<void> _playerLogin(Player player) async {
     //ToDo: get rid of this magic number
     // 0 - player logged in
     await _dbBloc.db.addUserLogin(player.id!, 0);
     print(
         'Connection ${player.connection.connectionId} is player: ${player.name}');
-    send(player, Messages.welcome(player));
+    player.sendLocalized(() => ServerI18n.welcome(player.name!));
 
     // reconnect to game if player was in it
     // ToDo: ask reconnect or not
@@ -272,13 +277,14 @@ class Server {
             }
           }
         }
-        removePlayer(playerInMap.connection.connectionId);
+        await removePlayer(playerInMap.connection.connectionId);
         break;
       }
     }
 
     if (!reconnected) {
-      sendMessageToAll(Messages.playerConnected(player), PlayerInMenu());
+      sendMessageToAll(
+          ServerI18n.playerConnected(player.name!), PlayerInMenu());
       player.emit(PlayerInMenu());
     }
   }
@@ -287,30 +293,83 @@ class Server {
   void _showGameStat(Player player) {
     if (player.state is PlayerInGame &&
         player.state is! PlayerSelectingShipsPlacement) {
-      player.send(Messages.cellsAwailable(player));
+      player.sendLocalized(() => GameI18n.cellsAwailable(
+            player.battleField.countAvailableCells,
+            player.playerField.countAvailableCells,
+          ));
     }
   }
 
-  void _showPlayerStat(Player player) async {
+  Future<void> _showPlayerStat(Player player) async {
     var games = await _dbBloc.db.playerGames(player.id!).get();
     var gamesCount = games.length;
-    var wins = await _dbBloc.db.playerWins(player.id!).getSingle();
+    var wins = await _dbBloc.db.getPlayerWins(player.id!).getSingle();
 
     if (gamesCount > 0) {
-      player.send(Messages.gamesPlayed(gamesCount, wins) + '\n');
+      player.sendLocalized(() =>
+          PlayerInfoI18n.gamesPlayed(gamesCount, wins, gamesCount - wins) +
+          '\n');
 
       // Show only 25 last games
       if (gamesCount > 25) {
         gamesCount = 25;
       }
-    // ToDo: pretty formatting
-      player.send(Messages.lastGames(gamesCount));
+      // ToDo: pretty formatting
+      player.sendLocalized(() => PlayerInfoI18n.lastGames(gamesCount));
       for (var i = 0; i < gamesCount; i++) {
-        player.send(Messages.gameInfo(games[i].startTime, games[i].duration,
-            games[i].enemyname, player.id == games[i].winner));
+        // format startTime and duration to players locale
+        final startTime = DateFormat.yMd(player.language.short)
+            .format(DateTime.parse(games[i].startTime));
+        final duration = prettyDuration(
+          parseTime(games[i].duration + '.0'),
+          locale: player.durationLocale,
+        );
+
+        player.sendLocalized(() => PlayerInfoI18n.gameInfo(
+            startTime,
+            duration,
+            games[i].enemyname,
+            player.id == games[i].winner
+                ? PlayerInfoI18n.gameResultWin
+                : PlayerInfoI18n.gameResultDefeat));
       }
     } else {
-      player.send(Messages.gamesNotPlayed);
+      player.sendLocalized(() => PlayerInfoI18n.gamesNotPlayed);
+    }
+  }
+
+  /// Set [player] language and get available languages
+  Future<void> _languageCommandParser(Player player, String message) async {
+    // get player current language
+    if (message.isEmpty) {
+      var language = await _dbBloc.db.getPlayerLanguage(player.id!).getSingle();
+      player
+          .sendLocalized(() => PlayerInfoI18n.currentLanguage(language.native));
+      return;
+    }
+
+    // get available languages per server
+    if (message == 's') {
+      var languages = await _dbBloc.db.getAvailableLanguages().get();
+      player.sendLocalized(() => PlayerInfoI18n.availableLanguages);
+      languages.forEach((language) {
+        player.send('${language.id.toString().padLeft(2)}: ${language.native}');
+      });
+      return;
+    }
+
+    // set player language
+    if (message.isNotEmpty) {
+      var language = await _dbBloc.db.getLanguage(message).getSingleOrNull();
+      if (language != null) {
+        await _dbBloc.db.setPlayerLanguage(language.id, player.id);
+        player.setLanguage(language);
+        player.sendLocalized(
+            () => PlayerInfoI18n.languageChanged(language.native));
+      } else {
+        player.sendLocalized(() => PlayerInfoI18n.wrongLanguage);
+      }
+      return;
     }
   }
 
@@ -322,13 +381,13 @@ class Server {
       if (message.isNotEmpty) {
         final pen = AnsiPen()..magenta();
         if (sendByPlayerName(playerName,
-            pen(Messages.playerWroteToYou('${player.name}', message)))) {
+            pen(ChatI18n.playerWroteToYou('${player.name}', message)))) {
           //clear input
           player.send('${ansiEscape}1A${ansiEscape}K${ansiEscape}1A');
-          player
-              .send(pen(Messages.youWroteToPlayer('${player.name}', message)));
+          player.sendLocalized(
+              () => pen(ChatI18n.youWroteToPlayer('${player.name}', message)));
         } else {
-          player.send(pen(Messages.playerNotFound(playerName)));
+          player.sendLocalized(() => pen(ChatI18n.playerNotFound(playerName)));
         }
       }
     }
@@ -337,7 +396,7 @@ class Server {
   /// Command parser
   ///
   /// Command is a message starting with "/"
-  void _commandsParser(Player player, String message) {
+  Future<void> _commandsParser(Player player, String message) async {
     if (message.startsWith('/pm ')) {
       _pmChat(player, message.replaceFirst('/pm ', ''));
       return;
@@ -347,37 +406,52 @@ class Server {
       _showGameStat(player);
       return;
     }
+
     if (message == '/stat') {
-      _showPlayerStat(player);
+      await _showPlayerStat(player);
       return;
     }
+
+    if (message.startsWith('/language')) {
+      await _languageCommandParser(
+          player, message.replaceFirst('/language', '').trim());
+      return;
+    }
+
+    player.sendLocalized(() => ServerI18n.unknownCommand);
   }
 
   /// Menu command parser
   ///
   /// If player in game, sink message
-  void _menuCommandsParser(Player player, String message) async {
+  Future<void> _menuCommandsParser(Player player, String message) async {
     if (player.state is PlayerInMenu) {
       var response = int.tryParse(message);
       switch (response) {
         case 1: // find game
           player.emit(PlayerInQueue());
-          startNewGame();
+          await startNewGame();
           break;
         case 2: // players online
-          player
-              .send(Messages.playersOnline(players.length, activeGames.length));
+          player.sendLocalized(() =>
+              ServerInfoI18n.playersOnline(players.length, activeGames.length));
           players.forEach((key, value) {
             player.send('${value.name}: ${value.state}');
           });
           player.emit(PlayerInMenu());
           break;
         case 3: // server info
-          player.send(await _serverInfo);
+          var usersCount = await _dbBloc.usersCount();
+          var gamesCount = await _dbBloc.gamesCount();
+          player.sendLocalized(() => _serverInfo(
+                usersCount,
+                gamesCount,
+                player.durationLocale,
+              ));
           player.emit(PlayerInMenu());
           break;
         default:
-          player.send(Messages.incorrectInput);
+          player.sendLocalized(() => GameI18n.incorrectInput);
           player.emit(PlayerInMenu());
       }
       return;
@@ -390,7 +464,7 @@ class Server {
           player.emit(PlayerInMenu());
           break;
         default:
-          player.send(Messages.incorrectInput);
+          player.sendLocalized(() => GameI18n.incorrectInput);
           player.emit(PlayerInQueue());
       }
       return;
@@ -403,16 +477,18 @@ class Server {
     }
   }
 
-  Future<String> get _serverInfo async {
-    var result = Messages.serverInfo;
+  String _serverInfo(
+      int usersCount, int gamesCount, DurationLocale durationLocale) {
+    var result = ServerInfoI18n.serverInfo;
     result += '\n\n';
-    result += Messages.serverVersion(serverVersion);
+    result += ServerInfoI18n.serverVersion(serverVersion);
     result += '\n';
-    result += Messages.serverUptime(uptime);
+    result += ServerInfoI18n.serverUptime(
+        prettyDuration(uptime, locale: durationLocale));
     result += '\n';
-    result += Messages.usersCount(await _dbBloc.usersCount());
+    result += ServerInfoI18n.usersCount(usersCount);
     result += '\n';
-    result += Messages.gamesCount(await _dbBloc.gamesCount());
+    result += ServerInfoI18n.gamesCount(gamesCount);
     return result + '\n';
   }
 

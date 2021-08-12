@@ -180,6 +180,257 @@ class Roles extends Table with TableInfo<Roles, Role> {
   bool get dontWriteConstraints => true;
 }
 
+class Language extends DataClass implements Insertable<Language> {
+  final int id;
+  final String short;
+  final String long;
+  final String native;
+  Language(
+      {required this.id,
+      required this.short,
+      required this.long,
+      required this.native});
+  factory Language.fromData(Map<String, dynamic> data, GeneratedDatabase db,
+      {String? prefix}) {
+    final effectivePrefix = prefix ?? '';
+    return Language(
+      id: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}id'])!,
+      short: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}short'])!,
+      long: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}long'])!,
+      native: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}native'])!,
+    );
+  }
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['short'] = Variable<String>(short);
+    map['long'] = Variable<String>(long);
+    map['native'] = Variable<String>(native);
+    return map;
+  }
+
+  LanguagesCompanion toCompanion(bool nullToAbsent) {
+    return LanguagesCompanion(
+      id: Value(id),
+      short: Value(short),
+      long: Value(long),
+      native: Value(native),
+    );
+  }
+
+  factory Language.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return Language(
+      id: serializer.fromJson<int>(json['id']),
+      short: serializer.fromJson<String>(json['short']),
+      long: serializer.fromJson<String>(json['long']),
+      native: serializer.fromJson<String>(json['native']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'short': serializer.toJson<String>(short),
+      'long': serializer.toJson<String>(long),
+      'native': serializer.toJson<String>(native),
+    };
+  }
+
+  Language copyWith({int? id, String? short, String? long, String? native}) =>
+      Language(
+        id: id ?? this.id,
+        short: short ?? this.short,
+        long: long ?? this.long,
+        native: native ?? this.native,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('Language(')
+          ..write('id: $id, ')
+          ..write('short: $short, ')
+          ..write('long: $long, ')
+          ..write('native: $native')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => $mrjf($mrjc(id.hashCode,
+      $mrjc(short.hashCode, $mrjc(long.hashCode, native.hashCode))));
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Language &&
+          other.id == this.id &&
+          other.short == this.short &&
+          other.long == this.long &&
+          other.native == this.native);
+}
+
+class LanguagesCompanion extends UpdateCompanion<Language> {
+  final Value<int> id;
+  final Value<String> short;
+  final Value<String> long;
+  final Value<String> native;
+  const LanguagesCompanion({
+    this.id = const Value.absent(),
+    this.short = const Value.absent(),
+    this.long = const Value.absent(),
+    this.native = const Value.absent(),
+  });
+  LanguagesCompanion.insert({
+    this.id = const Value.absent(),
+    required String short,
+    required String long,
+    required String native,
+  })  : short = Value(short),
+        long = Value(long),
+        native = Value(native);
+  static Insertable<Language> custom({
+    Expression<int>? id,
+    Expression<String>? short,
+    Expression<String>? long,
+    Expression<String>? native,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (short != null) 'short': short,
+      if (long != null) 'long': long,
+      if (native != null) 'native': native,
+    });
+  }
+
+  LanguagesCompanion copyWith(
+      {Value<int>? id,
+      Value<String>? short,
+      Value<String>? long,
+      Value<String>? native}) {
+    return LanguagesCompanion(
+      id: id ?? this.id,
+      short: short ?? this.short,
+      long: long ?? this.long,
+      native: native ?? this.native,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (short.present) {
+      map['short'] = Variable<String>(short.value);
+    }
+    if (long.present) {
+      map['long'] = Variable<String>(long.value);
+    }
+    if (native.present) {
+      map['native'] = Variable<String>(native.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LanguagesCompanion(')
+          ..write('id: $id, ')
+          ..write('short: $short, ')
+          ..write('long: $long, ')
+          ..write('native: $native')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class Languages extends Table with TableInfo<Languages, Language> {
+  final GeneratedDatabase _db;
+  final String? _alias;
+  Languages(this._db, [this._alias]);
+  final VerificationMeta _idMeta = const VerificationMeta('id');
+  late final GeneratedColumn<int?> id = GeneratedColumn<int?>(
+      'id', aliasedName, false,
+      typeName: 'INTEGER',
+      requiredDuringInsert: false,
+      $customConstraints: 'NOT NULL PRIMARY KEY AUTOINCREMENT');
+  final VerificationMeta _shortMeta = const VerificationMeta('short');
+  late final GeneratedColumn<String?> short = GeneratedColumn<String?>(
+      'short', aliasedName, false,
+      typeName: 'TEXT',
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL');
+  final VerificationMeta _longMeta = const VerificationMeta('long');
+  late final GeneratedColumn<String?> long = GeneratedColumn<String?>(
+      'long', aliasedName, false,
+      typeName: 'TEXT',
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL');
+  final VerificationMeta _nativeMeta = const VerificationMeta('native');
+  late final GeneratedColumn<String?> native = GeneratedColumn<String?>(
+      'native', aliasedName, false,
+      typeName: 'TEXT',
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL');
+  @override
+  List<GeneratedColumn> get $columns => [id, short, long, native];
+  @override
+  String get aliasedName => _alias ?? 'languages';
+  @override
+  String get actualTableName => 'languages';
+  @override
+  VerificationContext validateIntegrity(Insertable<Language> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('short')) {
+      context.handle(
+          _shortMeta, short.isAcceptableOrUnknown(data['short']!, _shortMeta));
+    } else if (isInserting) {
+      context.missing(_shortMeta);
+    }
+    if (data.containsKey('long')) {
+      context.handle(
+          _longMeta, long.isAcceptableOrUnknown(data['long']!, _longMeta));
+    } else if (isInserting) {
+      context.missing(_longMeta);
+    }
+    if (data.containsKey('native')) {
+      context.handle(_nativeMeta,
+          native.isAcceptableOrUnknown(data['native']!, _nativeMeta));
+    } else if (isInserting) {
+      context.missing(_nativeMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Language map(Map<String, dynamic> data, {String? tablePrefix}) {
+    return Language.fromData(data, _db,
+        prefix: tablePrefix != null ? '$tablePrefix.' : null);
+  }
+
+  @override
+  Languages createAlias(String alias) {
+    return Languages(_db, alias);
+  }
+
+  @override
+  bool get dontWriteConstraints => true;
+}
+
 class User extends DataClass implements Insertable<User> {
   final int id;
   final int date;
@@ -187,13 +438,15 @@ class User extends DataClass implements Insertable<User> {
   final String? password;
   final int role;
   final int status;
+  final int language;
   User(
       {required this.id,
       required this.date,
       required this.name,
       this.password,
       required this.role,
-      required this.status});
+      required this.status,
+      required this.language});
   factory User.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String? prefix}) {
     final effectivePrefix = prefix ?? '';
@@ -210,6 +463,8 @@ class User extends DataClass implements Insertable<User> {
           .mapFromDatabaseResponse(data['${effectivePrefix}role'])!,
       status: const IntType()
           .mapFromDatabaseResponse(data['${effectivePrefix}status'])!,
+      language: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}language'])!,
     );
   }
   @override
@@ -223,6 +478,7 @@ class User extends DataClass implements Insertable<User> {
     }
     map['role'] = Variable<int>(role);
     map['status'] = Variable<int>(status);
+    map['language'] = Variable<int>(language);
     return map;
   }
 
@@ -236,6 +492,7 @@ class User extends DataClass implements Insertable<User> {
           : Value(password),
       role: Value(role),
       status: Value(status),
+      language: Value(language),
     );
   }
 
@@ -249,6 +506,7 @@ class User extends DataClass implements Insertable<User> {
       password: serializer.fromJson<String?>(json['password']),
       role: serializer.fromJson<int>(json['role']),
       status: serializer.fromJson<int>(json['status']),
+      language: serializer.fromJson<int>(json['language']),
     );
   }
   @override
@@ -261,6 +519,7 @@ class User extends DataClass implements Insertable<User> {
       'password': serializer.toJson<String?>(password),
       'role': serializer.toJson<int>(role),
       'status': serializer.toJson<int>(status),
+      'language': serializer.toJson<int>(language),
     };
   }
 
@@ -270,7 +529,8 @@ class User extends DataClass implements Insertable<User> {
           String? name,
           String? password,
           int? role,
-          int? status}) =>
+          int? status,
+          int? language}) =>
       User(
         id: id ?? this.id,
         date: date ?? this.date,
@@ -278,6 +538,7 @@ class User extends DataClass implements Insertable<User> {
         password: password ?? this.password,
         role: role ?? this.role,
         status: status ?? this.status,
+        language: language ?? this.language,
       );
   @override
   String toString() {
@@ -287,7 +548,8 @@ class User extends DataClass implements Insertable<User> {
           ..write('name: $name, ')
           ..write('password: $password, ')
           ..write('role: $role, ')
-          ..write('status: $status')
+          ..write('status: $status, ')
+          ..write('language: $language')
           ..write(')'))
         .toString();
   }
@@ -300,7 +562,9 @@ class User extends DataClass implements Insertable<User> {
           $mrjc(
               name.hashCode,
               $mrjc(
-                  password.hashCode, $mrjc(role.hashCode, status.hashCode))))));
+                  password.hashCode,
+                  $mrjc(role.hashCode,
+                      $mrjc(status.hashCode, language.hashCode)))))));
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -310,7 +574,8 @@ class User extends DataClass implements Insertable<User> {
           other.name == this.name &&
           other.password == this.password &&
           other.role == this.role &&
-          other.status == this.status);
+          other.status == this.status &&
+          other.language == this.language);
 }
 
 class UsersCompanion extends UpdateCompanion<User> {
@@ -320,6 +585,7 @@ class UsersCompanion extends UpdateCompanion<User> {
   final Value<String?> password;
   final Value<int> role;
   final Value<int> status;
+  final Value<int> language;
   const UsersCompanion({
     this.id = const Value.absent(),
     this.date = const Value.absent(),
@@ -327,6 +593,7 @@ class UsersCompanion extends UpdateCompanion<User> {
     this.password = const Value.absent(),
     this.role = const Value.absent(),
     this.status = const Value.absent(),
+    this.language = const Value.absent(),
   });
   UsersCompanion.insert({
     this.id = const Value.absent(),
@@ -335,6 +602,7 @@ class UsersCompanion extends UpdateCompanion<User> {
     this.password = const Value.absent(),
     this.role = const Value.absent(),
     this.status = const Value.absent(),
+    this.language = const Value.absent(),
   })  : date = Value(date),
         name = Value(name);
   static Insertable<User> custom({
@@ -344,6 +612,7 @@ class UsersCompanion extends UpdateCompanion<User> {
     Expression<String?>? password,
     Expression<int>? role,
     Expression<int>? status,
+    Expression<int>? language,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -352,6 +621,7 @@ class UsersCompanion extends UpdateCompanion<User> {
       if (password != null) 'password': password,
       if (role != null) 'role': role,
       if (status != null) 'status': status,
+      if (language != null) 'language': language,
     });
   }
 
@@ -361,7 +631,8 @@ class UsersCompanion extends UpdateCompanion<User> {
       Value<String>? name,
       Value<String?>? password,
       Value<int>? role,
-      Value<int>? status}) {
+      Value<int>? status,
+      Value<int>? language}) {
     return UsersCompanion(
       id: id ?? this.id,
       date: date ?? this.date,
@@ -369,6 +640,7 @@ class UsersCompanion extends UpdateCompanion<User> {
       password: password ?? this.password,
       role: role ?? this.role,
       status: status ?? this.status,
+      language: language ?? this.language,
     );
   }
 
@@ -393,6 +665,9 @@ class UsersCompanion extends UpdateCompanion<User> {
     if (status.present) {
       map['status'] = Variable<int>(status.value);
     }
+    if (language.present) {
+      map['language'] = Variable<int>(language.value);
+    }
     return map;
   }
 
@@ -404,7 +679,8 @@ class UsersCompanion extends UpdateCompanion<User> {
           ..write('name: $name, ')
           ..write('password: $password, ')
           ..write('role: $role, ')
-          ..write('status: $status')
+          ..write('status: $status, ')
+          ..write('language: $language')
           ..write(')'))
         .toString();
   }
@@ -450,9 +726,16 @@ class Users extends Table with TableInfo<Users, User> {
       requiredDuringInsert: false,
       $customConstraints: 'NOT NULL DEFAULT 0',
       defaultValue: const CustomExpression<int>('0'));
+  final VerificationMeta _languageMeta = const VerificationMeta('language');
+  late final GeneratedColumn<int?> language = GeneratedColumn<int?>(
+      'language', aliasedName, false,
+      typeName: 'INTEGER',
+      requiredDuringInsert: false,
+      $customConstraints: 'NOT NULL DEFAULT 0',
+      defaultValue: const CustomExpression<int>('0'));
   @override
   List<GeneratedColumn> get $columns =>
-      [id, date, name, password, role, status];
+      [id, date, name, password, role, status, language];
   @override
   String get aliasedName => _alias ?? 'users';
   @override
@@ -489,6 +772,10 @@ class Users extends Table with TableInfo<Users, User> {
       context.handle(_statusMeta,
           status.isAcceptableOrUnknown(data['status']!, _statusMeta));
     }
+    if (data.containsKey('language')) {
+      context.handle(_languageMeta,
+          language.isAcceptableOrUnknown(data['language']!, _languageMeta));
+    }
     return context;
   }
 
@@ -508,7 +795,8 @@ class Users extends Table with TableInfo<Users, User> {
   @override
   List<String> get customConstraints => const [
         'FOREIGN KEY (role) REFERENCES roles (id)',
-        'FOREIGN KEY (status) REFERENCES roles (id)'
+        'FOREIGN KEY (status) REFERENCES roles (id)',
+        'FOREIGN KEY (language) REFERENCES languages (id)'
       ];
   @override
   bool get dontWriteConstraints => true;
@@ -1951,6 +2239,7 @@ class Gamelogs extends Table with TableInfo<Gamelogs, Gamelog> {
 abstract class _$Database extends GeneratedDatabase {
   _$Database(QueryExecutor e) : super(SqlTypeSystem.defaultInstance, e);
   late final Roles roles = Roles(this);
+  late final Languages languages = Languages(this);
   late final Users users = Users(this);
   late final Statuses statuses = Statuses(this);
   late final Usersinput usersinput = Usersinput(this);
@@ -2098,7 +2387,7 @@ abstract class _$Database extends GeneratedDatabase {
     });
   }
 
-  Selectable<int> playerWins(int? playerid) {
+  Selectable<int> getPlayerWins(int? playerid) {
     return customSelect(
         'SELECT count() as wins FROM games WHERE winner = :playerid',
         variables: [
@@ -2109,11 +2398,49 @@ abstract class _$Database extends GeneratedDatabase {
         }).map((QueryRow row) => row.read<int>('wins'));
   }
 
+  Selectable<Language> getPlayerLanguage(int playerid) {
+    return customSelect(
+        'SELECT languages.id, languages.short, languages.long, languages.native FROM users, languages WHERE users.id = :playerid AND languages.id = users.language',
+        variables: [
+          Variable<int>(playerid)
+        ],
+        readsFrom: {
+          languages,
+          users,
+        }).map(languages.mapFromRow);
+  }
+
+  Selectable<Language> getLanguage(String language) {
+    return customSelect(
+        'SELECT id, short, long, native from languages WHERE id = :language OR short = :language OR long = :language OR native = :language',
+        variables: [
+          Variable<String>(language)
+        ],
+        readsFrom: {
+          languages,
+        }).map(languages.mapFromRow);
+  }
+
+  Future<int> setPlayerLanguage(int languageid, int? playerid) {
+    return customUpdate(
+      'UPDATE users SET language = :languageid WHERE id = :playerid',
+      variables: [Variable<int>(languageid), Variable<int?>(playerid)],
+      updates: {users},
+      updateKind: UpdateKind.update,
+    );
+  }
+
+  Selectable<Language> getAvailableLanguages() {
+    return customSelect('SELECT * FROM languages', variables: [], readsFrom: {
+      languages,
+    }).map(languages.mapFromRow);
+  }
+
   @override
   Iterable<TableInfo> get allTables => allSchemaEntities.whereType<TableInfo>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities =>
-      [roles, users, statuses, usersinput, logins, games, gamelogs];
+      [roles, languages, users, statuses, usersinput, logins, games, gamelogs];
 }
 
 class PersonalEncountersResult {

@@ -36,7 +36,7 @@ abstract class Field {
         '\u{2500}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{253c}\u{2500}\u{2524}');
     for (var row in _field) {
       String line;
-      line = '${i.toString().padLeft(2, ' ')}\u{2502}';
+      line = '${i.toString().padLeft(2)}\u{2502}';
       i++;
       for (var cell in row) {
         line += '$cell\u{2502}';

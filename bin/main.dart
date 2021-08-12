@@ -2,11 +2,12 @@ import 'dart:io';
 
 import 'package:ansicolor/ansicolor.dart';
 import 'package:args/args.dart';
-import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/locale.dart';
 
+import 'i18n/app_localization.dart';
 import 'models/server.dart';
 
-const serverVersion = '1.3.2';
+const serverVersion = '1.4.0';
 
 void main(List<String> arguments) {
   const urlParamName = 'url';
@@ -19,9 +20,7 @@ void main(List<String> arguments) {
 
   SecurityContext? securityContext;
 
-  // ToDo: internationalization
-  // part of i18n
-  initializeDateFormatting('ru');
+  AppLocalization.load(Locale.parse('en'));
 
   // for ansi color output
   ansiColorDisabled = false;
