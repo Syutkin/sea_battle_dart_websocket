@@ -162,7 +162,7 @@
   "@NotImplementedI18n_notImplemented": {
     "type": "text"
   },
-  "OtherI18n_help": "/help - список доступных комманд\n/pm <name> - приватное сообщение игроку <name>\n/chat - чат в текущей игре\n/cells - статистика по доступным для прострела полям в текущей игре\n/stat - статистика игрока\n/language - текущий язык игрока\n/languages - список доступных языков\n/language <lang> - выбрать язык <lang>",
+  "OtherI18n_help": "/help - список доступных комманд\n/pm <name> - приватное сообщение игроку <name>\n/chat - чат в основном меню или текущей игре\n/cells - статистика по доступным для прострела полям в текущей игре\n/stat - статистика игрока\n/language - текущий язык игрока\n/languages - список доступных языков\n/language <lang> - выбрать язык <lang>",
   "@OtherI18n_help": {
     "type": "text"
   },

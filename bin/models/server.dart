@@ -178,6 +178,8 @@ class Server {
       name: connection.playerName!,
     );
 
+    connection.emit(Authorized());
+
     player.stream.listen((event) {
       if (event is PlayerRemove) {
         removePlayer(connection.connectionId);
@@ -291,6 +293,6 @@ class Server {
 .##....##.##.......##.....##....##.....##.##.....##....##.......##....##.......##.......
 ..######..########.##.....##....########..##.....##....##.......##....########.########.
 ''' +
-        ('v' + serverVersion+'.').padLeft(88, '.');
+        ('v' + serverVersion + '.').padLeft(88, '.');
   }
 }

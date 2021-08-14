@@ -16,7 +16,7 @@ class Input {
       Connection connection, String message) async {
     if (connection.state is Connecting) {
       if (connection.state is Authorizing) {
-        connection.clearInput;
+        connection.clearInput();
         var isAuthentificated = await connection.authentification(message);
         if (isAuthentificated) {
           await Server.playerLogin(connection);
@@ -46,7 +46,7 @@ class Input {
       }
 
       if (connection.state is SettingPassword) {
-        connection.clearInput;
+        connection.clearInput();
         // enter password
         connection.password = message;
         connection.emit(RepeatingPassword());
@@ -54,7 +54,7 @@ class Input {
       }
 
       if (connection.state is RepeatingPassword) {
-        connection.clearInput;
+        connection.clearInput();
         // repeat new password
         if (connection.password == message) {
           // Add new user
@@ -145,10 +145,19 @@ class Input {
       return;
     }
 
-    if (message.startsWith('/chat')) {
+    if (message.startsWith('/chat ')) {
       // If player in game, transfer message to game
       if (player.state is PlayerInGame) {
         player.playerIngameInput.sink.add(message);
+        return;
+      }
+
+      // If player in menu, send message to all player in menu
+      if (player.state is PlayerInMenu) {
+        final pen = AnsiPen()..cyan();
+        player.connection.clearInput();
+        Server.sendMessageToAll(
+            pen(player.name + ': ' + message.replaceFirst('/chat ', '')));
         return;
       }
     }
@@ -165,8 +174,7 @@ class Input {
         final pen = AnsiPen()..magenta();
         if (Server.sendByPlayerName(playerName,
             pen(ChatI18n.playerWroteToYou('${player.name}', message)))) {
-          player.connection.clearInput;
-          // player.send('${ansiEscape}1A${ansiEscape}K${ansiEscape}1A');
+          player.connection.clearInput();
           player.sendLocalized(
               () => pen(ChatI18n.youWroteToPlayer('$playerName', message)));
         } else {

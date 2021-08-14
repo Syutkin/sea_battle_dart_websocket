@@ -97,7 +97,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "GameI18n_sunk" : MessageLookupByLibrary.simpleMessage("Попадание! Корабль убит"),
     "GameI18n_winner" : MessageLookupByLibrary.simpleMessage("Победа!"),
     "GameI18n_wrongCoordinates" : MessageLookupByLibrary.simpleMessage("Неверные координаты, задайте заново"),
-    "OtherI18n_help" : MessageLookupByLibrary.simpleMessage("/help - список доступных комманд\n/pm <name> - приватное сообщение игроку <name>\n/chat - чат в текущей игре\n/cells - статистика по доступным для прострела полям в текущей игре\n/stat - статистика игрока\n/language - текущий язык игрока\n/languages - список доступных языков\n/language <lang> - выбрать язык <lang>"),
+    "OtherI18n_help" : MessageLookupByLibrary.simpleMessage("/help - список доступных комманд\n/pm <name> - приватное сообщение игроку <name>\n/chat - чат в основном меню или текущей игре\n/cells - статистика по доступным для прострела полям в текущей игре\n/stat - статистика игрока\n/language - текущий язык игрока\n/languages - список доступных языков\n/language <lang> - выбрать язык <lang>"),
     "OtherI18n_notImplemented" : MessageLookupByLibrary.simpleMessage("Не реализовано"),
     "PlayerInfoI18n_availableLanguages" : MessageLookupByLibrary.simpleMessage("Доступные языки:"),
     "PlayerInfoI18n_currentLanguage" : m11,

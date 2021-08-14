@@ -209,7 +209,7 @@ class Game extends Cubit<GameState> {
   void _gameChat(Player player, String message) {
     if (message.isNotEmpty) {
       final pen = AnsiPen()..cyan();
-      player.send('${ansiEscape}1A${ansiEscape}K${ansiEscape}1A');
+      player.connection.clearInput();
       player.send(pen('${player.name}: $message'));
       anotherPlayer(player).send(pen('${player.name}: $message'));
     }

@@ -61,9 +61,8 @@ class Connection extends Cubit<ConnectionState> {
   }
 
   /// Clear user input
-  void clearInput(Connection connection) {
-    connection.webSocket.sink
-        .add('${ansiEscape}1A${ansiEscape}K${ansiEscape}1A');
+  void clearInput() {
+    webSocket.sink.add('${ansiEscape}1A${ansiEscape}K${ansiEscape}1A');
   }
 
   /// Authentificate user with [password]
@@ -71,7 +70,6 @@ class Connection extends Cubit<ConnectionState> {
     _authentification = false;
     if (playerName != null && playerId != null) {
       if (hash(password, playerName!) == await _dbBloc.getPassword(playerId!)) {
-        emit(Authorized());
         _authentification = true;
       }
     }
