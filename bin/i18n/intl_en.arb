@@ -162,6 +162,14 @@
   "@NotImplementedI18n_notImplemented": {
     "type": "text"
   },
+  "OtherI18n_help": "/help - list of available commands\n/pm <name> - private message to player <name>\n/chat - chat in current game\n/cells - cells available for shooting in the current game\n/language - current language\n/languages - list of available languages\n/language <lang> - select language <lang>",
+  "@OtherI18n_help": {
+    "type": "text"
+  },
+  "OtherI18n_notImplemented": "Not implemented",
+  "@OtherI18n_notImplemented": {
+    "type": "text"
+  },
   "PlayerInfoI18n_availableLanguages": "Supported languages:",
   "@PlayerInfoI18n_availableLanguages": {
     "type": "text"
