@@ -18,7 +18,6 @@ class Input {
       if (connection.state is Authorizing) {
         var isAuthentificated = await connection.authentification(message);
         if (isAuthentificated) {
-          //ToDo: create player
           await Server.playerLogin(connection);
           return;
         } else {
@@ -59,7 +58,6 @@ class Input {
           connection.playerId = await Server.dbBloc.db.addUser(
               connection.playerName!,
               hash(connection.password!, connection.playerName!));
-          //ToDo: create player
           await Server.playerLogin(connection);
           return;
         } else {

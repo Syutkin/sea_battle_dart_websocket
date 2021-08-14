@@ -85,6 +85,18 @@ class Server {
     }
   }
 
+  //ToDo: think about common implementation
+  /// Send info to all players in menu about player [name] enters the server
+  static void playerEnteringToServer(String name) {
+    if (players.isNotEmpty) {
+      for (var user in players.keys) {
+        if (players[user]?.state is PlayerInMenu) {
+          players[user]?.sendLocalized(() => ServerI18n.playerConnected(name));
+        }
+      }
+    }
+  }
+
   /// Close user connection by [connectionId]
   Future<void> closeConnection(int connectionId) async {
     // if (players[connectionId]?.isAuthenticated ?? false) {
@@ -211,7 +223,7 @@ class Server {
     }
 
     if (!reconnected) {
-      sendMessageToAll(ServerI18n.playerConnected(player.name), PlayerInMenu());
+      playerEnteringToServer(player.name);
       player.emit(PlayerInMenu());
     }
   }
