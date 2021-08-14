@@ -398,9 +398,22 @@ class GameI18n {
   }
 }
 
-class NotImplementedI18n {
+class OtherI18n {
+  static String get help => Intl.message(
+        '''
+/help - список доступных комманд
+/pm <name> - приватное сообщение игроку <name>
+/chat - чат в текущей игре
+/cells - статистика по доступным для просрела полям в текущей игре
+/stat - статистика игрока
+/language - текущий язык игрока
+/languages - список доступных языков
+/language <lang> - выбрать язык <lang>''',
+        name: 'OtherI18n_help',
+      );
+
   static String get notImplemented => Intl.message(
         'Не реализовано',
-        name: 'NotImplementedI18n_notImplemented',
+        name: 'OtherI18n_notImplemented',
       );
 }
