@@ -7,7 +7,7 @@ import 'package:intl/locale.dart';
 import 'i18n/app_localization.dart';
 import 'models/server.dart';
 
-const serverVersion = '1.4.0';
+const serverVersion = '1.4.1';
 
 void main(List<String> arguments) {
   const urlParamName = 'url';

@@ -142,6 +142,14 @@ class Input {
       return;
     }
 
+    if (message.startsWith('/chat')) {
+      // If player in game, transfer message to game
+      if (player.state is PlayerInGame) {
+        player.playerIngameInput.sink.add(message);
+        return;
+      }
+    }
+
     player.sendLocalized(() => ServerI18n.unknownCommand);
   }
 
