@@ -1,44 +1,9 @@
 abstract class PlayerState {}
 
-class PlayerConnecting extends PlayerState {
+class PlayerInitial extends PlayerState {
   @override
   String toString() {
-    return 'Подключение';
-  }
-}
-
-class PlayerEnteringName extends PlayerConnecting {
-  @override
-  String toString() {
-    return 'Вводит имя';
-  }
-}
-
-class PlayerAuthorizing extends PlayerConnecting {
-  @override
-  String toString() {
-    return 'Авторизация';
-  }
-}
-
-class PlayerRegistering extends PlayerConnecting {
-  @override
-  String toString() {
-    return 'Заводит аккаунт';
-  }
-}
-
-class PlayerSettingPassword extends PlayerConnecting {
-  @override
-  String toString() {
-    return 'Устанавливает пароль';
-  }
-}
-
-class PlayerRepeatingPassword extends PlayerConnecting {
-  @override
-  String toString() {
-    return 'Подтверждение пароля';
+    return 'Инициализация';
   }
 }
 

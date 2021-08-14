@@ -8,30 +8,26 @@ import '../database/database.dart';
 import '../database/database_bloc.dart';
 import 'connection.dart';
 import 'field.dart';
-import 'password.dart';
+import 'input.dart';
 import 'player_state.dart';
 import '../i18n/localizations.dart';
 import 'ship.dart';
 
 class Player extends Cubit<PlayerState> {
-  String? name;
-  int? id;
-  bool _authentification = false;
-  String? password;
+  String name;
+  int id;
   PlayerField playerField;
   BattleField battleField;
 
-  // Default language is English
-  Language _language =
-      Language(id: 0, short: 'en', long: 'english', native: 'english');
+  late Language _language;
 
   late String _canonicalLocale;
 
-  PlayerState previousState = PlayerConnecting();
+  PlayerState previousState = PlayerInitial();
 
   final Connection connection;
 
-  final DatabaseBloc _dbBloc;
+  final DatabaseBloc _dbBloc = DatabaseBloc();
 
   Timer? _disconnectTimer;
 
@@ -40,12 +36,22 @@ class Player extends Cubit<PlayerState> {
   StreamController<String> playerIngameInput =
       StreamController<String>.broadcast();
 
-  Player(this.connection)
+  Player({required this.connection, required this.id, required this.name})
       : playerField = PlayerField(),
         battleField = BattleField(),
-        _dbBloc = DatabaseBloc(),
-        super(PlayerConnecting()) {
-    _canonicalLocale = Intl.canonicalizedLocale(_language.short);
+        super(PlayerInitial()) {
+    // read config from db (now only language)
+    _dbBloc.db
+        .getPlayerLanguage(id)
+        .getSingle()
+        .then((value) => setLanguage(value));
+    // subscription to user input after authorization
+    connection.playerInput.stream.listen((message) {
+      message = message.toString().trim();
+      Input.handleMessageFromPlayer(this, message);
+    }).onDone(() {
+      emit(PlayerDisconnected());
+    });
   }
 
   @override
@@ -53,10 +59,6 @@ class Player extends Cubit<PlayerState> {
     super.onChange(change);
 
     previousState = change.currentState;
-
-    if (change.nextState is PlayerEnteringName) {
-      sendLocalized(() => ServerI18n.enterName);
-    }
 
     if (change.nextState is PlayerInMenu) {
       sendLocalized(() => ServerI18n.mainMenu);
@@ -100,22 +102,6 @@ class Player extends Cubit<PlayerState> {
       sendLocalized(() => GameI18n.awaitingPlayer);
     }
 
-    if (change.nextState is PlayerAuthorizing) {
-      sendLocalized(() => ServerI18n.enterPassword);
-    }
-
-    if (change.nextState is PlayerRegistering) {
-      sendLocalized(() => ServerI18n.createNewAccount);
-    }
-
-    if (change.nextState is PlayerSettingPassword) {
-      sendLocalized(() => ServerI18n.setPassword);
-    }
-
-    if (change.nextState is PlayerRepeatingPassword) {
-      sendLocalized(() => ServerI18n.repeatPassword);
-    }
-
     if (change.nextState is PlayerDisconnected) {
       //ToDo: countdown duration to config file
       _disconnectTimer = Timer(Duration(seconds: 60), () {
@@ -149,18 +135,6 @@ class Player extends Cubit<PlayerState> {
     } else {
       emit(PlayerInMenu());
     }
-  }
-
-  bool get isAuthenticated => _authentification;
-
-  Future<bool> authentification(String password) async {
-    if (hash(password, name!) == await _dbBloc.getPassword(id!)) {
-      _authentification = true;
-      setLanguage(await _dbBloc.db.getPlayerLanguage(id!).getSingle());
-    } else {
-      _authentification = false;
-    }
-    return _authentification;
   }
 
   void init() {
@@ -199,7 +173,7 @@ class Player extends Cubit<PlayerState> {
   @override
   Future<void> close() {
     _disconnectTimer?.cancel();
-    playerIngameInput.done;
+    playerIngameInput.close();
     connection.webSocket.sink
         .close(status.normalClosure, 'Another peer connected');
     return super.close();

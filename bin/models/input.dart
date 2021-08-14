@@ -3,83 +3,97 @@ import 'package:duration/duration.dart';
 import 'package:intl/intl.dart';
 
 import '../i18n/localizations.dart';
+import 'connection.dart';
+import 'connection_state.dart';
 import 'password.dart';
 import 'player.dart';
 import 'player_state.dart';
 import 'server.dart';
 
 class Input {
-    /// Parse [message] from [player]
-  static Future<void> parseMessage(Player player, String message) async {
-    if (player.state is PlayerConnecting) {
-      if (player.state is PlayerAuthorizing) {
-        var isAuthentificated = await player.authentification(message);
+  /// Parse [message] from [connection]
+  static Future<void> handleMessageFromConnection(
+      Connection connection, String message) async {
+    if (connection.state is Connecting) {
+      if (connection.state is Authorizing) {
+        var isAuthentificated = await connection.authentification(message);
         if (isAuthentificated) {
-          await Server.playerLogin(player);
+          //ToDo: create player
+          await Server.playerLogin(connection);
           return;
         } else {
           // password error
-          player.sendLocalized(() => ServerI18n.incorrectPassword);
+          connection.sendLocalized(() => ServerI18n.incorrectPassword);
           //ToDo: set delay if password is incorrect
-          player.emit(PlayerAuthorizing());
+          connection.emit(Authorizing());
           //ToDo: after 3 incorrect inputs disconnect
           return;
         }
       }
 
-      if (player.state is PlayerRegistering) {
+      if (connection.state is Registering) {
         // registering new account
         var response = int.tryParse(message);
         switch (response) {
           case 1: // register new account
-            player.emit(PlayerSettingPassword());
+            connection.emit(SettingPassword());
             break;
           case 2: // enter another name
-            player.emit(PlayerConnecting());
+            connection.emit(EnteringName());
             break;
         }
         return;
       }
 
-      if (player.state is PlayerSettingPassword) {
+      if (connection.state is SettingPassword) {
         // enter password
-        player.password = message;
-        player.emit(PlayerRepeatingPassword());
+        connection.password = message;
+        connection.emit(RepeatingPassword());
         return;
       }
 
-      if (player.state is PlayerRepeatingPassword) {
+      if (connection.state is RepeatingPassword) {
         // repeat new password
-        if (player.password == message) {
+        if (connection.password == message) {
           // Add new user
-          player.id = await Server.dbBloc.db
-              .addUser(player.name!, hash(player.password!, player.name!));
-          await Server.playerLogin(player);
+          connection.playerId = await Server.dbBloc.db.addUser(
+              connection.playerName!,
+              hash(connection.password!, connection.playerName!));
+          //ToDo: create player
+          await Server.playerLogin(connection);
           return;
         } else {
           // password mismatch
-          player.sendLocalized(() => ServerI18n.passwordMismatch);
-          player.emit(PlayerSettingPassword());
+          connection.sendLocalized(() => ServerI18n.passwordMismatch);
+          connection.emit(SettingPassword());
           return;
         }
       }
 
-      player.name = message;
+      if (connection.state is EnteringName) {
+        connection.playerName = message;
 
-      // check isUserExists
-      var id = await Server.dbBloc.getUserId(player.name!);
-      if (id == null) {
-        // new user
-        player.emit(PlayerRegistering());
-        return;
-      } else {
-        // ask password
-        player.id = id;
-        player.emit(PlayerAuthorizing());
-        return;
+        // check isUserExists
+        var id = await Server.dbBloc.getUserId(connection.playerName!);
+        if (id == null) {
+          // new user
+          connection.emit(Registering());
+          return;
+        } else {
+          // ask password
+          connection.playerId = id;
+          connection.emit(Authorizing());
+          return;
+        }
       }
+    } else {
+      connection.playerInput.add(message);
     }
+  }
 
+  /// Parse [message] from [player]
+  static Future<void> handleMessageFromPlayer(
+      Player player, String message) async {
     if (message.startsWith('/password ')) {
       //ToDo: user can change password
       player.sendLocalized(() => OtherI18n.notImplemented);
@@ -88,7 +102,7 @@ class Input {
     }
 
     // after that log all messages from users
-    await Server.dbBloc.db.addUserInput(player.id!, message);
+    await Server.dbBloc.db.addUserInput(player.id, message);
 
     // parse commands
     if (message.startsWith('/')) {
@@ -165,9 +179,9 @@ class Input {
   }
 
   static Future<void> _showPlayerStat(Player player) async {
-    var games = await Server.dbBloc.db.playerGames(player.id!).get();
+    var games = await Server.dbBloc.db.playerGames(player.id).get();
     var gamesCount = games.length;
-    var wins = await Server.dbBloc.db.getPlayerWins(player.id!).getSingle();
+    var wins = await Server.dbBloc.db.getPlayerWins(player.id).getSingle();
 
     if (gamesCount > 0) {
       player.sendLocalized(() =>
@@ -231,7 +245,8 @@ class Input {
       Player player, String message) async {
     // get player current language
     if (message.isEmpty) {
-      var language = await Server.dbBloc.db.getPlayerLanguage(player.id!).getSingle();
+      var language =
+          await Server.dbBloc.db.getPlayerLanguage(player.id).getSingle();
       player
           .sendLocalized(() => PlayerInfoI18n.currentLanguage(language.native));
       return;
@@ -249,7 +264,8 @@ class Input {
 
     // set player language
     if (message.isNotEmpty) {
-      var language = await Server.dbBloc.db.getLanguage(message).getSingleOrNull();
+      var language =
+          await Server.dbBloc.db.getLanguage(message).getSingleOrNull();
       if (language != null) {
         await Server.dbBloc.db.setPlayerLanguage(language.id, player.id);
         player.setLanguage(language);
@@ -274,8 +290,8 @@ class Input {
           await Server.startNewGame();
           break;
         case 2: // players online
-          player.sendLocalized(() =>
-              ServerInfoI18n.playersOnline(Server.players.length, Server.activeGames.length));
+          player.sendLocalized(() => ServerInfoI18n.playersOnline(
+              Server.players.length, Server.activeGames.length));
           Server.players.forEach((key, value) {
             player.send('${value.name}: ${value.state}');
           });
@@ -317,5 +333,4 @@ class Input {
       return;
     }
   }
-
 }

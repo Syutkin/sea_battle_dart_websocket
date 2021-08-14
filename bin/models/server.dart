@@ -8,6 +8,7 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 
 import '../database/database_bloc.dart';
 import '../main.dart';
+import 'connection_state.dart';
 import 'input.dart';
 import 'connection.dart';
 import 'game.dart';
@@ -67,7 +68,7 @@ class Server {
 
   /// Send [message] to all players at server
   ///
-  /// If [playerState] is set, send message only to players in [playerState]
+  /// If [playerState] is set, send message only to players at [playerState]
   static void sendMessageToAll(String message, [PlayerState? playerState]) {
     if (message.isNotEmpty) {
       if (players.isNotEmpty) {
@@ -86,10 +87,13 @@ class Server {
 
   /// Close user connection by [connectionId]
   Future<void> closeConnection(int connectionId) async {
-    if (players[connectionId]?.isAuthenticated ?? false) {
+    // if (players[connectionId]?.isAuthenticated ?? false) {
+    if (players[connectionId] != null) {
+      // players[connectionId]?.emit(PlayerDisconnected());
+      await players[connectionId]?.connection.close();
       //ToDo: get rid of this magic number
       // 1 - player disconnected
-      await dbBloc.db.addUserLogin(players[connectionId]!.id!, 1);
+      await dbBloc.db.addUserLogin(players[connectionId]!.id, 1);
       print('Player ${players[connectionId]?.name} disconnected');
     } else {
       print('Connection $connectionId disconnected');
@@ -150,19 +154,34 @@ class Server {
     }
   }
 
-
-
   /// [player] authorized at server
   ///
-  /// Log connection and checks ongoing games for equal [player.id]
-  /// If [player.id] are equal, reconnect to that game
-  static Future<void> playerLogin(Player player) async {
+  /// Log connection and checks ongoing games for equal [id]
+  /// If [id] are equal, reconnect to that game
+  // static Future<void> playerLogin(Player player) async {
+  static Future<void> playerLogin(Connection connection) async {
+    var player = Player(
+      connection: connection,
+      id: connection.playerId!,
+      name: connection.playerName!,
+    );
+
+    player.stream.listen((event) {
+      if (event is PlayerRemove) {
+        removePlayer(connection.connectionId);
+      }
+    });
+
+    // add player to list
+    players.putIfAbsent(connection.connectionId, () => player);
+
     //ToDo: get rid of this magic number
     // 0 - player logged in
-    await dbBloc.db.addUserLogin(player.id!, 0);
+    await dbBloc.db.addUserLogin(player.id, 0);
+
     print(
         'Connection ${player.connection.connectionId} is player: ${player.name}');
-    player.sendLocalized(() => ServerI18n.welcome(player.name!));
+    player.sendLocalized(() => ServerI18n.welcome(player.name));
 
     // reconnect to game if player was in it
     // ToDo: ask reconnect or not
@@ -171,13 +190,17 @@ class Server {
       if (player.id == playerInMap.id &&
           player.connection.connectionId !=
               playerInMap.connection.connectionId) {
+        print('player.copyFromPlayer(playerInMap);');
         player.copyFromPlayer(playerInMap);
         reconnected = true;
 
         for (var game in activeGames.values) {
+          print(game.state);
           if (game.state is GameAwaitingReconnect) {
+            print('GameAwaitingReconnect');
             if (game.player1.id == player.id || game.player2.id == player.id) {
               game.reconnect(player);
+              print('game.reconnect(player);');
               break;
             }
           }
@@ -188,13 +211,10 @@ class Server {
     }
 
     if (!reconnected) {
-      sendMessageToAll(
-          ServerI18n.playerConnected(player.name!), PlayerInMenu());
+      sendMessageToAll(ServerI18n.playerConnected(player.name), PlayerInMenu());
       player.emit(PlayerInMenu());
     }
   }
-
-
 
   static String serverInfo(
       int usersCount, int gamesCount, DurationLocale durationLocale) {
@@ -222,29 +242,19 @@ class Server {
 
       var connection =
           Connection(connectionId: connectionId, webSocket: webSocket);
-      var player = Player(connection);
 
       webSocket.stream.listen((message) {
         message = message.toString().trim();
-        Input.parseMessage(player, message);
+        Input.handleMessageFromConnection(connection, message);
       }).onDone(() {
-        player.emit(PlayerDisconnected());
-
         closeConnection(connectionId);
       });
 
-      player.stream.listen((event) {
-        if (event is PlayerRemove) {
-          removePlayer(connectionId);
-        }
-      });
-
       connections.putIfAbsent(connectionId, () => connection);
-      players.putIfAbsent(connectionId, () => player);
 
       print('New connection: $connectionId');
 
-      player.emit(PlayerEnteringName());
+      connection.emit(EnteringName());
     });
 
     shelf_io

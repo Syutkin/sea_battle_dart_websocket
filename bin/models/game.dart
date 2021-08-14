@@ -57,7 +57,7 @@ class Game extends Cubit<GameState> {
 
     // Inform users about personal encounters
     var encounters =
-        await _dbBloc.db.personalEncounters(player1.id!, player2.id!).get();
+        await _dbBloc.db.personalEncounters(player1.id, player2.id).get();
 
     if (encounters.isNotEmpty) {
       var total = 0;
@@ -74,12 +74,16 @@ class Game extends Cubit<GameState> {
 
       player1.sendLocalized(() =>
           GameI18n.personalEncountersMeets(total) +
+          ' ' +
           GameI18n.personalEncountersAnd +
+          ' ' +
           GameI18n.personalEncountersWins(wins1) +
           '\n');
       player2.sendLocalized(() =>
           GameI18n.personalEncountersMeets(total) +
+          ' ' +
           GameI18n.personalEncountersAnd +
+          ' ' +
           GameI18n.personalEncountersWins(wins2) +
           '\n');
     } else {
@@ -96,7 +100,7 @@ class Game extends Cubit<GameState> {
       _currentPlayer = anotherPlayer(_currentPlayer);
     }
 
-    id = await _dbBloc.db.addGame(player1.id!, player2.id!);
+    id = await _dbBloc.db.addGame(player1.id, player2.id);
 
     print('Game $id started: ${player1.name} vs ${player2.name}');
 
@@ -119,7 +123,7 @@ class Game extends Cubit<GameState> {
     _subscribe();
     player.sendLocalized(() => GameI18n.reconnectingToGame);
     anotherPlayer(player)
-        .sendLocalized(() => GameI18n.playerReconnected(player.name!));
+        .sendLocalized(() => GameI18n.playerReconnected(player.name));
   }
 
   @override
@@ -248,7 +252,7 @@ class Game extends Cubit<GameState> {
           if (shotResult.ship.isAlive) {
             //ship is alive
             _dbBloc.db.addInGameUserInput(
-                id, player.id!, coordinates.toString(), 'hit');
+                id, player.id, coordinates.toString(), 'hit');
             player.sendLocalized(() => GameI18n.playerDoShot(coordinates));
             anotherPlayer(player).sendLocalized(
                 () => GameI18n.enemyDoShot('\r\n${player.name}', coordinates));
@@ -257,7 +261,7 @@ class Game extends Cubit<GameState> {
           } else {
             //ship dead
             _dbBloc.db.addInGameUserInput(
-                id, player.id!, coordinates.toString(), 'kill');
+                id, player.id, coordinates.toString(), 'kill');
             player.sendLocalized(() => GameI18n.playerDoShot(coordinates));
             anotherPlayer(player).sendLocalized(
                 () => GameI18n.enemyDoShot('\r\n${player.name}', coordinates));
@@ -268,7 +272,7 @@ class Game extends Cubit<GameState> {
           player.emit(PlayerDoShot());
         } else if (shotResult is EmptyCell) {
           _dbBloc.db.addInGameUserInput(
-              id, player.id!, coordinates.toString(), 'miss');
+              id, player.id, coordinates.toString(), 'miss');
 
           final pen = AnsiPen()..blue();
 
