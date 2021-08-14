@@ -16,6 +16,7 @@ class Input {
       Connection connection, String message) async {
     if (connection.state is Connecting) {
       if (connection.state is Authorizing) {
+        connection.clearInput;
         var isAuthentificated = await connection.authentification(message);
         if (isAuthentificated) {
           await Server.playerLogin(connection);
@@ -45,6 +46,7 @@ class Input {
       }
 
       if (connection.state is SettingPassword) {
+        connection.clearInput;
         // enter password
         connection.password = message;
         connection.emit(RepeatingPassword());
@@ -52,6 +54,7 @@ class Input {
       }
 
       if (connection.state is RepeatingPassword) {
+        connection.clearInput;
         // repeat new password
         if (connection.password == message) {
           // Add new user
@@ -162,8 +165,8 @@ class Input {
         final pen = AnsiPen()..magenta();
         if (Server.sendByPlayerName(playerName,
             pen(ChatI18n.playerWroteToYou('${player.name}', message)))) {
-          //clear input
-          player.send('${ansiEscape}1A${ansiEscape}K${ansiEscape}1A');
+          player.connection.clearInput;
+          // player.send('${ansiEscape}1A${ansiEscape}K${ansiEscape}1A');
           player.sendLocalized(
               () => pen(ChatI18n.youWroteToPlayer('$playerName', message)));
         } else {

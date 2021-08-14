@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:ansicolor/ansicolor.dart';
 import 'package:bloc/bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -59,14 +60,20 @@ class Connection extends Cubit<ConnectionState> {
         .add(runZoned(function, zoneValues: {#Intl.locale: _canonicalLocale}));
   }
 
-  // bool get isAuthenticated => _authentification;
+  /// Clear user input
+  void clearInput(Connection connection) {
+    connection.webSocket.sink
+        .add('${ansiEscape}1A${ansiEscape}K${ansiEscape}1A');
+  }
 
+  /// Authentificate user with [password]
   Future<bool> authentification(String password) async {
-    if (hash(password, playerName!) == await _dbBloc.getPassword(playerId!)) {
-      emit(Authorized());
-      _authentification = true;
-    } else {
-      _authentification = false;
+    _authentification = false;
+    if (playerName != null && playerId != null) {
+      if (hash(password, playerName!) == await _dbBloc.getPassword(playerId!)) {
+        emit(Authorized());
+        _authentification = true;
+      }
     }
     return _authentification;
   }
