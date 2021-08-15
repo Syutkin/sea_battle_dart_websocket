@@ -168,7 +168,10 @@ class Game extends Cubit<GameState> {
           anotherPlayer(player).sendLocalized(() => pen(GameI18n.looser));
           anotherPlayer(player).emit(PlayerInMenu());
           // end game
-          emit(GameEnded());
+          emit(GameEnded(
+            winner: player.name,
+            looser: anotherPlayer(player).name,
+          ));
         }
         return;
       }
@@ -185,11 +188,13 @@ class Game extends Cubit<GameState> {
         // 2 - game ended with disconnect
         await _dbBloc.db
             .setGameResult(2, anotherPlayer(player).id, player.id, id);
-        // anotherPlayer(player).send(Messages.opponentDisconnected);
         final pen = AnsiPen()..red();
         anotherPlayer(player).sendLocalized(() => pen(GameI18n.winner));
         anotherPlayer(player).emit(PlayerInMenu());
-        emit(GameEnded());
+        emit(GameEnded(
+          winner: anotherPlayer(player).name,
+          looser: player.name,
+        ));
         return;
       }
     }));

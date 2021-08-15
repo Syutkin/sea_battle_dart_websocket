@@ -22,6 +22,11 @@ class GameAwaitingReconnect extends GameState {
 }
 
 class GameEnded extends GameState {
+  final String winner;
+  final String looser;
+
+  GameEnded({required this.winner, required this.looser});
+
   @override
   String toString() {
     return 'Игра окончена';

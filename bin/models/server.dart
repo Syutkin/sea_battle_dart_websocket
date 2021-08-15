@@ -143,6 +143,9 @@ class Server {
 
       game.stream.listen((state) {
         if (state is GameEnded) {
+          print('Game ${game.id} ended, '
+              'winner: ${state.winner}, '
+              'looser: ${state.looser}');
           endGame(game.id);
         }
       });
@@ -159,18 +162,16 @@ class Server {
 
   /// End game an remove it from gamelist
   static Future<void> endGame(int gameId) async {
-    print('Game $gameId ended');
     if (activeGames.containsKey(gameId)) {
       await activeGames[gameId]?.close();
       activeGames.remove(gameId);
     }
   }
 
-  /// [player] authorized at server
+  /// Player authorized at server
   ///
   /// Log connection and checks ongoing games for equal [id]
   /// If [id] are equal, reconnect to that game
-  // static Future<void> playerLogin(Player player) async {
   static Future<void> playerLogin(Connection connection) async {
     var player = Player(
       connection: connection,
@@ -204,17 +205,13 @@ class Server {
       if (player.id == playerInMap.id &&
           player.connection.connectionId !=
               playerInMap.connection.connectionId) {
-        print('player.copyFromPlayer(playerInMap);');
         player.copyFromPlayer(playerInMap);
         reconnected = true;
 
         for (var game in activeGames.values) {
-          print(game.state);
           if (game.state is GameAwaitingReconnect) {
-            print('GameAwaitingReconnect');
             if (game.player1.id == player.id || game.player2.id == player.id) {
               game.reconnect(player);
-              print('game.reconnect(player);');
               break;
             }
           }
