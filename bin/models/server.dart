@@ -38,7 +38,7 @@ class Server {
   static final DatabaseBloc dbBloc = DatabaseBloc();
 
   /// Server start time
-  static final _startTime = DateTime.now();
+  static late final _startTime;
 
   /// Server uptime
   static Duration get uptime {
@@ -244,8 +244,9 @@ class Server {
 
   /// Server constructor
   /// param [uri]
-  Server.bind(this.uri, {SecurityContext? securityContext})
-  /*: _dbBloc = DatabaseBloc() */ {
+  Server.bind(this.uri, {SecurityContext? securityContext}) {
+    _startTime = DateTime.now();
+
     var connectionHandler = webSocketHandler((WebSocketChannel webSocket,
         {pingInterval = const Duration(seconds: 5)}) {
       var connectionId = connectionCount;
