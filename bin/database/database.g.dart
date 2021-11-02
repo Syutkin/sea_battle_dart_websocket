@@ -11,8 +11,7 @@ class Role extends DataClass implements Insertable<Role> {
   final int id;
   final String name;
   Role({required this.id, required this.name});
-  factory Role.fromData(Map<String, dynamic> data, GeneratedDatabase db,
-      {String? prefix}) {
+  factory Role.fromData(Map<String, dynamic> data, {String? prefix}) {
     final effectivePrefix = prefix ?? '';
     return Role(
       id: const IntType()
@@ -38,7 +37,7 @@ class Role extends DataClass implements Insertable<Role> {
 
   factory Role.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
-    serializer ??= moorRuntimeOptions.defaultSerializer;
+    serializer ??= driftRuntimeOptions.defaultSerializer;
     return Role(
       id: serializer.fromJson<int>(json['id']),
       name: serializer.fromJson<String>(json['name']),
@@ -46,7 +45,7 @@ class Role extends DataClass implements Insertable<Role> {
   }
   @override
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= moorRuntimeOptions.defaultSerializer;
+    serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'name': serializer.toJson<String>(name),
@@ -67,7 +66,7 @@ class Role extends DataClass implements Insertable<Role> {
   }
 
   @override
-  int get hashCode => $mrjf($mrjc(id.hashCode, name.hashCode));
+  int get hashCode => Object.hash(id, name);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -167,7 +166,7 @@ class Roles extends Table with TableInfo<Roles, Role> {
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
   Role map(Map<String, dynamic> data, {String? tablePrefix}) {
-    return Role.fromData(data, _db,
+    return Role.fromData(data,
         prefix: tablePrefix != null ? '$tablePrefix.' : null);
   }
 
@@ -190,8 +189,7 @@ class Language extends DataClass implements Insertable<Language> {
       required this.short,
       required this.long,
       required this.native});
-  factory Language.fromData(Map<String, dynamic> data, GeneratedDatabase db,
-      {String? prefix}) {
+  factory Language.fromData(Map<String, dynamic> data, {String? prefix}) {
     final effectivePrefix = prefix ?? '';
     return Language(
       id: const IntType()
@@ -225,7 +223,7 @@ class Language extends DataClass implements Insertable<Language> {
 
   factory Language.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
-    serializer ??= moorRuntimeOptions.defaultSerializer;
+    serializer ??= driftRuntimeOptions.defaultSerializer;
     return Language(
       id: serializer.fromJson<int>(json['id']),
       short: serializer.fromJson<String>(json['short']),
@@ -235,7 +233,7 @@ class Language extends DataClass implements Insertable<Language> {
   }
   @override
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= moorRuntimeOptions.defaultSerializer;
+    serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'short': serializer.toJson<String>(short),
@@ -263,8 +261,7 @@ class Language extends DataClass implements Insertable<Language> {
   }
 
   @override
-  int get hashCode => $mrjf($mrjc(id.hashCode,
-      $mrjc(short.hashCode, $mrjc(long.hashCode, native.hashCode))));
+  int get hashCode => Object.hash(id, short, long, native);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -418,7 +415,7 @@ class Languages extends Table with TableInfo<Languages, Language> {
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
   Language map(Map<String, dynamic> data, {String? tablePrefix}) {
-    return Language.fromData(data, _db,
+    return Language.fromData(data,
         prefix: tablePrefix != null ? '$tablePrefix.' : null);
   }
 
@@ -447,8 +444,7 @@ class User extends DataClass implements Insertable<User> {
       required this.role,
       required this.status,
       required this.language});
-  factory User.fromData(Map<String, dynamic> data, GeneratedDatabase db,
-      {String? prefix}) {
+  factory User.fromData(Map<String, dynamic> data, {String? prefix}) {
     final effectivePrefix = prefix ?? '';
     return User(
       id: const IntType()
@@ -498,7 +494,7 @@ class User extends DataClass implements Insertable<User> {
 
   factory User.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
-    serializer ??= moorRuntimeOptions.defaultSerializer;
+    serializer ??= driftRuntimeOptions.defaultSerializer;
     return User(
       id: serializer.fromJson<int>(json['id']),
       date: serializer.fromJson<int>(json['date']),
@@ -511,7 +507,7 @@ class User extends DataClass implements Insertable<User> {
   }
   @override
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= moorRuntimeOptions.defaultSerializer;
+    serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'date': serializer.toJson<int>(date),
@@ -555,16 +551,8 @@ class User extends DataClass implements Insertable<User> {
   }
 
   @override
-  int get hashCode => $mrjf($mrjc(
-      id.hashCode,
-      $mrjc(
-          date.hashCode,
-          $mrjc(
-              name.hashCode,
-              $mrjc(
-                  password.hashCode,
-                  $mrjc(role.hashCode,
-                      $mrjc(status.hashCode, language.hashCode)))))));
+  int get hashCode =>
+      Object.hash(id, date, name, password, role, status, language);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -783,7 +771,7 @@ class Users extends Table with TableInfo<Users, User> {
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
   User map(Map<String, dynamic> data, {String? tablePrefix}) {
-    return User.fromData(data, _db,
+    return User.fromData(data,
         prefix: tablePrefix != null ? '$tablePrefix.' : null);
   }
 
@@ -806,8 +794,7 @@ class status extends DataClass implements Insertable<status> {
   final int id;
   final String name;
   status({required this.id, required this.name});
-  factory status.fromData(Map<String, dynamic> data, GeneratedDatabase db,
-      {String? prefix}) {
+  factory status.fromData(Map<String, dynamic> data, {String? prefix}) {
     final effectivePrefix = prefix ?? '';
     return status(
       id: const IntType()
@@ -833,7 +820,7 @@ class status extends DataClass implements Insertable<status> {
 
   factory status.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
-    serializer ??= moorRuntimeOptions.defaultSerializer;
+    serializer ??= driftRuntimeOptions.defaultSerializer;
     return status(
       id: serializer.fromJson<int>(json['id']),
       name: serializer.fromJson<String>(json['name']),
@@ -841,7 +828,7 @@ class status extends DataClass implements Insertable<status> {
   }
   @override
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= moorRuntimeOptions.defaultSerializer;
+    serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'name': serializer.toJson<String>(name),
@@ -862,7 +849,7 @@ class status extends DataClass implements Insertable<status> {
   }
 
   @override
-  int get hashCode => $mrjf($mrjc(id.hashCode, name.hashCode));
+  int get hashCode => Object.hash(id, name);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -962,7 +949,7 @@ class Statuses extends Table with TableInfo<Statuses, status> {
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
   status map(Map<String, dynamic> data, {String? tablePrefix}) {
-    return status.fromData(data, _db,
+    return status.fromData(data,
         prefix: tablePrefix != null ? '$tablePrefix.' : null);
   }
 
@@ -985,8 +972,7 @@ class userinput extends DataClass implements Insertable<userinput> {
       required this.date,
       required this.user,
       required this.input});
-  factory userinput.fromData(Map<String, dynamic> data, GeneratedDatabase db,
-      {String? prefix}) {
+  factory userinput.fromData(Map<String, dynamic> data, {String? prefix}) {
     final effectivePrefix = prefix ?? '';
     return userinput(
       id: const IntType()
@@ -1020,7 +1006,7 @@ class userinput extends DataClass implements Insertable<userinput> {
 
   factory userinput.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
-    serializer ??= moorRuntimeOptions.defaultSerializer;
+    serializer ??= driftRuntimeOptions.defaultSerializer;
     return userinput(
       id: serializer.fromJson<int>(json['id']),
       date: serializer.fromJson<int>(json['date']),
@@ -1030,7 +1016,7 @@ class userinput extends DataClass implements Insertable<userinput> {
   }
   @override
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= moorRuntimeOptions.defaultSerializer;
+    serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'date': serializer.toJson<int>(date),
@@ -1058,8 +1044,7 @@ class userinput extends DataClass implements Insertable<userinput> {
   }
 
   @override
-  int get hashCode => $mrjf($mrjc(
-      id.hashCode, $mrjc(date.hashCode, $mrjc(user.hashCode, input.hashCode))));
+  int get hashCode => Object.hash(id, date, user, input);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1213,7 +1198,7 @@ class Usersinput extends Table with TableInfo<Usersinput, userinput> {
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
   userinput map(Map<String, dynamic> data, {String? tablePrefix}) {
-    return userinput.fromData(data, _db,
+    return userinput.fromData(data,
         prefix: tablePrefix != null ? '$tablePrefix.' : null);
   }
 
@@ -1239,8 +1224,7 @@ class Login extends DataClass implements Insertable<Login> {
       required this.date,
       required this.user,
       required this.connection});
-  factory Login.fromData(Map<String, dynamic> data, GeneratedDatabase db,
-      {String? prefix}) {
+  factory Login.fromData(Map<String, dynamic> data, {String? prefix}) {
     final effectivePrefix = prefix ?? '';
     return Login(
       id: const IntType()
@@ -1274,7 +1258,7 @@ class Login extends DataClass implements Insertable<Login> {
 
   factory Login.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
-    serializer ??= moorRuntimeOptions.defaultSerializer;
+    serializer ??= driftRuntimeOptions.defaultSerializer;
     return Login(
       id: serializer.fromJson<int>(json['id']),
       date: serializer.fromJson<int>(json['date']),
@@ -1284,7 +1268,7 @@ class Login extends DataClass implements Insertable<Login> {
   }
   @override
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= moorRuntimeOptions.defaultSerializer;
+    serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'date': serializer.toJson<int>(date),
@@ -1311,8 +1295,7 @@ class Login extends DataClass implements Insertable<Login> {
   }
 
   @override
-  int get hashCode => $mrjf($mrjc(id.hashCode,
-      $mrjc(date.hashCode, $mrjc(user.hashCode, connection.hashCode))));
+  int get hashCode => Object.hash(id, date, user, connection);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1468,7 +1451,7 @@ class Logins extends Table with TableInfo<Logins, Login> {
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
   Login map(Map<String, dynamic> data, {String? tablePrefix}) {
-    return Login.fromData(data, _db,
+    return Login.fromData(data,
         prefix: tablePrefix != null ? '$tablePrefix.' : null);
   }
 
@@ -1502,8 +1485,7 @@ class Game extends DataClass implements Insertable<Game> {
       required this.result,
       this.winner,
       this.looser});
-  factory Game.fromData(Map<String, dynamic> data, GeneratedDatabase db,
-      {String? prefix}) {
+  factory Game.fromData(Map<String, dynamic> data, {String? prefix}) {
     final effectivePrefix = prefix ?? '';
     return Game(
       id: const IntType()
@@ -1563,7 +1545,7 @@ class Game extends DataClass implements Insertable<Game> {
 
   factory Game.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
-    serializer ??= moorRuntimeOptions.defaultSerializer;
+    serializer ??= driftRuntimeOptions.defaultSerializer;
     return Game(
       id: serializer.fromJson<int>(json['id']),
       datestarted: serializer.fromJson<int>(json['datestarted']),
@@ -1577,7 +1559,7 @@ class Game extends DataClass implements Insertable<Game> {
   }
   @override
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= moorRuntimeOptions.defaultSerializer;
+    serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'datestarted': serializer.toJson<int>(datestarted),
@@ -1625,18 +1607,8 @@ class Game extends DataClass implements Insertable<Game> {
   }
 
   @override
-  int get hashCode => $mrjf($mrjc(
-      id.hashCode,
-      $mrjc(
-          datestarted.hashCode,
-          $mrjc(
-              player1.hashCode,
-              $mrjc(
-                  player2.hashCode,
-                  $mrjc(
-                      datefinished.hashCode,
-                      $mrjc(result.hashCode,
-                          $mrjc(winner.hashCode, looser.hashCode))))))));
+  int get hashCode => Object.hash(
+      id, datestarted, player1, player2, datefinished, result, winner, looser);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1880,7 +1852,7 @@ class Games extends Table with TableInfo<Games, Game> {
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
   Game map(Map<String, dynamic> data, {String? tablePrefix}) {
-    return Game.fromData(data, _db,
+    return Game.fromData(data,
         prefix: tablePrefix != null ? '$tablePrefix.' : null);
   }
 
@@ -1914,8 +1886,7 @@ class Gamelog extends DataClass implements Insertable<Gamelog> {
       required this.user,
       required this.input,
       required this.result});
-  factory Gamelog.fromData(Map<String, dynamic> data, GeneratedDatabase db,
-      {String? prefix}) {
+  factory Gamelog.fromData(Map<String, dynamic> data, {String? prefix}) {
     final effectivePrefix = prefix ?? '';
     return Gamelog(
       id: const IntType()
@@ -1957,7 +1928,7 @@ class Gamelog extends DataClass implements Insertable<Gamelog> {
 
   factory Gamelog.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
-    serializer ??= moorRuntimeOptions.defaultSerializer;
+    serializer ??= driftRuntimeOptions.defaultSerializer;
     return Gamelog(
       id: serializer.fromJson<int>(json['id']),
       date: serializer.fromJson<int>(json['date']),
@@ -1969,7 +1940,7 @@ class Gamelog extends DataClass implements Insertable<Gamelog> {
   }
   @override
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= moorRuntimeOptions.defaultSerializer;
+    serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'date': serializer.toJson<int>(date),
@@ -2009,12 +1980,7 @@ class Gamelog extends DataClass implements Insertable<Gamelog> {
   }
 
   @override
-  int get hashCode => $mrjf($mrjc(
-      id.hashCode,
-      $mrjc(
-          date.hashCode,
-          $mrjc(game.hashCode,
-              $mrjc(user.hashCode, $mrjc(input.hashCode, result.hashCode))))));
+  int get hashCode => Object.hash(id, date, game, user, input, result);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -2218,7 +2184,7 @@ class Gamelogs extends Table with TableInfo<Gamelogs, Gamelog> {
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
   Gamelog map(Map<String, dynamic> data, {String? tablePrefix}) {
-    return Gamelog.fromData(data, _db,
+    return Gamelog.fromData(data,
         prefix: tablePrefix != null ? '$tablePrefix.' : null);
   }
 
@@ -2312,14 +2278,14 @@ abstract class _$Database extends GeneratedDatabase {
     );
   }
 
-  Future<int> setGameResult(int result, int? winner, int? looser, int? id) {
+  Future<int> setGameResult(int result, int? winner, int? looser, int id) {
     return customUpdate(
       'UPDATE games SET datefinished = strftime(\'%s\',\'now\'), result = :result, winner = :winner, looser = :looser WHERE id = :id',
       variables: [
         Variable<int>(result),
         Variable<int?>(winner),
         Variable<int?>(looser),
-        Variable<int?>(id)
+        Variable<int>(id)
       ],
       updates: {games},
       updateKind: UpdateKind.update,
@@ -2343,7 +2309,7 @@ abstract class _$Database extends GeneratedDatabase {
   Selectable<PersonalEncountersResult> personalEncounters(
       int player1id, int player2id) {
     return customSelect(
-        'SELECT player1, player2, result, winner, looser, COUNT(winner) AS wins\n					FROM games\n					WHERE (games.player1 = :player1id OR games.player1 = :player2id) AND (games.player2 = :player1id OR games.player2 = :player2id) AND result > 0\n					GROUP BY winner',
+        'SELECT player1, player2, result, winner, looser, COUNT(winner) AS wins\r\n					FROM games\r\n					WHERE (games.player1 = :player1id OR games.player1 = :player2id) AND (games.player2 = :player1id OR games.player2 = :player2id) AND result > 0\r\n					GROUP BY winner',
         variables: [
           Variable<int>(player1id),
           Variable<int>(player2id)
@@ -2364,7 +2330,7 @@ abstract class _$Database extends GeneratedDatabase {
 
   Selectable<PlayerGamesResult> playerGames(int playerid) {
     return customSelect(
-        'SELECT	datetime(datestarted, \'unixepoch\') AS start_time,\n							datetime(datefinished, \'unixepoch\') AS finish_time,\n							time(datefinished - datestarted, \'unixepoch\') AS duration,\n							CASE games.player1\n								WHEN :playerid\n								THEN games.player2\n								ELSE games.player1\n							END enemy,\n							enemy.name as enemyname,\n							winner,\n							winner.name as winnername,\n							looser,\n							looser.name as loosername,\n							games.result\n					FROM games, users winner, users looser, users enemy\n					WHERE (games.player1 = :playerid OR games.player2 = :playerid) AND (enemy.id = enemy) AND games.winner = winner.id AND games.looser = looser.id AND result > 0\n					ORDER BY start_time DESC',
+        'SELECT	datetime(datestarted, \'unixepoch\') AS start_time,\r\n							datetime(datefinished, \'unixepoch\') AS finish_time,\r\n							time(datefinished - datestarted, \'unixepoch\') AS duration,\r\n							CASE games.player1\r\n								WHEN :playerid\r\n								THEN games.player2\r\n								ELSE games.player1\r\n							END enemy,\r\n							enemy.name as enemyname,\r\n							winner,\r\n							winner.name as winnername,\r\n							looser,\r\n							looser.name as loosername,\r\n							games.result\r\n					FROM games, users winner, users looser, users enemy\r\n					WHERE (games.player1 = :playerid OR games.player2 = :playerid) AND (enemy.id = enemy) AND games.winner = winner.id AND games.looser = looser.id AND result > 0\r\n					ORDER BY start_time DESC',
         variables: [
           Variable<int>(playerid)
         ],
@@ -2421,10 +2387,10 @@ abstract class _$Database extends GeneratedDatabase {
         }).map(languages.mapFromRow);
   }
 
-  Future<int> setPlayerLanguage(int languageid, int? playerid) {
+  Future<int> setPlayerLanguage(int languageid, int playerid) {
     return customUpdate(
       'UPDATE users SET language = :languageid WHERE id = :playerid',
-      variables: [Variable<int>(languageid), Variable<int?>(playerid)],
+      variables: [Variable<int>(languageid), Variable<int>(playerid)],
       updates: {users},
       updateKind: UpdateKind.update,
     );

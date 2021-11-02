@@ -34,6 +34,9 @@ doc/api/
 !.vscode/extensions.json
 *.code-workspace
 
+# Idea related stuff
+.idea/*
+
 # Local History for Visual Studio Code
 .history/
 

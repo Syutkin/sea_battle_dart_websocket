@@ -52,5 +52,4 @@ class DatabaseBloc {
   //   return db.addInGameUserInput(game, user, input, result);
   // }
 
-
 }

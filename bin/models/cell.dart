@@ -24,7 +24,6 @@ class ShipInCell extends Cell {
 
   @override
   String toString() {
-    
     final pen = AnsiPen();
     if (isAlive) {
       pen.yellow();

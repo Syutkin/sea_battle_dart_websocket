@@ -1,13 +1,13 @@
 import 'dart:io';
 
-import 'package:moor/moor.dart';
-import 'package:moor/ffi.dart';
+import 'package:drift/drift.dart';
+import 'package:drift/native.dart';
 import 'package:path/path.dart' as p;
 
 part 'database.g.dart';
 
-@UseMoor(
-  include: {'tables.moor'},
+@DriftDatabase(
+  include: {'tables.drift'},
 )
 class Database extends _$Database {
   Database() : super(_openConnection());
@@ -71,6 +71,6 @@ LazyDatabase _openConnection() {
   // the LazyDatabase util lets us find the right location for the file async.
   return LazyDatabase(() async {
     final file = File(p.join('db', 'db.sqlite'));
-    return VmDatabase(file);
+    return NativeDatabase(file);
   });
 }
